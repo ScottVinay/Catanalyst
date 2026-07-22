@@ -1,0 +1,14 @@
+The key feature of Catanalyst is the ability to compare plans. A plan is created when the board is in a given state. A plan consists of at least one of:
+
+- A sequence of intended moves, e.g. build a road at a given location, then a settlement, then upgrade the settlement to a city.
+- A set of desired cards in hand.
+
+The plan is considered completed when all intended moves have been carried out, followed by having a hand that contains at least the desired cards.
+
+For a given plan, we want to know:
+
+- What is the expected time to completion of this plan?
+- What is the distribution of completion times of this plan? This should be viewable as a bar chart showing p(completion <= T) against T.
+- What is the total cost of the plan in cards?
+
+This should be viewable for each intermediary step in the plan as well.

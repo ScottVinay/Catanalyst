@@ -1,0 +1,3 @@
+- The board state should be held in a well-designed class.
+- We should be able to update the board state at any time.
+- There should be a button on screen `SCR-001-board` that is "edit board" or similar.

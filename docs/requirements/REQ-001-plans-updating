@@ -1,0 +1,11 @@
+A plan is made when the board is at a given state. When the board state is updated, each plan may be:
+
+- Partially filled (i.e. the update is according to the plan).
+- Completed filled (i.e. the update is according to the plan and is the last step in the plan).
+- Unaffected.
+- No longer possible.
+
+Wheh this is the case:
+
+- Completed plans should have a green tick next to them.
+- If one or more plans become no longer possible, the app should show an alert saying that the following plans are no longer possible, and list their names. It should then ask if the user wants to delete them.

@@ -119,11 +119,8 @@ The first release will not attempt to model:
 The first useful version succeeds when a user can:
 
 1. Recreate a game state without excessive effort.
-2. Construct two alternative plans (defined below).
+2. Construct two alternative plans (see `docs/design/planning.md` for more details on what plans are).
 3. Simulate both plans.
 4. Understand which plan is faster and why.
 5. Inspect how intermediate buildings changed later production.
 
-## Plans
-
-The key feature of Catanalyst is the ability to compare plans.

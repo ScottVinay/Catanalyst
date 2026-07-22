@@ -7,10 +7,10 @@ Catan board states and simulating ordered building plans.
 
 Before substantial work, read:
 
-- `PRODUCT.md`
-- `REQUIREMENTS.md`
-- `ARCHITECTURE.md`
-- The most recent work  active task under `docs/tasks/`
+- `docs/PRODUCT.md`
+- `docs/REQUIREMENTS.md`
+- `docs/design/`
+- The most recent work in `docs/progress/CURRENT.md`
 
 ## Document authority
 

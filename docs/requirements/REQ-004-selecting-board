@@ -1,0 +1,5 @@
+When opening the app with no board loaded, or when choosing new board from the options menu, the user should be prompted to choose from different options:
+
+- Standard board size (rows of 3, 4, 5, 4, 3 hexagons)
+- Large board size (not implemented)
+- Custom board size (not implemented)
