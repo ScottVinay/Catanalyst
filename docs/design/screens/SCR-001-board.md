@@ -33,8 +33,11 @@ There should be a toggle switch in the top right determining if we are editing t
 
 ### Terrain type editing
 
-Holding a hex opens the terrain selector. This is a set of 7 coloured circles surrounding the hex.
-By dragging out to one of these circles, it enlarges to show it is selected. Releasing closes the selector and applies the chosen terrain type to the hex.
+Tapping a hex opens the terrain selector. This is a set of 7 coloured circles surrounding the hex.
+By tapping one of these circles, it applies the chosen terrain type to the hex. If we tap the hex again without making a choice, then it closes the radial.
+
+If we are in zoomed-in mode, then tapping a hex centres the view on that hex.
+
 The circles represent:
 
 - Brick
@@ -44,6 +47,8 @@ The circles represent:
 - Wool
 - Desert
 - Ocean
+
+There should be simple icons on the hex and corresponding colour in the radial selector that refer to the terrain type.
 
 ### Number editing
 

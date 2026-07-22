@@ -55,6 +55,20 @@ struct BoardStateTests {
         #expect(tile.number == nil)
     }
 
+    @Test("A number can be removed without changing terrain")
+    func clearsNumber() throws {
+        let board = BoardState()
+        let coordinate = try #require(board.tiles.first?.coordinate)
+        board.setTerrain(.wheat, at: coordinate)
+        board.setNumber(.nine, at: coordinate)
+
+        board.clearNumber(at: coordinate)
+
+        let tile = try #require(board.tiles.first { $0.coordinate == coordinate })
+        #expect(tile.terrain == .wheat)
+        #expect(tile.number == nil)
+    }
+
     @Test("Roads toggle on and off")
     func togglesRoad() throws {
         let board = BoardState()

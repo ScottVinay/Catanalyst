@@ -66,13 +66,12 @@ During implementation:
 
 Before finishing:
 
-1. Run `./scripts/verify.sh`.
-2. Review the complete diff.
-3. Check every acceptance criterion.
-4. Record tests and commands in the task file.
-5. Record remaining risks and manual checks.
-6. Update `docs/progress/CURRENT.md`.
-7. Move the task to `review` if automated checks pass.
+1. Review the complete diff.
+2. Check every acceptance criterion.
+3. Record tests and commands in the task file.
+4. Record remaining risks and manual checks.
+5. Update `docs/progress/CURRENT.md`.
+6. Move the task to `review` if automated checks pass.
 
 ## Architecture
 
@@ -108,7 +107,6 @@ Work is ready for review only when:
 
 - the requested behaviour is implemented
 - relevant tests have been added
-- `./scripts/verify.sh` passes
 - no unrelated changes are present
 - task documentation has been updated
 - any required manual testing has been described

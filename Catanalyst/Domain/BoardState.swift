@@ -128,6 +128,11 @@ final class BoardState {
         snapshot.tiles[index].number = number
     }
 
+    func clearNumber(at coordinate: HexCoordinate) {
+        guard let index = tileIndex(at: coordinate) else { return }
+        snapshot.tiles[index].number = nil
+    }
+
     func toggleRoad(on edge: BoardEdge) {
         if snapshot.roads.remove(edge) == nil {
             snapshot.roads.insert(edge)

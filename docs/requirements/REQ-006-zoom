@@ -1,2 +1,3 @@
 - The zoom functionality should be done by pinch zoom only, which swaps between the two levels of zoom, instead of having a toggle button.
 - When zoomed in, you should be able to move around the board by single-finger dragging.
+- Zoom should work in both edit and non-edit mode.

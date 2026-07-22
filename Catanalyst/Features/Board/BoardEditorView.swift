@@ -5,6 +5,13 @@ private struct ActiveHexPicker: Equatable {
     var selectedIndex: Int?
 }
 
+private enum NumberPickerOption {
+    case token(NumberToken)
+    case remove
+
+    static let all: [NumberPickerOption] = NumberToken.allCases.map(Self.token) + [.remove]
+}
+
 struct BoardEditorView: View {
     let board: BoardState
     let isEditing: Bool
@@ -146,7 +153,7 @@ struct BoardEditorView: View {
     private var optionCount: Int {
         switch editTool {
         case .terrain: Terrain.allCases.count
-        case .number: NumberToken.allCases.count
+        case .number: NumberPickerOption.all.count
         }
     }
 
@@ -167,7 +174,12 @@ struct BoardEditorView: View {
         case .terrain:
             board.setTerrain(Terrain.allCases[index], at: coordinate)
         case .number:
-            board.setNumber(NumberToken.allCases[index], at: coordinate)
+            switch NumberPickerOption.all[index] {
+            case let .token(token):
+                board.setNumber(token, at: coordinate)
+            case .remove:
+                board.clearNumber(at: coordinate)
+            }
         }
     }
 
@@ -204,16 +216,28 @@ struct BoardEditorView: View {
                 .overlay(Circle().stroke(selected ? Color.primary : .white, lineWidth: selected ? 4 : 2))
                 .accessibilityLabel(terrain.displayName)
         case .number:
-            let token = NumberToken.allCases[index]
-            Circle()
-                .fill(Color.tokenBackground)
-                .overlay {
-                    Text("\(token.rawValue)")
-                        .font(.caption.bold())
-                        .foregroundStyle(token.isHighProbability ? .red : .primary)
-                }
-                .overlay(Circle().stroke(selected ? Color.primary : .white, lineWidth: selected ? 4 : 2))
-                .accessibilityLabel("Number \(token.rawValue)")
+            switch NumberPickerOption.all[index] {
+            case let .token(token):
+                Circle()
+                    .fill(Color.tokenBackground)
+                    .overlay {
+                        Text("\(token.rawValue)")
+                            .font(.caption.bold())
+                            .foregroundStyle(token.isHighProbability ? .red : .primary)
+                    }
+                    .overlay(Circle().stroke(selected ? Color.primary : .white, lineWidth: selected ? 4 : 2))
+                    .accessibilityLabel("Number \(token.rawValue)")
+            case .remove:
+                Circle()
+                    .fill(Color.tokenBackground)
+                    .overlay {
+                        Image(systemName: "xmark")
+                            .font(.caption.bold())
+                            .foregroundStyle(.primary)
+                    }
+                    .overlay(Circle().stroke(selected ? Color.primary : .white, lineWidth: selected ? 4 : 2))
+                    .accessibilityLabel("Remove number")
+            }
         }
     }
 }
