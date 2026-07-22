@@ -1,3 +1,4 @@
-# TASK-001: Manual Board Editor
+status: done
 
 Create the board screen (SCR-001-board), fitting relevant requirements from the requirements folder. Do not build any of the planning or statistics yet.
+

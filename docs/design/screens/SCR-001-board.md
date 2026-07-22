@@ -47,7 +47,7 @@ The circles represent:
 
 ### Number editing
 
-If number editing is selected, a similar wheel should appear showing the numbers 2 – 12, but not including 7. Whichever number is selected should appear in the middle of the hex in a beige circle.
+If number editing is selected, a similar wheel should appear showing the numbers 2 – 12, but not including 7. Whichever number is selected should appear in the middle of the hex in a beige circle. Should also include the option to remove the number entirely.
 
 Underneath the number and within the circle should be a number of dots depending on the number.
 
