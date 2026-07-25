@@ -17,3 +17,23 @@ Use the area below the three dashes for your current notes:
 
 ---
 
+## Current work
+
+- TASK-002 and TASK-004 are implemented and remain `in-progress` pending manual gesture checks.
+- TASK-003 number removal is preserved in the tap-based number picker.
+
+## Completed in this branch
+
+- Replaced the zoom segmented control with discrete pinch zoom.
+- Added bounded detail-mode panning and tap-to-centre behavior.
+- Replaced long-press-and-drag radial editing with tap-to-open and tap-to-apply buttons.
+- Added deterministic viewport tests and UI coverage for opening/closing the radial picker.
+- Compile-only `xcodebuild build` and `xcodebuild build-for-testing` checks pass.
+
+## Known blocker
+
+- CoreSimulator has recently hung while launching test workers, consistent with the saved AccessibilityUIServer crash. Test modules compile, but execution has not been retried for these tasks.
+
+## Recommended next action
+
+- After restarting or repairing CoreSimulator, run the focused viewport and tap-selection tests and manually check pinch, pan, centring, and radial selection. Then move TASK-002 and TASK-004 to `review` if they pass.

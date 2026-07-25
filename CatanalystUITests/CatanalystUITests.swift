@@ -40,6 +40,23 @@ final class CatanalystUITests: XCTestCase {
     }
 
     @MainActor
+    func testTapOpensAndClosesTerrainPicker() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["standardBoardButton"].tap()
+        app.buttons["editBoardButton"].tap()
+
+        let centerHex = app.descendants(matching: .any)["hex-0,0"]
+        XCTAssertTrue(centerHex.waitForExistence(timeout: 3))
+
+        centerHex.tap()
+        XCTAssertTrue(app.buttons["Brick"].waitForExistence(timeout: 2))
+
+        centerHex.tap()
+        XCTAssertFalse(app.buttons["Brick"].exists)
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {

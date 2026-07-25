@@ -1,1 +1,33 @@
+status: in-progress
+priority: P1
+requirement: REQ-002
+design: SCR-001-board
+
 I have updated SCR-001 to make it so that we only tap a hex to bring up the radial menu. Please adjust accordingly.
+
+## Acceptance criteria
+
+- [x] Tapping a hex opens the active terrain or number radial menu.
+- [x] Tapping a radial option applies it and closes the menu.
+- [x] Tapping the active hex again closes the menu without changing it.
+- [x] TASK-003's remove-number action remains available.
+- [x] Radial choices provide pressed feedback and accessibility labels.
+- [ ] Confirm tap targets manually on a simulator or device.
+
+## Implementation notes
+
+- Removed the sequenced long-press/drag gesture and drag-angle selection.
+- Radial choices are now buttons; the active picker stores only its hex coordinate.
+- An eight-point drag threshold distinguishes panning from tapping.
+
+## Evidence
+
+- Added `testTapOpensAndClosesTerrainPicker` UI coverage.
+- `xcodebuild build` completed successfully for a generic iOS Simulator destination.
+- `xcodebuild build-for-testing` completed successfully, including the new UI test.
+- Test execution was not run because CoreSimulator launch remains unreliable; repository verification is no longer required for this task.
+
+## Remaining risks and manual checks
+
+- Confirm opening, closing, and applying both terrain and number options by touch.
+- Confirm a detail-mode tap centres the hex while also opening its editor.

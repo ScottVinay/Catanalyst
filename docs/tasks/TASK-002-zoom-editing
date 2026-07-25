@@ -1,4 +1,33 @@
-status: not-started
+status: in-progress
 written: 2026-07-23 00:09
+priority: P1
+requirement: REQ-006
 
 - Change the zoom functionality according to REQ-006.
+
+## Acceptance criteria
+
+- [x] Pinching switches between fixed Overview and Detail levels.
+- [x] The zoom control is removed.
+- [x] Zoom works in view and edit modes.
+- [x] Detail mode supports bounded single-finger panning.
+- [x] Tapping a hex in Detail mode centres it.
+- [ ] Confirm gestures manually on a simulator or device.
+
+## Implementation notes
+
+- `BoardViewport` owns discrete zoom, pan clamping, and centring transitions.
+- SwiftUI gesture closures only translate input into viewport operations.
+- Detail scale is fixed at 1.5; magnification is used only to choose a level.
+
+## Evidence
+
+- Added five deterministic `BoardViewportTests` cases.
+- `xcodebuild build` completed successfully for a generic iOS Simulator destination.
+- `xcodebuild build-for-testing` completed successfully, compiling the app and complete unit/UI test bundles.
+- Test execution was not run because CoreSimulator launch remains unreliable; repository verification is no longer required for this task.
+
+## Remaining risks and manual checks
+
+- Confirm pinch direction, pan feel, pan bounds, and hex centring on hardware or a healthy simulator.
+- Confirm edge and vertex taps remain distinct from panning in edit mode.

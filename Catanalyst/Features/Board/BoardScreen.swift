@@ -7,20 +7,11 @@ enum BoardEditTool: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
-private enum BoardZoom: String, CaseIterable, Identifiable {
-    case overview = "Overview"
-    case detail = "Detail"
-
-    var id: Self { self }
-}
-
 struct BoardScreen: View {
     let board: BoardState
 
     @State private var isEditing = false
     @State private var editTool = BoardEditTool.terrain
-    @State private var zoom = BoardZoom.overview
-
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -34,23 +25,12 @@ struct BoardScreen: View {
                     .padding(.horizontal)
                     .padding(.top, 8)
                     .accessibilityIdentifier("hexEditModePicker")
-                } else {
-                    Picker("Board zoom", selection: $zoom) {
-                        ForEach(BoardZoom.allCases) { level in
-                            Text(level.rawValue).tag(level)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .frame(maxWidth: 300)
                 }
 
                 BoardEditorView(
                     board: board,
                     isEditing: isEditing,
-                    editTool: editTool,
-                    isDetailZoom: zoom == .detail
+                    editTool: editTool
                 )
                 .accessibilityIdentifier("boardEditor")
             }

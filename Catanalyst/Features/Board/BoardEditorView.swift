@@ -2,7 +2,6 @@ import SwiftUI
 
 private struct ActiveHexPicker: Equatable {
     let coordinate: HexCoordinate
-    var selectedIndex: Int?
 }
 
 private enum NumberPickerOption {
@@ -16,9 +15,10 @@ struct BoardEditorView: View {
     let board: BoardState
     let isEditing: Bool
     let editTool: BoardEditTool
-    let isDetailZoom: Bool
 
     @State private var activePicker: ActiveHexPicker?
+    @State private var viewport = BoardViewport()
+    @GestureState private var transientPan = CGSize.zero
 
     var body: some View {
         GeometryReader { proxy in
@@ -27,8 +27,17 @@ struct BoardEditorView: View {
                 availableSize.width / (sqrt(3) * 5.6),
                 availableSize.height / 9.0
             )
-            let hexSize = baseSize * (isDetailZoom ? 1.22 : 1)
-            let origin = CGPoint(x: availableSize.width / 2, y: availableSize.height / 2)
+            let hexSize = baseSize * viewport.scale
+            let pan = viewport.zoom == .detail
+                ? CGSize(
+                    width: viewport.offset.width + transientPan.width,
+                    height: viewport.offset.height + transientPan.height
+                )
+                : .zero
+            let origin = CGPoint(
+                x: (availableSize.width / 2) + pan.width,
+                y: (availableSize.height / 2) + pan.height
+            )
 
             ZStack {
                 ForEach(board.tiles) { tile in
@@ -38,7 +47,13 @@ struct BoardEditorView: View {
                             hexSize: hexSize,
                             origin: origin
                         ))
-                        .gesture(hexEditingGesture(for: tile, hexSize: hexSize))
+                        .onTapGesture {
+                            tappedHex(
+                                tile.coordinate,
+                                hexSize: hexSize,
+                                containerSize: availableSize
+                            )
+                        }
                 }
 
                 ForEach(Array(board.roads)) { edge in
@@ -68,12 +83,14 @@ struct BoardEditorView: View {
                             hexSize: hexSize,
                             origin: origin
                         ),
-                        hexSize: hexSize,
-                        selectedIndex: activePicker.selectedIndex
+                        hexSize: hexSize
                     )
                 }
             }
-            .animation(.easeInOut(duration: 0.18), value: isDetailZoom)
+            .contentShape(Rectangle())
+            .simultaneousGesture(magnificationGesture)
+            .simultaneousGesture(panGesture(in: availableSize))
+            .animation(.easeInOut(duration: 0.18), value: viewport)
             .onChange(of: isEditing) { _, editing in
                 if !editing { activePicker = nil }
             }
@@ -82,6 +99,46 @@ struct BoardEditorView: View {
             }
         }
         .padding(8)
+    }
+
+    private var magnificationGesture: some Gesture {
+        MagnifyGesture()
+            .onEnded { value in
+                viewport.finishMagnification(value.magnification)
+            }
+    }
+
+    private func panGesture(in containerSize: CGSize) -> some Gesture {
+        DragGesture(minimumDistance: 8)
+            .updating($transientPan) { value, state, _ in
+                guard viewport.zoom == .detail else { return }
+                state = value.translation
+            }
+            .onEnded { value in
+                viewport.finishPan(value.translation, in: containerSize)
+            }
+    }
+
+    private func tappedHex(
+        _ coordinate: HexCoordinate,
+        hexSize: CGFloat,
+        containerSize: CGSize
+    ) {
+        if viewport.zoom == .detail {
+            let boardPoint = BoardGeometry.center(
+                for: coordinate,
+                hexSize: hexSize,
+                origin: .zero
+            )
+            viewport.center(on: boardPoint, in: containerSize)
+        }
+
+        guard isEditing else { return }
+        if activePicker?.coordinate == coordinate {
+            activePicker = nil
+        } else {
+            activePicker = ActiveHexPicker(coordinate: coordinate)
+        }
     }
 
     @ViewBuilder
@@ -116,40 +173,6 @@ struct BoardEditorView: View {
         }
     }
 
-    private func hexEditingGesture(for tile: HexTile, hexSize: CGFloat) -> some Gesture {
-        LongPressGesture(minimumDuration: 0.35)
-            .sequenced(before: DragGesture(minimumDistance: 0))
-            .onChanged { value in
-                guard isEditing else { return }
-                switch value {
-                case .first(true):
-                    activePicker = ActiveHexPicker(coordinate: tile.coordinate)
-                case let .second(true, drag):
-                    activePicker = ActiveHexPicker(
-                        coordinate: tile.coordinate,
-                        selectedIndex: selectionIndex(
-                            for: drag?.translation ?? .zero,
-                            hexSize: hexSize
-                        )
-                    )
-                default:
-                    break
-                }
-            }
-            .onEnded { value in
-                guard isEditing else { return }
-                var translation = CGSize.zero
-                if case let .second(_, drag) = value {
-                    translation = drag?.translation ?? .zero
-                }
-                applySelection(
-                    selectionIndex(for: translation, hexSize: hexSize),
-                    to: tile.coordinate
-                )
-                activePicker = nil
-            }
-    }
-
     private var optionCount: Int {
         switch editTool {
         case .terrain: Terrain.allCases.count
@@ -157,19 +180,7 @@ struct BoardEditorView: View {
         }
     }
 
-    private func selectionIndex(for translation: CGSize, hexSize: CGFloat) -> Int? {
-        let distance = hypot(translation.width, translation.height)
-        guard distance >= hexSize * 0.48 else { return nil }
-
-        let startAngle = -Double.pi / 2
-        let step = 2 * Double.pi / Double(optionCount)
-        var relativeAngle = atan2(translation.height, translation.width) - startAngle
-        if relativeAngle < 0 { relativeAngle += 2 * Double.pi }
-        return Int((relativeAngle / step).rounded()) % optionCount
-    }
-
-    private func applySelection(_ index: Int?, to coordinate: HexCoordinate) {
-        guard let index else { return }
+    private func applySelection(_ index: Int, to coordinate: HexCoordinate) {
         switch editTool {
         case .terrain:
             board.setTerrain(Terrain.allCases[index], at: coordinate)
@@ -186,34 +197,36 @@ struct BoardEditorView: View {
     @ViewBuilder
     private func selectionWheel(
         around center: CGPoint,
-        hexSize: CGFloat,
-        selectedIndex: Int?
+        hexSize: CGFloat
     ) -> some View {
         let radius = hexSize * 1.55
         ForEach(0..<optionCount, id: \.self) { index in
             let angle = (-Double.pi / 2) + (2 * Double.pi * Double(index) / Double(optionCount))
-            let selected = selectedIndex == index
-            pickerOption(at: index, selected: selected)
-                .frame(
-                    width: selected ? hexSize * 0.72 : hexSize * 0.58,
-                    height: selected ? hexSize * 0.72 : hexSize * 0.58
-                )
+            Button {
+                guard let coordinate = activePicker?.coordinate else { return }
+                applySelection(index, to: coordinate)
+                activePicker = nil
+            } label: {
+                pickerOption(at: index)
+            }
+                .buttonStyle(RadialPickerButtonStyle())
+                .frame(width: hexSize * 0.62, height: hexSize * 0.62)
                 .position(
                     x: center.x + CGFloat(cos(angle)) * radius,
                     y: center.y + CGFloat(sin(angle)) * radius
                 )
-                .shadow(radius: selected ? 4 : 1)
+                .shadow(radius: 2)
         }
     }
 
     @ViewBuilder
-    private func pickerOption(at index: Int, selected: Bool) -> some View {
+    private func pickerOption(at index: Int) -> some View {
         switch editTool {
         case .terrain:
             let terrain = Terrain.allCases[index]
             Circle()
                 .fill(terrain.color)
-                .overlay(Circle().stroke(selected ? Color.primary : .white, lineWidth: selected ? 4 : 2))
+                .overlay(Circle().stroke(.white, lineWidth: 2))
                 .accessibilityLabel(terrain.displayName)
         case .number:
             switch NumberPickerOption.all[index] {
@@ -225,7 +238,7 @@ struct BoardEditorView: View {
                             .font(.caption.bold())
                             .foregroundStyle(token.isHighProbability ? .red : .primary)
                     }
-                    .overlay(Circle().stroke(selected ? Color.primary : .white, lineWidth: selected ? 4 : 2))
+                    .overlay(Circle().stroke(.white, lineWidth: 2))
                     .accessibilityLabel("Number \(token.rawValue)")
             case .remove:
                 Circle()
@@ -235,10 +248,18 @@ struct BoardEditorView: View {
                             .font(.caption.bold())
                             .foregroundStyle(.primary)
                     }
-                    .overlay(Circle().stroke(selected ? Color.primary : .white, lineWidth: selected ? 4 : 2))
+                    .overlay(Circle().stroke(.white, lineWidth: 2))
                     .accessibilityLabel("Remove number")
             }
         }
+    }
+}
+
+private struct RadialPickerButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 1.18 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
@@ -263,6 +284,8 @@ private struct HexTileView: View {
             .contentShape(Hexagon())
             .accessibilityElement(children: .combine)
             .accessibilityLabel(tileAccessibilityLabel)
+            .accessibilityValue(tile.terrain.displayName)
+            .accessibilityIdentifier("hex-\(tile.coordinate.id)")
     }
 
     private var tileAccessibilityLabel: String {
