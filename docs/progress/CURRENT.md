@@ -19,11 +19,17 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
+- TASK-006's Default Plan Browser is implemented and remains `in-progress` pending runtime checks.
 - TASK-002 and TASK-004 are implemented and remain `in-progress` pending their required manual gesture checks.
 - TASK-003 number removal is preserved in the tap-based number picker.
 
 ## Completed in this branch
 
+- Added a bottom-sheet Default Plan Browser with all nine fixed plan rows.
+- Added red deterministic placeholder summary and turn-probability values.
+- Added synchronized sticky plan-column/header behavior and grouped super-column headers.
+- Changed placeholder probabilities to monotonic cumulative distributions.
+- Added unit and UI coverage for default plan data and sheet presentation.
 - Replaced the zoom segmented control with discrete pinch zoom.
 - Added bounded detail-mode panning and tap-to-centre behavior.
 - Replaced long-press-and-drag radial editing with tap-to-open and tap-to-apply buttons.
@@ -32,8 +38,8 @@ Use the area below the three dashes for your current notes:
 
 ## Known blocker
 
-- CoreSimulator still hangs while launching test workers, consistent with the saved AccessibilityUIServer crash. On 2026-08-03, focused combined and unit-only `xcodebuild test` runs built successfully but waited indefinitely for workers to materialize; `xcrun simctl list devices` also hung.
+- CoreSimulator still cannot launch tests, consistent with the saved AccessibilityUIServer crash. On 2026-08-03, TASK-006's app and test bundles compiled successfully, but the focused test run reported no concrete simulator devices and offered only placeholder destinations.
 
 ## Recommended next action
 
-- Restart or repair CoreSimulator, run the focused viewport and tap-selection tests, and manually check pinch, pan, centring, and radial selection. If they pass, check the final acceptance criteria, set completion timestamps, and mark TASK-002 and TASK-004 `done`.
+- Restart or repair CoreSimulator, then run the focused TASK-002, TASK-004, and TASK-006 tests and manual checks. If they pass, check the final acceptance criteria, set completion timestamps, and mark the tasks `done`.

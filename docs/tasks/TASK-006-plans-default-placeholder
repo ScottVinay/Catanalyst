@@ -9,9 +9,34 @@ Implement SCR-002-plans. Do not do any simulation or calculation backend yet, ju
 
 ## Acceptance criteria
 
-- [ ] The Plans toolbar button opens the Plan Browser as a bottom sheet.
-- [ ] The Default tab contains all nine fixed plans from SCR-002.
-- [ ] Each row shows summary statistics and turn 1–10 probability columns.
-- [ ] Placeholder statistics are visibly red.
-- [ ] Custom plans, graph navigation, and simulation remain out of scope.
+- [x] The Plans toolbar button opens the Plan Browser as a bottom sheet.
+- [x] The Default tab contains all nine fixed plans from SCR-002.
+- [x] Each row shows summary statistics and turn 1–10 probability columns.
+- [x] Placeholder statistics are visibly red.
+- [x] Custom plans, graph navigation, and simulation remain out of scope.
+- [x] `REQ-008-scroll` implemented.
 - [ ] Relevant automated checks pass.
+- [x] Placeholder statistics should be realistic. i.e. p(5) >= p(4).
+
+## Implementation notes
+
+- `PlanBrowserView` is presented from the existing Plans toolbar button with a large sheet detent and drag indicator.
+- `DefaultPlan.placeholders` contains the fixed design order and deterministic placeholder statistics.
+- The table scrolls horizontally to accommodate four summary and ten turn-probability columns on iPhone.
+- The plan column counteracts horizontal scroll offset, while both header rows counteract vertical scroll offset, keeping a single synchronized scroll surface.
+- Super-column headers group turn summaries and cumulative completion probabilities.
+- Placeholder probabilities use a monotonic cumulative distribution so each later-turn probability is at least the preceding value.
+- Custom and graph controls are visible but unavailable until their separate screens are specified and implemented.
+
+## Evidence
+
+- Added unit coverage for the fixed plan order and ten probability values per row.
+- Added unit coverage requiring cumulative probabilities to be bounded and nondecreasing.
+- Added UI coverage for opening, inspecting, scrolling, and closing the Plan Browser, including sticky-column and sticky-header assertions.
+- `xcodebuild build-for-testing` succeeded for a generic iOS Simulator destination, compiling the app and both test bundles.
+- Focused test execution on 2026-08-03 could not start because CoreSimulator exposed no concrete simulator devices; Xcode reported only placeholder destinations.
+
+## Remaining risks and manual checks
+
+- Run `DefaultPlanTests` and `testOpensDefaultPlanBrowser` after CoreSimulator is repaired.
+- Manually confirm the sheet presentation, synchronized scrolling, frozen plan column/header rows, red placeholder styling, and row readability on an iPhone-sized display.

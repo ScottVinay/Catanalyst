@@ -57,6 +57,33 @@ final class CatanalystUITests: XCTestCase {
     }
 
     @MainActor
+    func testOpensDefaultPlanBrowser() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["standardBoardButton"].tap()
+
+        let plansButton = app.buttons["plansButton"]
+        XCTAssertTrue(plansButton.waitForExistence(timeout: 3))
+        plansButton.tap()
+
+        XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.otherElements["defaultPlanTable"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Development Card"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["planSuperHeader"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["planColumnHeader"].exists)
+
+        let table = app.otherElements["defaultPlanTable"]
+        table.swipeLeft()
+        XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].isHittable)
+        table.swipeUp()
+        XCTAssertTrue(app.descendants(matching: .any)["planColumnHeader"].isHittable)
+
+        app.buttons["closePlanBrowserButton"].tap()
+        XCTAssertFalse(app.otherElements["planBrowser"].exists)
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {

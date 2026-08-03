@@ -28,11 +28,10 @@ The agent may update:
 - Tests
 - Add new tasks to `docs/tasks`.
     - These should begin `TASK-xxx` where `xxx` is a number.
-    - These should include a status, from: `not-started`, `in-progress`, `review`.
+    - These should include a status, from: `not-started`, `in-progress`, `done`.
     - These should include a reference of a requirement tag (`REQ-xxx` from `REQUIREMENTS.md`) that is addressed by this tag, if any.
     - These should include a priority of P0 (critical) to P4 (low).
     - You may edit previous tasks.
-- Task status up to `review`.
 - Task implementation notes.
 - Task completion evidence.
 - Add new decisions to `docs/decisions`.
@@ -41,8 +40,15 @@ The agent may update:
     - You may edit previous decisions.
 - `ARCHITECTURE.md` after structural changes
 - `docs/progress/CURRENT.md`
+- When you look at any task, ensure it has a frontmatter with the following format:
 
-The agent must not mark a task `done`.
+```
+status:
+started_datetime:
+completed_datetime:
+```
+
+- When you begin or complete a task, ensure that the yyy
 
 ## Workflow
 

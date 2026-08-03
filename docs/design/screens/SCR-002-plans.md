@@ -29,7 +29,7 @@ The screen shall contain:
    * **Default**
    * **Custom**
 
-2. A plan browser table occupying the main body of the screen.
+2. A plan browser table occupying the main body of the screen. See `REQ-008-scroll`
 
 3. A graph navigation button in the upper-right corner.
 
@@ -110,6 +110,7 @@ Displays the predicted 75th percentile completion time.
 Following the summary statistics shall be ten probability columns.
 
 Each column displays the probability that the selected player completes the plan exactly within the specified number of turns.
+Note, this means the probability that it is completed on turn N or less. i.e. p(5) is completed on turns 5, 4, 3, 2, 1.
 
 The columns shall be:
 
@@ -191,3 +192,9 @@ Holding on a row in default briefly shows a message saying "Default plans cannot
 # Connection to backend
 
 If the backend has not yet been built to run simulations and provide these values, show appropriate placeholder values. However, these should be in red to indicate they are placeholders.
+
+# Super column headers
+
+- Above columns that express numbers of turns (e.g. mean, median, 25th percentile, 75th percentile) there should be a meta-column header spanning those columns that says "Turns until acquired/built".
+- Above columns that express probabilities of the things being built in a certain number of turns, there should be a meta-column header spanning those columns that says "Probability of being acquired/built within N turns".
+

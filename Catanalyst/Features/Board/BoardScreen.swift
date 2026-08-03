@@ -12,6 +12,7 @@ struct BoardScreen: View {
 
     @State private var isEditing = false
     @State private var editTool = BoardEditTool.terrain
+    @State private var isShowingPlans = false
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -39,6 +40,11 @@ struct BoardScreen: View {
             .safeAreaInset(edge: .bottom) {
                 bottomBar
             }
+            .sheet(isPresented: $isShowingPlans) {
+                PlanBrowserView()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+            }
         }
     }
 
@@ -59,9 +65,10 @@ struct BoardScreen: View {
                 }
                 .accessibilityIdentifier("editBoardButton")
 
-                toolbarButton("Plans", systemImage: "list.bullet.rectangle") {}
-                    .disabled(true)
-                    .accessibilityHint("Plan editing is not available yet")
+                toolbarButton("Plans", systemImage: "list.bullet.rectangle") {
+                    isShowingPlans = true
+                }
+                .accessibilityIdentifier("plansButton")
 
                 toolbarButton("Player", systemImage: "person.crop.circle") {}
                     .disabled(true)

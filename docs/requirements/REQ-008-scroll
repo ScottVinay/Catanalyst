@@ -1,0 +1,1 @@
+In the plans browser, the left column (showing the icon) should remain fixed (i.e. be visible always when scrolling horizontally, but move when scrolling vertically). Similarly, the top row explaining the columns should not move when scrolling vertically.
