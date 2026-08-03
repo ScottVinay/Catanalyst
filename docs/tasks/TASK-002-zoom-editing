@@ -1,4 +1,6 @@
 status: in-progress
+started_datetime: 2026-07-23T00:09:00+01:00
+completed_datetime:
 written: 2026-07-23 00:09
 priority: P1
 requirement: REQ-006
@@ -26,6 +28,7 @@ requirement: REQ-006
 - `xcodebuild build` completed successfully for a generic iOS Simulator destination.
 - `xcodebuild build-for-testing` completed successfully, compiling the app and complete unit/UI test bundles.
 - Test execution was not run because CoreSimulator launch remains unreliable; repository verification is no longer required for this task.
+- On 2026-08-03, a focused `xcodebuild test` rebuilt the test bundles but hung while waiting for simulator workers to materialize. A unit-only retry failed at the same stage, and `xcrun simctl list devices` also hung.
 
 ## Remaining risks and manual checks
 

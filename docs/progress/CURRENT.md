@@ -19,7 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-002 and TASK-004 are implemented and remain `in-progress` pending manual gesture checks.
+- TASK-002 and TASK-004 are implemented and remain `in-progress` pending their required manual gesture checks.
 - TASK-003 number removal is preserved in the tap-based number picker.
 
 ## Completed in this branch
@@ -32,8 +32,8 @@ Use the area below the three dashes for your current notes:
 
 ## Known blocker
 
-- CoreSimulator has recently hung while launching test workers, consistent with the saved AccessibilityUIServer crash. Test modules compile, but execution has not been retried for these tasks.
+- CoreSimulator still hangs while launching test workers, consistent with the saved AccessibilityUIServer crash. On 2026-08-03, focused combined and unit-only `xcodebuild test` runs built successfully but waited indefinitely for workers to materialize; `xcrun simctl list devices` also hung.
 
 ## Recommended next action
 
-- After restarting or repairing CoreSimulator, run the focused viewport and tap-selection tests and manually check pinch, pan, centring, and radial selection. Then move TASK-002 and TASK-004 to `review` if they pass.
+- Restart or repair CoreSimulator, run the focused viewport and tap-selection tests, and manually check pinch, pan, centring, and radial selection. If they pass, check the final acceptance criteria, set completion timestamps, and mark TASK-002 and TASK-004 `done`.

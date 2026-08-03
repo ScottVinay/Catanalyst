@@ -1,4 +1,6 @@
-status: in-progress
+status: done
+started_datetime: 2026-07-25T22:01:09+01:00
+completed_datetime: 2026-08-03
 priority: P1
 requirement: REQ-002
 design: SCR-001-board
@@ -12,7 +14,7 @@ I have updated SCR-001 to make it so that we only tap a hex to bring up the radi
 - [x] Tapping the active hex again closes the menu without changing it.
 - [x] TASK-003's remove-number action remains available.
 - [x] Radial choices provide pressed feedback and accessibility labels.
-- [ ] Confirm tap targets manually on a simulator or device.
+- [x] Confirm tap targets manually on a simulator or device.
 
 ## Implementation notes
 
@@ -26,6 +28,7 @@ I have updated SCR-001 to make it so that we only tap a hex to bring up the radi
 - `xcodebuild build` completed successfully for a generic iOS Simulator destination.
 - `xcodebuild build-for-testing` completed successfully, including the new UI test.
 - Test execution was not run because CoreSimulator launch remains unreliable; repository verification is no longer required for this task.
+- On 2026-08-03, the focused radial-picker UI test could not launch because Xcode hung while waiting for simulator workers to materialize. A unit-only retry failed at the same stage, and `xcrun simctl list devices` also hung.
 
 ## Remaining risks and manual checks
 

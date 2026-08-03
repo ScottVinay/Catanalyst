@@ -1,0 +1,17 @@
+status: in-progress
+started_datetime: 2026-08-03T17:16:24+01:00
+completed_datetime:
+priority: P1
+requirement: REQ-003
+design: SCR-002-plans
+
+Implement SCR-002-plans. Do not do any simulation or calculation backend yet, just use sensible placeholder values. Do default tab only.
+
+## Acceptance criteria
+
+- [ ] The Plans toolbar button opens the Plan Browser as a bottom sheet.
+- [ ] The Default tab contains all nine fixed plans from SCR-002.
+- [ ] Each row shows summary statistics and turn 1–10 probability columns.
+- [ ] Placeholder statistics are visibly red.
+- [ ] Custom plans, graph navigation, and simulation remain out of scope.
+- [ ] Relevant automated checks pass.

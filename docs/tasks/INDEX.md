@@ -5,3 +5,4 @@
 - [TASK-003: Allow Number Removal](TASK-003-allow-remove-number)
 - [TASK-004: Tap for Selection](TASK-004-tap-for-selection)
 - [TASK-005: Add Terrain Icons](TASK-005-add-icons)
+- [TASK-006: Default Plan Placeholders](TASK-006-plans-default-placeholder)
