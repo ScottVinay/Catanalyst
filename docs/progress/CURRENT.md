@@ -27,7 +27,9 @@ Use the area below the three dashes for your current notes:
 
 - Added a bottom-sheet Default Plan Browser with all nine fixed plan rows.
 - Added red deterministic placeholder summary and turn-probability values.
-- Added synchronized sticky plan-column/header behavior and grouped super-column headers.
+- Added separate fixed plan/header panes synchronized with the clipped values viewport, plus grouped super-column headers and boundary lines.
+- Matched fixed/value row metrics, normalized scroll insets, compacted the four summary columns, and slightly strengthened separators.
+- Anchored short values content to the top-leading viewport edge so results align with plan rows when the table does not fill the screen.
 - Changed placeholder probabilities to monotonic cumulative distributions.
 - Added unit and UI coverage for default plan data and sheet presentation.
 - Replaced the zoom segmented control with discrete pinch zoom.

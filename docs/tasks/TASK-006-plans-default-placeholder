@@ -22,8 +22,13 @@ Implement SCR-002-plans. Do not do any simulation or calculation backend yet, ju
 
 - `PlanBrowserView` is presented from the existing Plans toolbar button with a large sheet detent and drag indicator.
 - `DefaultPlan.placeholders` contains the fixed design order and deterministic placeholder statistics.
-- The table scrolls horizontally to accommodate four summary and ten turn-probability columns on iPhone.
-- The plan column counteracts horizontal scroll offset, while both header rows counteract vertical scroll offset, keeping a single synchronized scroll surface.
+- The table is split into a fixed corner, horizontally synchronized headers, a vertically synchronized plan column, and a two-axis scrolling values viewport.
+- The values viewport is the single source of scroll offsets; separate clipped header and plan panes follow only their relevant axis.
+- Opaque fixed panes and explicit group dividers prevent values from appearing behind the plan column and clearly separate summary statistics from probabilities.
+- Fixed and scrolling panes share explicit 44-point rows and 1-point separators; normalized scroll insets keep their vertical offsets aligned.
+- The values pane uses a top-leading default anchor and top-aligned minimum viewport height, preventing short result sets from being vertically centered away from their plan rows.
+- The plan and summary columns are compact enough to show Mean, Median, 25th, and 75th simultaneously at common iPhone widths.
+- Table separators use a slightly stronger secondary tint for clearer grouping.
 - Super-column headers group turn summaries and cumulative completion probabilities.
 - Placeholder probabilities use a monotonic cumulative distribution so each later-turn probability is at least the preceding value.
 - Custom and graph controls are visible but unavailable until their separate screens are specified and implemented.
@@ -32,11 +37,14 @@ Implement SCR-002-plans. Do not do any simulation or calculation backend yet, ju
 
 - Added unit coverage for the fixed plan order and ten probability values per row.
 - Added unit coverage requiring cumulative probabilities to be bounded and nondecreasing.
-- Added UI coverage for opening, inspecting, scrolling, and closing the Plan Browser, including sticky-column and sticky-header assertions.
+- Added UI coverage for opening, inspecting, scrolling, and closing the Plan Browser, including assertions for the structurally separate fixed column and headers.
+- Added UI coverage comparing the first plan and result row midpoints within a 1.5-point tolerance.
 - `xcodebuild build-for-testing` succeeded for a generic iOS Simulator destination, compiling the app and both test bundles.
+- `xcodebuild build-for-testing` succeeded again after the row-alignment, density, and separator refinements.
+- `xcodebuild build-for-testing` succeeded after correcting the short-content scroll anchoring shown in manual testing.
 - Focused test execution on 2026-08-03 could not start because CoreSimulator exposed no concrete simulator devices; Xcode reported only placeholder destinations.
 
 ## Remaining risks and manual checks
 
 - Run `DefaultPlanTests` and `testOpensDefaultPlanBrowser` after CoreSimulator is repaired.
-- Manually confirm the sheet presentation, synchronized scrolling, frozen plan column/header rows, red placeholder styling, and row readability on an iPhone-sized display.
+- Manually confirm exact row alignment while vertically scrolling, simultaneous visibility of all four summary columns, separator contrast, and row readability on an iPhone-sized display.

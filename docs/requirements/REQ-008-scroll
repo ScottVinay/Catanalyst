@@ -1,1 +1,9 @@
-In the plans browser, the left column (showing the icon) should remain fixed (i.e. be visible always when scrolling horizontally, but move when scrolling vertically). Similarly, the top row explaining the columns should not move when scrolling vertically.
+- In the plans browser, the left column (showing the icon) should remain fixed (i.e. be visible always when scrolling horizontally, but move when scrolling vertically). Similarly, the top row explaining the columns should not move when scrolling vertically.
+
+- The left column should be completely fixed to the left side of the screen, so no numbers can be seen moving past the left-hand side of it.
+
+- The header columns should similarly be fixed to the top.
+
+- As an artectural tip, you probably should not create the whole table as a single object. Separate out the left column and header columns.
+
+- There should be lines to clearly demarcate which columns belong to which meta-columns.

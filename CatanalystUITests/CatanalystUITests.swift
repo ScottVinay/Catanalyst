@@ -72,8 +72,15 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Development Card"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["planSuperHeader"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["planColumnHeader"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["fixedPlanColumn"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["fixedPlanHeader"].exists)
 
-        let table = app.otherElements["defaultPlanTable"]
+        let firstPlan = app.descendants(matching: .any)["defaultPlan-Ore"]
+        let firstValues = app.descendants(matching: .any)["defaultPlanValues-Ore"]
+        XCTAssertTrue(firstValues.exists)
+        XCTAssertEqual(firstPlan.frame.midY, firstValues.frame.midY, accuracy: 1.5)
+
+        let table = app.otherElements["planValuesTable"]
         table.swipeLeft()
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].isHittable)
         table.swipeUp()
