@@ -19,12 +19,16 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
+- TASK-007's shared player selector and piece ownership are implemented and remain `in-progress` pending runtime checks.
 - TASK-006's Default Plan Browser is implemented and remains `in-progress` pending runtime checks.
 - TASK-002 and TASK-004 are implemented and remain `in-progress` pending their required manual gesture checks.
 - TASK-003 number removal is preserved in the tap-based number picker.
 
 ## Completed in this branch
 
+- Added six serializable player colours and reusable expanding player selection on Board and Plans.
+- Added per-player road/building ownership, rendering, isolation, and backward-compatible decoding.
+- Made placeholder plan statistics respond deterministically to the shared selected player.
 - Added a bottom-sheet Default Plan Browser with all nine fixed plan rows.
 - Added red deterministic placeholder summary and turn-probability values.
 - Added separate fixed plan/header panes synchronized with the clipped values viewport, plus grouped super-column headers and boundary lines.
@@ -46,4 +50,4 @@ Use the area below the three dashes for your current notes:
 
 ## Recommended next action
 
-- Restart or repair CoreSimulator, then run the focused TASK-002, TASK-004, and TASK-006 tests and manual checks. If they pass, check the final acceptance criteria, set completion timestamps, and mark the tasks `done`.
+- Restart or repair CoreSimulator, then run the focused TASK-002, TASK-004, TASK-006, and TASK-007 tests and manual checks. If they pass, check the final acceptance criteria, set completion timestamps, and mark the tasks `done`.

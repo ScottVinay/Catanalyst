@@ -1,3 +1,40 @@
-status: not-started
+status: in-progress
+started_datetime: 2026-08-04T16:38:54+01:00
+completed_datetime:
+priority: P1
+requirement: REQ-005
+design: ITEM-001-player-selector
 
 Implement `ITEM-001-player-selector` in all relevant screens.
+
+## Acceptance criteria
+
+- [x] Six selectable, serializable player colours are available.
+- [x] The collapsed selector shows the selected player colour.
+- [x] Tapping expands player choices downward and changes the title to "Select player".
+- [x] Selection is shared between the Board and Plan Browser screens.
+- [x] Roads and buildings are stored and rendered in their owning player's colour.
+- [x] Players cannot modify pieces owned by another player.
+- [x] Placeholder plan statistics update for the selected player.
+- [ ] Relevant automated checks pass.
+
+## Implementation notes
+
+- `PlayerColor` defines the six serializable players and their stable display order.
+- `PlayerSelector` is a reusable binding-based control used by Board and Plan Browser.
+- `BoardSnapshot` retains its existing road/building collections and adds ownership maps, with missing ownership decoded as Red for backward compatibility.
+- Structural editing receives the selected player; occupied pieces owned by another player are left unchanged.
+- Plan placeholders vary deterministically by player until the simulation backend replaces them.
+
+## Evidence
+
+- Added domain tests for six-player serialization, ownership, isolation, and snapshot round trips.
+- Added plan tests confirming selection changes placeholder values without changing plan definitions.
+- Added UI coverage confirming expansion, the "Select player" title, selection, and shared state in Plans.
+- `xcodebuild build-for-testing` succeeded for the app and both test bundles after implementation and final accessibility/contrast refinements.
+
+## Remaining risks and manual checks
+
+- Execute the focused domain and UI tests after CoreSimulator provides a concrete destination.
+- Manually confirm selector expansion, all six colours, white-piece contrast, shared selection, and player-owned road/building editing.
+- Add the selector to SCR-004 when that screen is implemented.

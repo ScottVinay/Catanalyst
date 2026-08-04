@@ -6,3 +6,4 @@
 - [TASK-004: Tap for Selection](TASK-004-tap-for-selection)
 - [TASK-005: Add Terrain Icons](TASK-005-add-icons)
 - [TASK-006: Default Plan Placeholders](TASK-006-plans-default-placeholder)
+- [TASK-007: Player Selector](TASK-007-player-selector)
