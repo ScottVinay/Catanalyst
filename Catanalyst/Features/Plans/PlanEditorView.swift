@@ -47,9 +47,22 @@ struct PlanEditorView: View {
                 .padding()
             }
             .overlay(alignment: .topLeading) {
-                PlayerSelector(selection: $selectedPlayer)
-                    .padding(.leading, 16)
-                    .padding(.top, 16)
+                HStack(spacing: 8) {
+                    PlayerSelector(selection: $selectedPlayer)
+                    if draft.kind == .constructions {
+                        Button {
+                            isPreviewingConstructionPlan = true
+                        } label: {
+                            Image(systemName: "circle.hexagongrid.fill")
+                                .frame(width: 30, height: 30)
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityLabel("Preview construction plan")
+                        .accessibilityIdentifier("previewConstructionPlanButton")
+                    }
+                }
+                .padding(.leading, 16)
+                .padding(.top, 16)
             }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 12) {
@@ -191,13 +204,6 @@ struct PlanEditorView: View {
             HStack {
                 Text("Construction steps").font(.headline)
                 Spacer()
-                Button {
-                    isPreviewingConstructionPlan = true
-                } label: {
-                    Image(systemName: "circle.hexagongrid.fill")
-                }
-                .accessibilityLabel("Preview construction plan")
-                .accessibilityIdentifier("previewConstructionPlanButton")
                 Button("Clear") { draft.clearContents() }
                     .disabled(draft.constructionSteps.isEmpty)
                     .accessibilityIdentifier("clearConstructionPlanButton")

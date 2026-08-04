@@ -6,4 +6,4 @@ New requirements:
 - After placing an item in construction plan edit mode, stay on that screen for 0.8s so we can see it
 - The edit construction plan should have a button that looks like a bunch of hexagons together. Pressing this shows the board with the ghost items, to see the current state of the plan.
 - REQ-012-valid-placements has been updated to indicate that roads can also adjoin existing roads.
-- The default names for card and construction plans should be "Card plan 1" and "Con plan 1" respectively. If these exist, the name is "Card plan 2" or "Con plan 2", and so on.
+- The default names for card and construction plans should be "Card plan 1" and "Con plan 1" respectively. Cards and Constructions use independent number sequences for each player: `Card plan 2` requires `Card plan 1` for that same player, while `Con plan 2` requires `Con plan 1` for that same player. A plan of the other kind or belonging to another player must not advance the sequence.

@@ -84,6 +84,12 @@ final class CatanalystUITests: XCTestCase {
 
         XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["planBrowserHelpButton"].exists)
+        app.buttons["planGraphsButton"].tap()
+        XCTAssertFalse(app.alerts["Plan Browser"].exists)
+        app.buttons["planBrowserHelpButton"].tap()
+        XCTAssertTrue(app.alerts["Plan Browser"].waitForExistence(timeout: 1))
+        app.alerts["Plan Browser"].buttons["OK"].tap()
+        XCTAssertTrue(app.otherElements["planBrowser"].exists)
         XCTAssertTrue(app.otherElements["defaultPlanTable"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Dev Card"].exists)
@@ -193,6 +199,8 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertEqual(chooser.frame.midX, app.windows.firstMatch.frame.midX, accuracy: 1)
         XCTAssertEqual(chooser.frame.midY, app.windows.firstMatch.frame.midY, accuracy: 50)
         XCTAssertTrue(app.buttons["planTypeHelpButton"].exists)
+        XCTAssertLessThan(app.buttons["Cards"].frame.midY, app.buttons["Constructions"].frame.midY)
+        XCTAssertEqual(app.buttons["Cards"].frame.midX, app.buttons["Constructions"].frame.midX, accuracy: 1)
         app.buttons["Cards"].tap()
 
         XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
@@ -260,6 +268,10 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertEqual(app.textFields["planNameField"].value as? String, "Con plan 1")
 
         XCTAssertTrue(app.otherElements["newConstructionStep"].waitForExistence(timeout: 2))
+        XCTAssertGreaterThan(
+            app.buttons["previewConstructionPlanButton"].frame.minX,
+            app.otherElements["playerSelector"].frame.maxX
+        )
         app.buttons["addConstruction-settlement"].tap()
         XCTAssertTrue(app.otherElements["constructionPlacement"].waitForExistence(timeout: 2))
         app.descendants(matching: .any).matching(

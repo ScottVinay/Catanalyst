@@ -1,0 +1,24 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-012, REQ-014
+design: SCR-001-board, SCR-004-edit
+
+# Invalid-placement feedback position and duration
+
+Move invalid-placement messages lower on the screen and shorten their display period.
+
+## Acceptance criteria
+
+- [ ] Road and building validation messages appear towards the bottom of the Board without covering bottom controls.
+- [ ] Each message remains visible for 1.5 seconds, then dismisses automatically.
+- [ ] A later invalid attempt replaces and restarts the active message deterministically.
+- [ ] Board editing and construction-plan placement use the same presentation behavior.
+- [ ] Existing exact validation copy remains unchanged.
+- [ ] Timing logic is cancellable and cannot dismiss a newer message early.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Verification
+
+- Add deterministic state/timing coverage where possible and UI coverage for placement and automatic dismissal.

@@ -32,6 +32,9 @@ The screen shall contain:
 2. A plan browser table occupying the main body of the screen. See `REQ-008-scroll`
 
 3. A graph navigation button in the upper-right corner.
+4. A question-mark help button beside the graph button.
+
+The graph and question-mark buttons shall be separate controls with independent, non-overlapping tap and pressed/highlight states. Tapping either control must not animate, bounce, highlight, or activate the other control.
 
 The table layout shall be identical in both tabs unless otherwise specified.
 
@@ -145,6 +148,8 @@ Selecting this icon shall navigate to:
 
 * `SCR-003-graphs.md`
 
+Its tap target shall be independent from the adjacent Plan Browser help button.
+
 ---
 
 # Custom Plans
@@ -197,4 +202,3 @@ If the backend has not yet been built to run simulations and provide these value
 
 - Above columns that express numbers of turns (e.g. mean, median, 25th percentile, 75th percentile) there should be a meta-column header spanning those columns that says "Turns until acquired/built".
 - Above columns that express probabilities of the things being built in a certain number of turns, there should be a meta-column header spanning those columns that says "Probability within N turns".
-

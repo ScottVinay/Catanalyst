@@ -1,3 +1,6 @@
 - The zoom functionality should be done by pinch zoom only, which swaps between the two levels of zoom, instead of having a toggle button.
 - When zoomed in, you should be able to move around the board by single-finger dragging.
 - Zoom should work in both edit and non-edit mode.
+- The Detail zoom level should be increased from its current value so terrain and placement targets are more legible.
+- In Detail mode, the board may move behind persistent screen controls such as Done, edit controls, and player selection; those controls remain fixed above the board and interactive.
+- In Overview mode, the board should sit slightly above the geometric centre of the available screen so it appears visually centred within the surrounding interface.

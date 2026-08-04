@@ -1,0 +1,24 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-014
+design: SCR-002-plans
+
+# Independent Plan Browser toolbar controls
+
+Separate the graph and contextual-help controls so interaction feedback and actions cannot leak between them.
+
+## Acceptance criteria
+
+- [ ] Graph and help are implemented as separate controls rather than a shared interactive container.
+- [ ] Tapping or pressing Graph does not animate, bounce, highlight, or invoke Help.
+- [ ] Tapping or pressing Help does not animate, bounce, highlight, or invoke Graph.
+- [ ] Each control retains an adequate, non-overlapping tap target and accessible label.
+- [ ] Graph navigation behavior remains consistent with the currently implemented SCR-003 scope.
+- [ ] Automated interaction coverage compiles for both directions.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- This supersedes the earlier hit-target-only interpretation in TASK-011; pressed-state independence is required as well.

@@ -1,0 +1,8 @@
+- Tapping the graph icon still causes the question mark to bounce, and vice versa. These should be unrelated buttons.
+- The note indicating that something has been placed invalidly should appear towards the bottom of the screen, and only appear for 1.5 seconds.
+- In zoomed-in mode, the board should move behind the other UI elements, such as the done button, player selection, etc.
+- In plan mode, a city can only be placed on top of an existing settlement.
+- The default name of Card plan 2 should only be used if there is an existing plan called Card plan 1 *for that same player*.
+- In zoomed out mode, the board should be moved up slightly to be centred on the screen.
+- Hexes with terrain applied should have the corresponding symbols applied. e.g. brick, ore. There should be a few of these symbols over the hexagon, so they can be seen behind the numbers. They should be faded to 50%.
+- Increase zoom level in zoom mode.

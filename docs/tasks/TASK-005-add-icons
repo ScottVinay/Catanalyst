@@ -1,3 +1,23 @@
 status: not-started
+started_datetime:
+completed_datetime:
+priority: P2
+requirement: REQ-007, REQ-014
+design: SCR-001-board
 
-- Added functionality in SCR-001: There should be simple icons on the hex and corresponding colour in the radial selector that refer to the terrain type.
+# Repeated terrain symbols
+
+Render terrain-specific symbols on every applied terrain hex while retaining the matching symbols in the radial selector.
+
+## Acceptance criteria
+
+- [ ] Brick, Ore, Wheat, Lumber, Wool, Desert, and Ocean each use an appropriate distinct symbol.
+- [ ] Several copies of the terrain symbol are distributed across each hex.
+- [ ] Symbols render at approximately 50% opacity behind number tokens.
+- [ ] Numbers, pips, pieces, placement targets, and radial controls remain legible above the symbols.
+- [ ] Rendering remains stable while zooming, panning, and editing terrain.
+- [ ] Focused rendering checks pass on a functioning simulator or device.
+
+## Verification
+
+- Add view/rendering coverage for terrain-to-symbol mapping and manually check representative numbered and unnumbered hexes.

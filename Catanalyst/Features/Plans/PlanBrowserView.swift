@@ -92,8 +92,9 @@ struct PlanBrowserView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {} label: {
                         Image(systemName: "chart.bar.xaxis")
+                            .frame(width: 28, height: 28)
+                            .contentShape(Rectangle())
                     }
-                    .disabled(true)
                     .accessibilityLabel("Graphs")
                     .accessibilityHint("Graph navigation is not available yet")
                     .accessibilityIdentifier("planGraphsButton")
@@ -102,6 +103,8 @@ struct PlanBrowserView: View {
                         activeAlert = .browserHelp
                     } label: {
                         Image(systemName: "questionmark.circle.fill")
+                            .frame(width: 28, height: 28)
+                            .contentShape(Rectangle())
                     }
                     .accessibilityLabel("Plan Browser help")
                     .accessibilityIdentifier("planBrowserHelpButton")
@@ -154,7 +157,7 @@ struct PlanBrowserView: View {
                     .accessibilityIdentifier("planTypeHelpButton")
                 }
 
-                HStack(spacing: 12) {
+                VStack(spacing: 12) {
                     planTypeButton("Cards", systemImage: "rectangle.stack.fill", kind: .cards)
                     planTypeButton("Constructions", systemImage: "hammer.fill", kind: .constructions)
                 }

@@ -7,6 +7,7 @@ There is an edit button, which changes the toolbars, and takes us into edit mode
 # Layout
 
 - Board centred on screen
+- In Overview zoom, bias the board slightly upward so it is visually centred within the complete screen layout.
 - Toolbar on bottom:
     - Button: Edit
     - Button: View plans panel
@@ -22,6 +23,8 @@ Two zoom levels are supported:
 Users may switch between them.
 
 The board does not support continuous pinch zoom.
+
+Detail shall use a higher fixed scale than the current implementation. While panning in Detail, the board may continue behind fixed controls such as Done, the edit selector, help, and player selection. Those controls remain visually above the board and do not move with it.
 
 # Editing
 
@@ -49,6 +52,8 @@ The circles represent:
 - Ocean
 
 There should be simple icons on the hex and corresponding colour in the radial selector that refer to the terrain type.
+
+Applied terrain shall also be represented by several copies of the corresponding terrain symbol distributed over each hex. These symbols render at approximately 50% opacity behind the number token.
 
 ### Number editing
 
@@ -89,4 +94,3 @@ There should be a "Done" button at the bottom to save the board and exit edit mo
 ## Player selection
 
 ITEM-001-player-selector should be visible and active.
-

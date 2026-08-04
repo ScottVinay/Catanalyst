@@ -1,6 +1,8 @@
 # Valid placements
 
 - A road must adjoin an existing road, settlement or city of the same colour.
-    - If in board edit mode or construction plan edit mode the user attempts to violate this rule, it is not placed, and a message appears in the middle of the screen for a 2 seconds saying "Road must be adjacent to a road, settlement or city of the same colour."
+    - If in board edit mode or construction plan edit mode the user attempts to violate this rule, it is not placed, and a message appears towards the bottom of the screen for 1.5 seconds saying "Road must be adjacent to a road, settlement or city of the same colour."
 - A settlement or city may not be within 1 side-length (i.e. adjacent) of any other settlement or city, regardless of colour.
-    - If in board edit mode or construction plan edit mode the user attempts to violate this rule, it is not placed, and a message appears in the middle of the screen for a 2 seconds saying "Cannot place adjacent to a settlement or a city."
+    - If in board edit mode or construction plan edit mode the user attempts to violate this rule, it is not placed, and a message appears towards the bottom of the screen for 1.5 seconds saying "Cannot place adjacent to a settlement or a city."
+- In construction plan edit mode, a city may only be placed by upgrading an existing settlement belonging to the selected player. The existing settlement may come from the real Board or an earlier valid step in the same plan.
+- Attempting to place a planned city anywhere else must not add a step and must use the same 1.5-second bottom-positioned invalid-placement feedback.

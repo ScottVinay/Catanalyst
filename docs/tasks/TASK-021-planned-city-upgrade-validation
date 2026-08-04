@@ -1,0 +1,26 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P0
+requirement: REQ-012, REQ-014
+design: SCR-004-edit
+
+# Planned city upgrade validation
+
+Require construction-plan cities to upgrade an owned settlement.
+
+## Acceptance criteria
+
+- [ ] A planned city is valid on an existing settlement belonging to the selected player.
+- [ ] A planned city is valid on that player's settlement created by an earlier valid plan step.
+- [ ] A planned city is invalid on an empty vertex, an existing city, or another player's settlement.
+- [ ] An invalid city attempt does not append or mutate any plan step or real Board state.
+- [ ] Preview projection upgrades the settlement to a ghost city without retaining a duplicate settlement.
+- [ ] Board edit-mode building cycling remains unchanged unless separately required.
+- [ ] Invalid attempts use TASK-019's shared 1.5-second lower-screen feedback.
+- [ ] Analytical domain tests and UI regression coverage compile.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- Ordered projection must validate against the Board plus all earlier accepted plan steps.

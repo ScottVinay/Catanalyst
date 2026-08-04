@@ -1,0 +1,6 @@
+# Terrain symbols
+
+- Every hex with a terrain type applied shall show symbols corresponding to that terrain, including Brick, Ore, Wheat, Lumber, Wool, Desert, and Ocean.
+- Each terrain hex shall show several copies of its symbol distributed across the hex rather than a single central symbol.
+- Terrain symbols shall render at approximately 50% opacity.
+- Symbols shall remain visible behind number tokens without reducing number or pip legibility.

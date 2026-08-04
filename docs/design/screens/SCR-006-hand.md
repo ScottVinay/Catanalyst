@@ -1,0 +1,4 @@
+- This page is used for assigning the cards in the current players' hands.
+- It is functionally almost identical to SCR-edit/Cards. The title of the page is "Cards in hand".
+- We do not need to click save on this, it autosaves what we add here.
+- Tapping a different player colour changes to the hand for that player. If no hand has been assigned for that player it will be blank, ready to be filled it by tapping the appropriate cards.

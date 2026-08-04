@@ -17,3 +17,8 @@
 - [TASK-015: Construction Placement Feedback](TASK-015-construction-placement-feedback)
 - [TASK-016: Automatic Custom-Plan Names](TASK-016-default-custom-plan-names)
 - [TASK-017: Road-Chain Placement](TASK-017-road-chain-placement)
+- [TASK-018: Independent Plan Toolbar Controls](TASK-018-independent-plan-toolbar-controls)
+- [TASK-019: Placement Feedback Position and Duration](TASK-019-placement-feedback-position-and-duration)
+- [TASK-020: Board Viewport Layout and Scale](TASK-020-board-viewport-layout-and-scale)
+- [TASK-021: Planned City Upgrade Validation](TASK-021-planned-city-upgrade-validation)
+- [TASK-022: Per-Player Plan-Name Sequences](TASK-022-per-player-plan-name-sequences)

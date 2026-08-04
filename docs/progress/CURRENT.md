@@ -19,6 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
+- REQ-014 has been normalized into REQ-006, REQ-007, REQ-012, REQ-013 and SCR-001/SCR-002/SCR-004. Implementation is decomposed into expanded TASK-005 and new TASK-018 through TASK-022, all `not-started`.
 - REQ-013's TASK-013 through TASK-017 are implemented and marked `done`; only the user-owned focused simulator checks remain unchecked as requested.
 - TASK-012's completed SCR-004 construction workflow and REQ-012 legality rules are implemented and remain `in-progress` pending runtime UI checks.
 - TASK-011's centred controls and contextual help are implemented and remain `in-progress` pending runtime UI checks.
@@ -32,6 +33,7 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Separated the Plans graph/help tap targets, stacked Cards above Constructions, and moved construction preview beside the top player selector.
 - Made custom-plan rows open on tap and corrected detail-to-editor dismissal so Close/Cancel returns to the Plan Browser.
 - Added Cards/Constructions Clear actions plus final-construction-step removal with draft-safe Cancel behavior.
 - Added cancellable 0.8-second construction-placement ghost feedback and a read-only projected Board preview.

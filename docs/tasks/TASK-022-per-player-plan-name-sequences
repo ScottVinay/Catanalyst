@@ -1,0 +1,26 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-009, REQ-013, REQ-014
+design: SCR-004-edit
+
+# Per-player plan-name sequences
+
+Regress automatic naming so only saved plans of the same kind and player advance a default name.
+
+## Acceptance criteria
+
+- [ ] `Card plan 2` is proposed only when the selected player already has `Card plan 1`.
+- [ ] `Con plan 2` is proposed only when the selected player already has `Con plan 1`.
+- [ ] A Constructions plan never advances the Cards sequence, and a Cards plan never advances the Constructions sequence.
+- [ ] Plans belonging to another player never advance the selected player's sequence.
+- [ ] The first unused positive exact default name is selected within the relevant player/kind collection.
+- [ ] Unrelated custom names and cancelled unsaved drafts do not advance a sequence.
+- [ ] Existing user-entered names are never rewritten.
+- [ ] Unit and UI regression coverage compiles for both kinds and multiple players.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- This clarifies and supersedes any ambiguous cross-kind reading of REQ-014 and verifies TASK-016's intended behavior.

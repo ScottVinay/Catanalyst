@@ -13,7 +13,10 @@ Centre the Board edit-mode selector, present the Cards/Constructions choice in t
 - [x] Terrain/Numbers remains horizontally centred independently of the trailing help button.
 - [x] Choosing New Plan presents Cards/Constructions in a modal box centred on screen.
 - [x] The plan-type box contains a circular question-mark help button and Cancel action.
+- [x] Cards and Constructions are stacked vertically, with Cards above Constructions.
 - [x] Board editing, plan editing, and Plan Browser each expose a circular question-mark help button.
+- [x] Plan Browser graph and help controls use independent tap targets and cannot activate one another.
+- [x] The construction-plan preview control sits immediately to the right of the top player selector.
 - [x] Every help button presents concise contextual guidance rather than being decorative.
 - [x] Existing player-selector ordering and stable Board positioning are preserved.
 - [ ] Focused UI checks pass on a functioning simulator.
@@ -27,7 +30,9 @@ Centre the Board edit-mode selector, present the Cards/Constructions choice in t
 ## Evidence
 
 - UI coverage checks the Terrain/Numbers midpoint, centred plan-type chooser, and all requested help controls.
+- UI coverage checks that graph/help taps remain independent, plan types are vertically ordered, and the construction preview sits to the right of the player selector.
 - `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-help-layout-derived` succeeded for the app and both test bundles.
+- The revised app and test bundles compile using `/private/tmp/Catanalyst-layout-corrections-derived`.
 
 ## Remaining risks and manual checks
 

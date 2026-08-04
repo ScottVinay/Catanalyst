@@ -1,0 +1,25 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-006, REQ-014
+design: SCR-001-board
+
+# Board viewport layout and scale
+
+Refine both fixed zoom levels and allow Detail panning beneath persistent Board controls.
+
+## Acceptance criteria
+
+- [ ] Detail uses a visibly higher fixed zoom level than the current implementation.
+- [ ] Detail panning can move board content behind Done, edit controls, help, and player selection.
+- [ ] Persistent controls remain fixed, visually above the board, fully legible, and interactive.
+- [ ] Pan bounds still prevent losing the board entirely and permit reaching every playable edge and vertex.
+- [ ] Overview shifts slightly upward and appears visually centred in the complete screen layout.
+- [ ] View and edit modes share consistent board geometry without jumping when mode changes.
+- [ ] Tap-to-focus, long-hold radial editing, and immediate Detail pan arbitration remain unchanged.
+- [ ] Deterministic viewport tests compile and focused gesture/layout checks pass on a functioning simulator.
+
+## Scope notes
+
+- Keep the two-level discrete pinch model; continuous zoom is not requested.
