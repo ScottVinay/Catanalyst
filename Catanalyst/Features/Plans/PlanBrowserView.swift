@@ -7,9 +7,11 @@ private enum PlanTableSection: Equatable {
 
 struct PlanBrowserView: View {
     @Environment(\.dismiss) private var dismiss
+    @Binding var selectedPlayer: PlayerColor
     @State private var scrollOffset = CGPoint.zero
     @State private var verticalOverscroll: CGFloat = 0
     @State private var tableSection = PlanTableSection.summary
+    @State private var isSelectingPlayer = false
 
     private let summaryColumns = ["Mean", "Median", "25th", "75th"]
     private let planColumnWidth: CGFloat = 118
@@ -21,11 +23,20 @@ struct PlanBrowserView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
+                HStack {
+                    PlayerSelector(
+                        selection: $selectedPlayer,
+                        isExpanded: $isSelectingPlayer
+                    )
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .zIndex(1)
                 tabSelector
                 planTable
             }
             .padding(.top, 8)
-            .navigationTitle("Plans")
+            .navigationTitle(isSelectingPlayer ? "Select player" : "Plans")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -211,7 +222,7 @@ struct PlanBrowserView: View {
 
     private var planColumnContent: some View {
         LazyVStack(spacing: 0) {
-            ForEach(DefaultPlan.placeholders) { plan in
+            ForEach(plans) { plan in
                 planCell(plan)
                 tableHorizontalDivider
             }
@@ -271,7 +282,7 @@ struct PlanBrowserView: View {
         let columnWidth = width / CGFloat(summaryColumns.count)
 
         return LazyVStack(spacing: 0) {
-            ForEach(DefaultPlan.placeholders) { plan in
+            ForEach(plans) { plan in
                 HStack(spacing: 0) {
                     placeholderCell(
                         plan.mean.formatted(.number.precision(.fractionLength(1))),
@@ -303,7 +314,7 @@ struct PlanBrowserView: View {
 
     private var probabilityValues: some View {
         LazyVStack(spacing: 0) {
-            ForEach(DefaultPlan.placeholders) { plan in
+            ForEach(plans) { plan in
                 HStack(spacing: 0) {
                     ForEach(Array(plan.turnProbabilities.enumerated()), id: \.offset) { _, probability in
                         placeholderCell("\(probability)%", width: probabilityColumnWidth)
@@ -424,10 +435,14 @@ struct PlanBrowserView: View {
     }
 
     private var rowsContentHeight: CGFloat {
-        CGFloat(DefaultPlan.placeholders.count) * (rowHeight + 1)
+        CGFloat(plans.count) * (rowHeight + 1)
+    }
+
+    private var plans: [DefaultPlan] {
+        DefaultPlan.placeholders(for: selectedPlayer)
     }
 }
 
 #Preview {
-    PlanBrowserView()
+    PlanBrowserView(selectedPlayer: .constant(.red))
 }

@@ -13,35 +13,48 @@ struct BoardScreen: View {
     @State private var isEditing = false
     @State private var editTool = BoardEditTool.terrain
     @State private var isShowingPlans = false
+    @State private var selectedPlayer = PlayerColor.red
+    @State private var isSelectingPlayer = false
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if isEditing {
-                    Picker("Hex editing mode", selection: $editTool) {
-                        ForEach(BoardEditTool.allCases) { tool in
-                            Text(tool.rawValue).tag(tool)
+                HStack(alignment: .top, spacing: 12) {
+                    PlayerSelector(
+                        selection: $selectedPlayer,
+                        isExpanded: $isSelectingPlayer
+                    )
+                    .zIndex(1)
+
+                    if isEditing {
+                        Picker("Hex editing mode", selection: $editTool) {
+                            ForEach(BoardEditTool.allCases) { tool in
+                                Text(tool.rawValue).tag(tool)
+                            }
                         }
+                        .pickerStyle(.segmented)
+                        .accessibilityIdentifier("hexEditModePicker")
                     }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .accessibilityIdentifier("hexEditModePicker")
+
+                    Spacer(minLength: 0)
                 }
+                .padding(.horizontal)
+                .padding(.top, 8)
 
                 BoardEditorView(
                     board: board,
                     isEditing: isEditing,
-                    editTool: editTool
+                    editTool: editTool,
+                    selectedPlayer: selectedPlayer
                 )
                 .accessibilityIdentifier("boardEditor")
             }
-            .navigationTitle("Board")
+            .navigationTitle(isSelectingPlayer ? "Select player" : "Board")
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .bottom) {
                 bottomBar
             }
             .sheet(isPresented: $isShowingPlans) {
-                PlanBrowserView()
+                PlanBrowserView(selectedPlayer: $selectedPlayer)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }

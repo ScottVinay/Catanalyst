@@ -119,6 +119,23 @@ final class CatanalystUITests: XCTestCase {
     }
 
     @MainActor
+    func testPlayerSelectionIsSharedWithPlans() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["standardBoardButton"].tap()
+
+        app.buttons["selectedPlayerButton"].tap()
+        XCTAssertTrue(app.navigationBars["Select player"].waitForExistence(timeout: 2))
+        app.buttons["selectPlayer-blue"].tap()
+        XCTAssertTrue(app.navigationBars["Board"].waitForExistence(timeout: 2))
+        XCTAssertEqual(app.buttons["selectedPlayerButton"].value as? String, "Collapsed")
+
+        app.buttons["plansButton"].tap()
+        XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Blue"))
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {

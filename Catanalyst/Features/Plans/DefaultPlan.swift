@@ -23,6 +23,21 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
         placeholder("Dev Card", systemImage: "rectangle.stack.fill", baseline: 5)
     ]
 
+    static func placeholders(for player: PlayerColor) -> [DefaultPlan] {
+        let adjustment = player.placeholderIndex
+        return placeholders.map { plan in
+            DefaultPlan(
+                name: plan.name,
+                systemImage: plan.systemImage,
+                mean: plan.mean + (Double(adjustment) * 0.1),
+                median: plan.median,
+                percentile25: plan.percentile25,
+                percentile75: plan.percentile75,
+                turnProbabilities: plan.turnProbabilities.map { max(0, $0 - adjustment) }
+            )
+        }
+    }
+
     private static func placeholder(
         _ name: String,
         systemImage: String,

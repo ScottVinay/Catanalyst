@@ -97,10 +97,56 @@ nonisolated enum Building: String, Codable, Sendable {
     case city
 }
 
-nonisolated struct BoardSnapshot: Codable, Equatable, Sendable {
+nonisolated struct BoardSnapshot: Equatable, Sendable {
     var tiles: [HexTile]
     var roads: Set<BoardEdge>
     var buildings: [BoardVertex: Building]
+    var roadOwners: [BoardEdge: PlayerColor]
+    var buildingOwners: [BoardVertex: PlayerColor]
+
+    init(
+        tiles: [HexTile],
+        roads: Set<BoardEdge>,
+        buildings: [BoardVertex: Building],
+        roadOwners: [BoardEdge: PlayerColor] = [:],
+        buildingOwners: [BoardVertex: PlayerColor] = [:]
+    ) {
+        self.tiles = tiles
+        self.roads = roads
+        self.buildings = buildings
+        self.roadOwners = roadOwners
+        self.buildingOwners = buildingOwners
+    }
+}
+
+extension BoardSnapshot: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case tiles, roads, buildings, roadOwners, buildingOwners
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        tiles = try container.decode([HexTile].self, forKey: .tiles)
+        roads = try container.decode(Set<BoardEdge>.self, forKey: .roads)
+        buildings = try container.decode([BoardVertex: Building].self, forKey: .buildings)
+        roadOwners = try container.decodeIfPresent(
+            [BoardEdge: PlayerColor].self,
+            forKey: .roadOwners
+        ) ?? Dictionary(uniqueKeysWithValues: roads.map { ($0, .red) })
+        buildingOwners = try container.decodeIfPresent(
+            [BoardVertex: PlayerColor].self,
+            forKey: .buildingOwners
+        ) ?? Dictionary(uniqueKeysWithValues: buildings.keys.map { ($0, .red) })
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(tiles, forKey: .tiles)
+        try container.encode(roads, forKey: .roads)
+        try container.encode(buildings, forKey: .buildings)
+        try container.encode(roadOwners, forKey: .roadOwners)
+        try container.encode(buildingOwners, forKey: .buildingOwners)
+    }
 }
 
 @Observable
@@ -114,6 +160,14 @@ final class BoardState {
     var tiles: [HexTile] { snapshot.tiles }
     var roads: Set<BoardEdge> { snapshot.roads }
     var buildings: [BoardVertex: Building] { snapshot.buildings }
+
+    func owner(of edge: BoardEdge) -> PlayerColor {
+        snapshot.roadOwners[edge] ?? .red
+    }
+
+    func owner(of vertex: BoardVertex) -> PlayerColor {
+        snapshot.buildingOwners[vertex] ?? .red
+    }
 
     func setTerrain(_ terrain: Terrain, at coordinate: HexCoordinate) {
         guard let index = tileIndex(at: coordinate) else { return }
@@ -133,20 +187,29 @@ final class BoardState {
         snapshot.tiles[index].number = nil
     }
 
-    func toggleRoad(on edge: BoardEdge) {
-        if snapshot.roads.remove(edge) == nil {
+    func toggleRoad(on edge: BoardEdge, for player: PlayerColor) {
+        if snapshot.roads.contains(edge) {
+            guard owner(of: edge) == player else { return }
+            snapshot.roads.remove(edge)
+            snapshot.roadOwners.removeValue(forKey: edge)
+        } else {
             snapshot.roads.insert(edge)
+            snapshot.roadOwners[edge] = player
         }
     }
 
-    func cycleBuilding(at vertex: BoardVertex) {
+    func cycleBuilding(at vertex: BoardVertex, for player: PlayerColor) {
+        if snapshot.buildings[vertex] != nil, owner(of: vertex) != player { return }
+
         switch snapshot.buildings[vertex] {
         case nil:
             snapshot.buildings[vertex] = .settlement
+            snapshot.buildingOwners[vertex] = player
         case .settlement:
             snapshot.buildings[vertex] = .city
         case .city:
             snapshot.buildings.removeValue(forKey: vertex)
+            snapshot.buildingOwners.removeValue(forKey: vertex)
         }
     }
 
@@ -169,6 +232,8 @@ extension BoardSnapshot {
             HexTile(coordinate: $0, terrain: .ocean, number: nil)
         },
         roads: [],
-        buildings: [:]
+        buildings: [:],
+        roadOwners: [:],
+        buildingOwners: [:]
     )
 }

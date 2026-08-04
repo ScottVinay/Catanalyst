@@ -15,6 +15,7 @@ struct BoardEditorView: View {
     let board: BoardState
     let isEditing: Bool
     let editTool: BoardEditTool
+    let selectedPlayer: PlayerColor
 
     @State private var activePicker: ActiveHexPicker?
     @State private var viewport = BoardViewport()
@@ -57,12 +58,23 @@ struct BoardEditorView: View {
                 }
 
                 ForEach(Array(board.roads)) { edge in
-                    RoadView(edge: edge, hexSize: hexSize, origin: origin)
+                    let owner = board.owner(of: edge)
+                    RoadView(
+                        edge: edge,
+                        hexSize: hexSize,
+                        origin: origin,
+                        color: owner.color,
+                        outlineColor: owner == .white ? .gray : .white
+                    )
                 }
 
                 ForEach(Array(board.buildings.keys), id: \.self) { vertex in
                     if let building = board.buildings[vertex] {
-                        BuildingView(building: building, hexSize: hexSize)
+                        BuildingView(
+                            building: building,
+                            hexSize: hexSize,
+                            color: board.owner(of: vertex).color
+                        )
                             .position(BoardGeometry.point(
                                 for: vertex,
                                 hexSize: hexSize,
@@ -156,8 +168,8 @@ struct BoardEditorView: View {
                 .frame(width: length, height: max(16, hexSize * 0.32))
                 .rotationEffect(.radians(angle))
                 .position(midpoint)
-                .onTapGesture { board.toggleRoad(on: edge) }
-                .accessibilityLabel(board.roads.contains(edge) ? "Remove road" : "Add road")
+                .onTapGesture { board.toggleRoad(on: edge, for: selectedPlayer) }
+                .accessibilityLabel(roadEditingLabel(for: edge))
                 .accessibilityAddTraits(.isButton)
         }
 
@@ -167,10 +179,28 @@ struct BoardEditorView: View {
                 .contentShape(Circle())
                 .frame(width: max(22, hexSize * 0.46), height: max(22, hexSize * 0.46))
                 .position(BoardGeometry.point(for: vertex, hexSize: hexSize, origin: origin))
-                .onTapGesture { board.cycleBuilding(at: vertex) }
-                .accessibilityLabel("Change building")
+                .onTapGesture { board.cycleBuilding(at: vertex, for: selectedPlayer) }
+                .accessibilityLabel(buildingEditingLabel(for: vertex))
                 .accessibilityAddTraits(.isButton)
         }
+    }
+
+    private func roadEditingLabel(for edge: BoardEdge) -> String {
+        guard board.roads.contains(edge) else { return "Add \(selectedPlayer.displayName) road" }
+        let owner = board.owner(of: edge)
+        return owner == selectedPlayer
+            ? "Remove \(owner.displayName) road"
+            : "Road owned by \(owner.displayName) player"
+    }
+
+    private func buildingEditingLabel(for vertex: BoardVertex) -> String {
+        guard board.buildings[vertex] != nil else {
+            return "Add \(selectedPlayer.displayName) settlement"
+        }
+        let owner = board.owner(of: vertex)
+        return owner == selectedPlayer
+            ? "Change \(owner.displayName) building"
+            : "Building owned by \(owner.displayName) player"
     }
 
     private var optionCount: Int {
@@ -320,6 +350,8 @@ private struct RoadView: View {
     let edge: BoardEdge
     let hexSize: CGFloat
     let origin: CGPoint
+    let color: Color
+    let outlineColor: Color
 
     var body: some View {
         let start = BoardGeometry.point(for: edge.start, hexSize: hexSize, origin: origin)
@@ -329,8 +361,8 @@ private struct RoadView: View {
         let angle = atan2(end.y - start.y, end.x - start.x)
 
         Capsule()
-            .fill(.red)
-            .overlay(Capsule().stroke(.white, lineWidth: 1))
+            .fill(color)
+            .overlay(Capsule().stroke(outlineColor, lineWidth: 1))
             .frame(width: length * 0.82, height: max(6, hexSize * 0.16))
             .rotationEffect(.radians(angle))
             .position(midpoint)
@@ -341,11 +373,13 @@ private struct RoadView: View {
 private struct BuildingView: View {
     let building: Building
     let hexSize: CGFloat
+    let color: Color
 
     var body: some View {
         Image(systemName: building == .city ? "building.2.fill" : "house.fill")
             .font(.system(size: building == .city ? hexSize * 0.42 : hexSize * 0.34))
-            .foregroundStyle(.red)
+            .foregroundStyle(color)
+            .shadow(color: .black.opacity(0.45), radius: 0.8)
             .padding(2)
             .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 3))
             .accessibilityHidden(true)

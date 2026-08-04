@@ -74,10 +74,11 @@ struct BoardStateTests {
         let board = BoardState()
         let edge = try #require(BoardGeometry.standardEdges.first)
 
-        board.toggleRoad(on: edge)
+        board.toggleRoad(on: edge, for: .red)
         #expect(board.roads == [edge])
+        #expect(board.owner(of: edge) == .red)
 
-        board.toggleRoad(on: edge)
+        board.toggleRoad(on: edge, for: .red)
         #expect(board.roads.isEmpty)
     }
 
@@ -86,13 +87,14 @@ struct BoardStateTests {
         let board = BoardState()
         let vertex = try #require(BoardGeometry.standardVertices.first)
 
-        board.cycleBuilding(at: vertex)
+        board.cycleBuilding(at: vertex, for: .blue)
         #expect(board.buildings[vertex] == .settlement)
+        #expect(board.owner(of: vertex) == .blue)
 
-        board.cycleBuilding(at: vertex)
+        board.cycleBuilding(at: vertex, for: .blue)
         #expect(board.buildings[vertex] == .city)
 
-        board.cycleBuilding(at: vertex)
+        board.cycleBuilding(at: vertex, for: .blue)
         #expect(board.buildings[vertex] == nil)
     }
 
@@ -104,11 +106,35 @@ struct BoardStateTests {
         let vertex = try #require(BoardGeometry.standardVertices.first)
         board.setTerrain(.brick, at: coordinate)
         board.setNumber(.five, at: coordinate)
-        board.toggleRoad(on: edge)
-        board.cycleBuilding(at: vertex)
+        board.toggleRoad(on: edge, for: .orange)
+        board.cycleBuilding(at: vertex, for: .green)
 
         let decoded = try BoardState.decode(board.encoded())
 
         #expect(decoded.snapshot == board.snapshot)
+    }
+
+    @Test("Players cannot change pieces owned by another player")
+    func ownershipIsIsolated() throws {
+        let board = BoardState()
+        let edge = try #require(BoardGeometry.standardEdges.first)
+        let vertex = try #require(BoardGeometry.standardVertices.first)
+
+        board.toggleRoad(on: edge, for: .red)
+        board.toggleRoad(on: edge, for: .blue)
+        board.cycleBuilding(at: vertex, for: .red)
+        board.cycleBuilding(at: vertex, for: .blue)
+
+        #expect(board.roads.contains(edge))
+        #expect(board.owner(of: edge) == .red)
+        #expect(board.buildings[vertex] == .settlement)
+        #expect(board.owner(of: vertex) == .red)
+    }
+
+    @Test("Six serializable player colours are available")
+    func playerColours() throws {
+        #expect(PlayerColor.allCases.count == 6)
+        let encoded = try JSONEncoder().encode(PlayerColor.allCases)
+        #expect(try JSONDecoder().decode([PlayerColor].self, from: encoded) == PlayerColor.allCases)
     }
 }

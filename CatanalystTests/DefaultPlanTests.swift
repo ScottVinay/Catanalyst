@@ -26,4 +26,10 @@ struct DefaultPlanTests {
                 .allSatisfy { earlier, later in later >= earlier }
         })
     }
+
+    @Test("Placeholder statistics respond to selected player")
+    func selectedPlayerChangesPlaceholders() {
+        #expect(DefaultPlan.placeholders(for: .red) != DefaultPlan.placeholders(for: .blue))
+        #expect(DefaultPlan.placeholders(for: .red).map(\.name) == DefaultPlan.placeholders(for: .blue).map(\.name))
+    }
 }
