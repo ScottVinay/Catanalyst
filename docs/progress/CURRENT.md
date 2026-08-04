@@ -30,6 +30,8 @@ Use the area below the three dashes for your current notes:
 - Added separate fixed plan/header panes synchronized with the clipped values viewport, plus grouped super-column headers and boundary lines.
 - Matched fixed/value row metrics, normalized scroll insets, compacted the four summary columns, and slightly strengthened separators.
 - Anchored short values content to the top-leading viewport edge so results align with plan rows when the table does not fill the screen.
+- Split horizontal navigation into a full-width summary section and a continuously scrollable probability section with animated swipe/chevron transitions.
+- Fixed the active meta-header and embedded its direction arrow; counteracted downward overscroll to keep figures locked to plan rows.
 - Changed placeholder probabilities to monotonic cumulative distributions.
 - Added unit and UI coverage for default plan data and sheet presentation.
 - Replaced the zoom segmented control with discrete pinch zoom.

@@ -7,3 +7,13 @@
 - As an artectural tip, you probably should not create the whole table as a single object. Separate out the left column and header columns.
 
 - There should be lines to clearly demarcate which columns belong to which meta-columns.
+
+New as of 2026-08-04:
+
+- The plan browser should at first, only show the "estimated turns" columns. These should finish at the right side of the screen, with none of the "percentage" columns visible. There should be a faint right arrow in the meta-header. Upon swiping right, instead of continuously moving across, we should slide across in a single movement, until the first percentage column is on the left side of the screen. From this position, we can smoothly and continuously scroll between the percentage columns. Swiping left moves again in a semi-screen-change to the turns columns section. While on the percentage columns, a faint left arrow should be shown in the meta-header.
+
+- The meta-column should be fixed at the top, i.e. show just "Turns until acquired/built" or "Probability within N turns", and this doesn't scroll.
+
+- Pulling down on the figures should not show white space above them if we are at the top. i.e. the figures should always be locked to their corresponding row title.
+
+- Ensure the arrow is in the meta-header.

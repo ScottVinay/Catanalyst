@@ -8,13 +8,13 @@ The Plan Browser provides statistical predictions for the time required to compl
 
 # Entry and Navigation
 
-### Access
+## Access
 
 * The Plan Browser shall be opened by tapping the **Plans** icon in the universal navigation bar.
 * The universal navigation bar shall be visible across all application screens.
 * The Plan Browser shall animate into view by sliding upward from the bottom of the screen.
 
-### Exit
+## Exit
 
 * Closing behaviour is defined by the application's standard bottom-sheet navigation behaviour.
 
@@ -49,7 +49,7 @@ The Default tab shall contain the following predefined plans:
 6. Road
 7. Settlement
 8. City
-9. Development Card
+9. Dev Card
 
 The contents of the Default tab are fixed.
 
@@ -77,7 +77,7 @@ Examples include:
 * Road
 * Settlement
 * City
-* Development Card
+* Dev Card
 
 ---
 
@@ -177,11 +177,11 @@ The row shall contain:
 * A "+" icon.
 * The label **New Plan**.
 
-Selecting this row shall initiate creation of a new custom plan.
+Selecting this row shall initiate creation of a new custom plan and go directly to `SCR-004-edit.md`.
 
 ## Editing
 
-Holding on a row in custom brings up `SCR-004-edit.md`.
+Holding on a row in custom brings up `SCR-005-view-plan.md`.
 Holding on a row in default briefly shows a message saying "Default plans cannot be edited.".
 
 
@@ -196,5 +196,5 @@ If the backend has not yet been built to run simulations and provide these value
 # Super column headers
 
 - Above columns that express numbers of turns (e.g. mean, median, 25th percentile, 75th percentile) there should be a meta-column header spanning those columns that says "Turns until acquired/built".
-- Above columns that express probabilities of the things being built in a certain number of turns, there should be a meta-column header spanning those columns that says "Probability of being acquired/built within N turns".
+- Above columns that express probabilities of the things being built in a certain number of turns, there should be a meta-column header spanning those columns that says "Probability within N turns".
 

@@ -28,6 +28,11 @@ Implement SCR-002-plans. Do not do any simulation or calculation backend yet, ju
 - Fixed and scrolling panes share explicit 44-point rows and 1-point separators; normalized scroll insets keep their vertical offsets aligned.
 - The values pane uses a top-leading default anchor and top-aligned minimum viewport height, preventing short result sets from being vertically centered away from their plan rows.
 - The plan and summary columns are compact enough to show Mean, Median, 25th, and 75th simultaneously at common iPhone widths.
+- The initial summary section dynamically divides the complete values viewport among its four columns, leaving no probability column visible.
+- A directional swipe or faint chevron changes the table between summary and probability sections with a single push transition.
+- The probability section starts at T1 and supports continuous horizontal scrolling; returning left is available at its leading edge.
+- The chevron is embedded in the fixed meta-header, which shows only the active section title while the probability column labels scroll beneath it.
+- Negative vertical overscroll is counteracted in the values content so pulling down cannot detach figures from their plan rows.
 - Table separators use a slightly stronger secondary tint for clearer grouping.
 - Super-column headers group turn summaries and cumulative completion probabilities.
 - Placeholder probabilities use a monotonic cumulative distribution so each later-turn probability is at least the preceding value.
@@ -39,12 +44,16 @@ Implement SCR-002-plans. Do not do any simulation or calculation backend yet, ju
 - Added unit coverage requiring cumulative probabilities to be bounded and nondecreasing.
 - Added UI coverage for opening, inspecting, scrolling, and closing the Plan Browser, including assertions for the structurally separate fixed column and headers.
 - Added UI coverage comparing the first plan and result row midpoints within a 1.5-point tolerance.
+- Added UI coverage for the summary-only initial state, transition to probability columns, continuous probability scrolling, and chevron return.
+- Added UI coverage requiring the chevron to lie within the meta-header, the meta-header frame to remain fixed during probability scrolling, and row alignment to survive a downward pull.
 - `xcodebuild build-for-testing` succeeded for a generic iOS Simulator destination, compiling the app and both test bundles.
 - `xcodebuild build-for-testing` succeeded again after the row-alignment, density, and separator refinements.
 - `xcodebuild build-for-testing` succeeded after correcting the short-content scroll anchoring shown in manual testing.
+- `xcodebuild build-for-testing` succeeded after implementing the two-section horizontal navigation added to REQ-008 on 2026-08-04.
+- `xcodebuild build-for-testing` succeeded after fixing the meta-header, arrow placement, and pull-down behavior from the revised REQ-008.
 - Focused test execution on 2026-08-03 could not start because CoreSimulator exposed no concrete simulator devices; Xcode reported only placeholder destinations.
 
 ## Remaining risks and manual checks
 
 - Run `DefaultPlanTests` and `testOpensDefaultPlanBrowser` after CoreSimulator is repaired.
-- Manually confirm exact row alignment while vertically scrolling, simultaneous visibility of all four summary columns, separator contrast, and row readability on an iPhone-sized display.
+- Manually confirm the fixed meta-header, embedded directional chevrons, pull-down row lock, summary-to-probability transition, and continuous probability scrolling on an iPhone-sized display.

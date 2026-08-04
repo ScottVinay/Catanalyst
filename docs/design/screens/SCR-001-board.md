@@ -86,3 +86,6 @@ If multiple players are enabled, a selector at the top of the screen determines 
 
 There should be a "Done" button at the bottom to save the board and exit edit mode.
 
+## Player selection
+
+ITEM-001-player-selector should be visible and active.
