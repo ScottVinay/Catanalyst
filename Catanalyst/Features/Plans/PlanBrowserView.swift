@@ -1,12 +1,18 @@
 import SwiftUI
 
+private enum PlanTableSection: Equatable {
+    case summary
+    case probability
+}
+
 struct PlanBrowserView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var scrollOffset = CGPoint.zero
+    @State private var verticalOverscroll: CGFloat = 0
+    @State private var tableSection = PlanTableSection.summary
 
     private let summaryColumns = ["Mean", "Median", "25th", "75th"]
     private let planColumnWidth: CGFloat = 118
-    private let summaryColumnWidth: CGFloat = 54
     private let probabilityColumnWidth: CGFloat = 58
     private let superHeaderHeight: CGFloat = 30
     private let columnHeaderHeight: CGFloat = 34
@@ -72,7 +78,7 @@ struct PlanBrowserView: View {
                 HStack(spacing: 0) {
                     fixedCornerHeader
                     tableVerticalDivider
-                    scrollingHeaders
+                    sectionHeader(viewportWidth: valuesViewportWidth)
                         .frame(width: valuesViewportWidth)
                 }
                 .frame(height: headerHeight)
@@ -82,12 +88,13 @@ struct PlanBrowserView: View {
                 HStack(spacing: 0) {
                     fixedPlanColumn
                     tableVerticalDivider
-                    scrollingValues
+                    scrollingValues(viewportWidth: valuesViewportWidth)
                         .frame(width: valuesViewportWidth)
                 }
                 .frame(maxHeight: .infinity)
             }
             .background(Color(uiColor: .systemBackground))
+            .animation(.easeInOut(duration: 0.24), value: tableSection)
         }
         .padding(.horizontal)
         .accessibilityIdentifier("defaultPlanTable")
@@ -111,54 +118,83 @@ struct PlanBrowserView: View {
         .accessibilityIdentifier("fixedPlanHeader")
     }
 
-    private var scrollingHeaders: some View {
-        GeometryReader { _ in
-            headerContent
-                .offset(x: -scrollOffset.x)
-                .frame(width: valuesContentWidth, alignment: .leading)
+    private func sectionHeader(viewportWidth: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            metaHeader(width: viewportWidth)
+            tableHorizontalDivider
+
+            GeometryReader { _ in
+                Group {
+                    switch tableSection {
+                    case .summary:
+                        summaryColumnHeader(width: viewportWidth)
+                    case .probability:
+                        probabilityColumnHeader
+                            .offset(x: -scrollOffset.x)
+                    }
+                }
+                .id(tableSection)
+                .transition(sectionTransition)
+            }
         }
+        .frame(height: headerHeight)
         .clipped()
         .background(Color(uiColor: .systemBackground))
         .accessibilityIdentifier("planColumnHeader")
     }
 
-    private var headerContent: some View {
-        HStack(spacing: 0) {
-            VStack(spacing: 0) {
-                tableCell(
-                    "Turns until acquired/built",
-                    width: summaryGroupWidth,
-                    height: superHeaderHeight
-                )
-                tableHorizontalDivider
-                HStack(spacing: 0) {
-                    ForEach(summaryColumns, id: \.self) { title in
-                        tableCell(title, width: summaryColumnWidth, height: columnHeaderHeight)
-                    }
+    private func metaHeader(width: CGFloat) -> some View {
+        ZStack {
+            Text(
+                tableSection == .summary
+                    ? "Turns until acquired/built"
+                    : "Probability within N turns"
+            )
+
+            HStack {
+                if tableSection == .probability {
+                    sectionArrow
+                }
+                Spacer()
+                if tableSection == .summary {
+                    sectionArrow
                 }
             }
-
-            tableVerticalDivider
-
-            VStack(spacing: 0) {
-                tableCell(
-                    "Probability of being acquired/built within N turns",
-                    width: probabilityGroupWidth,
-                    height: superHeaderHeight
-                )
-                tableHorizontalDivider
-                HStack(spacing: 0) {
-                    ForEach(1...10, id: \.self) { turn in
-                        tableCell("T\(turn)", width: probabilityColumnWidth, height: columnHeaderHeight)
-                    }
-                }
-            }
+            .padding(.horizontal, 4)
         }
-        .frame(width: valuesContentWidth, height: headerHeight, alignment: .leading)
+        .frame(width: width, height: superHeaderHeight)
         .font(.caption2.weight(.semibold))
         .foregroundStyle(.secondary)
         .background(Color(uiColor: .systemBackground))
-        .accessibilityIdentifier("planSuperHeader")
+        .accessibilityIdentifier("planMetaHeader")
+    }
+
+    private func summaryColumnHeader(width: CGFloat) -> some View {
+        let columnWidth = width / CGFloat(summaryColumns.count)
+
+        return HStack(spacing: 0) {
+            ForEach(summaryColumns, id: \.self) { title in
+                tableCell(title, width: columnWidth, height: columnHeaderHeight)
+            }
+        }
+        .frame(width: width, height: columnHeaderHeight)
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(.secondary)
+        .background(Color(uiColor: .systemBackground))
+        .accessibilityIdentifier("summaryPlanHeader")
+    }
+
+    private var probabilityColumnHeader: some View {
+        HStack(spacing: 0) {
+            ForEach(1...10, id: \.self) { turn in
+                tableCell("T\(turn)", width: probabilityColumnWidth, height: columnHeaderHeight)
+            }
+        }
+        .frame(width: probabilityGroupWidth, height: columnHeaderHeight)
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(.secondary)
+        .background(Color(uiColor: .systemBackground))
+        .accessibilityIdentifier("probabilityPlanHeader")
     }
 
     private var fixedPlanColumn: some View {
@@ -192,15 +228,25 @@ struct PlanBrowserView: View {
             .accessibilityIdentifier("defaultPlan-\(plan.id)")
     }
 
-    private var scrollingValues: some View {
+    private func scrollingValues(viewportWidth: CGFloat) -> some View {
         GeometryReader { proxy in
             ScrollView([.horizontal, .vertical]) {
-                valuesContent
-                    .frame(
-                        minWidth: proxy.size.width,
-                        minHeight: proxy.size.height,
-                        alignment: .topLeading
-                    )
+                Group {
+                    switch tableSection {
+                    case .summary:
+                        summaryValues(width: viewportWidth)
+                    case .probability:
+                        probabilityValues
+                    }
+                }
+                .id(tableSection)
+                .transition(sectionTransition)
+                .offset(y: verticalOverscroll)
+                .frame(
+                    minWidth: proxy.size.width,
+                    minHeight: proxy.size.height,
+                    alignment: .topLeading
+                )
             }
             .defaultScrollAnchor(.topLeading)
             .onScrollGeometryChange(for: CGPoint.self) { geometry in
@@ -209,52 +255,128 @@ struct PlanBrowserView: View {
                     y: geometry.contentOffset.y + geometry.contentInsets.top
                 )
             } action: { _, newOffset in
+                verticalOverscroll = min(0, newOffset.y)
                 scrollOffset = CGPoint(
                     x: max(0, newOffset.x),
                     y: max(0, newOffset.y)
                 )
             }
+            .simultaneousGesture(sectionSwipeGesture)
             .clipped()
             .accessibilityIdentifier("planValuesTable")
         }
     }
 
-    private var valuesContent: some View {
-        LazyVStack(spacing: 0) {
+    private func summaryValues(width: CGFloat) -> some View {
+        let columnWidth = width / CGFloat(summaryColumns.count)
+
+        return LazyVStack(spacing: 0) {
             ForEach(DefaultPlan.placeholders) { plan in
-                valuesRow(plan)
+                HStack(spacing: 0) {
+                    placeholderCell(
+                        plan.mean.formatted(.number.precision(.fractionLength(1))),
+                        width: columnWidth
+                    )
+                    placeholderCell(
+                        plan.median.formatted(.number.precision(.fractionLength(0))),
+                        width: columnWidth
+                    )
+                    placeholderCell(
+                        plan.percentile25.formatted(.number.precision(.fractionLength(0))),
+                        width: columnWidth
+                    )
+                    placeholderCell(
+                        plan.percentile75.formatted(.number.precision(.fractionLength(0))),
+                        width: columnWidth
+                    )
+                }
+                .frame(width: width, height: rowHeight)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(accessibilitySummary(for: plan))
+                .accessibilityIdentifier("defaultPlanValues-\(plan.id)")
                 tableHorizontalDivider
             }
         }
-        .frame(width: valuesContentWidth, alignment: .leading)
+        .frame(width: width, alignment: .leading)
+        .accessibilityIdentifier("summaryPlanValues")
     }
 
-    private func valuesRow(_ plan: DefaultPlan) -> some View {
-        HStack(spacing: 0) {
-            HStack(spacing: 0) {
-                placeholderCell(plan.mean.formatted(.number.precision(.fractionLength(1))))
-                placeholderCell(plan.median.formatted(.number.precision(.fractionLength(0))))
-                placeholderCell(plan.percentile25.formatted(.number.precision(.fractionLength(0))))
-                placeholderCell(plan.percentile75.formatted(.number.precision(.fractionLength(0))))
+    private var probabilityValues: some View {
+        LazyVStack(spacing: 0) {
+            ForEach(DefaultPlan.placeholders) { plan in
+                HStack(spacing: 0) {
+                    ForEach(Array(plan.turnProbabilities.enumerated()), id: \.offset) { _, probability in
+                        placeholderCell("\(probability)%", width: probabilityColumnWidth)
+                    }
+                }
+                .frame(width: probabilityGroupWidth, height: rowHeight, alignment: .leading)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(plan.name) cumulative completion probabilities")
+                .accessibilityIdentifier("defaultPlanProbabilities-\(plan.id)")
+                tableHorizontalDivider
             }
-            .frame(width: summaryGroupWidth)
+        }
+        .frame(width: probabilityGroupWidth, alignment: .leading)
+        .accessibilityIdentifier("probabilityPlanValues")
+    }
 
-            tableVerticalDivider
+    private var sectionArrow: some View {
+        Button {
+            switchSection()
+        } label: {
+            Image(systemName: tableSection == .summary ? "chevron.right" : "chevron.left")
+                .font(.caption2.bold())
+                .frame(width: 22, height: superHeaderHeight)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.secondary.opacity(0.45))
+        .accessibilityLabel(
+            tableSection == .summary ? "Show probability columns" : "Show estimated turns columns"
+        )
+        .accessibilityIdentifier("planSectionArrow")
+    }
 
-            HStack(spacing: 0) {
-                ForEach(Array(plan.turnProbabilities.enumerated()), id: \.offset) { _, probability in
-                    placeholderCell("\(probability)%", width: probabilityColumnWidth)
+    private var sectionSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 28)
+            .onEnded { value in
+                let horizontal = value.translation.width
+                guard abs(horizontal) > abs(value.translation.height) * 1.25 else { return }
+
+                switch tableSection {
+                case .summary where horizontal < -48:
+                    showProbabilitySection()
+                case .probability where horizontal > 48 && scrollOffset.x <= 1:
+                    showSummarySection()
+                default:
+                    break
                 }
             }
-            .frame(width: probabilityGroupWidth)
-        }
-        .frame(width: valuesContentWidth, height: rowHeight, alignment: .leading)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilitySummary(for: plan))
-        .accessibilityIdentifier("defaultPlanValues-\(plan.id)")
     }
 
-    private func placeholderCell(_ value: String, width: CGFloat = 68) -> some View {
+    private func switchSection() {
+        switch tableSection {
+        case .summary: showProbabilitySection()
+        case .probability: showSummarySection()
+        }
+    }
+
+    private func showProbabilitySection() {
+        scrollOffset.x = 0
+        tableSection = .probability
+    }
+
+    private func showSummarySection() {
+        scrollOffset.x = 0
+        tableSection = .summary
+    }
+
+    private var sectionTransition: AnyTransition {
+        tableSection == .probability
+            ? .push(from: .trailing)
+            : .push(from: .leading)
+    }
+
+    private func placeholderCell(_ value: String, width: CGFloat) -> some View {
         Text(value)
             .font(.subheadline.monospacedDigit())
             .foregroundStyle(.red)
@@ -297,16 +419,8 @@ struct PlanBrowserView: View {
         superHeaderHeight + columnHeaderHeight + 1
     }
 
-    private var summaryGroupWidth: CGFloat {
-        summaryColumnWidth * CGFloat(summaryColumns.count)
-    }
-
     private var probabilityGroupWidth: CGFloat {
         probabilityColumnWidth * 10
-    }
-
-    private var valuesContentWidth: CGFloat {
-        summaryGroupWidth + 1 + probabilityGroupWidth
     }
 
     private var rowsContentHeight: CGFloat {

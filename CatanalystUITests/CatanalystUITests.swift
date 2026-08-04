@@ -69,11 +69,13 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.otherElements["defaultPlanTable"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)
-        XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Development Card"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Dev Card"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["planSuperHeader"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["planColumnHeader"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["fixedPlanColumn"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["fixedPlanHeader"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["summaryPlanHeader"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["probabilityPlanHeader"].exists)
 
         let firstPlan = app.descendants(matching: .any)["defaultPlan-Ore"]
         let firstValues = app.descendants(matching: .any)["defaultPlanValues-Ore"]
@@ -81,8 +83,34 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertEqual(firstPlan.frame.midY, firstValues.frame.midY, accuracy: 1.5)
 
         let table = app.otherElements["planValuesTable"]
+        let metaHeader = app.descendants(matching: .any)["planMetaHeader"]
+        let sectionArrow = app.buttons["planSectionArrow"]
+        XCTAssertTrue(metaHeader.exists)
+        XCTAssertTrue(metaHeader.frame.contains(
+            CGPoint(x: sectionArrow.frame.midX, y: sectionArrow.frame.midY)
+        ))
+
+        table.swipeDown()
+        XCTAssertEqual(firstPlan.frame.midY, firstValues.frame.midY, accuracy: 1.5)
+
         table.swipeLeft()
+        XCTAssertTrue(
+            app.descendants(matching: .any)["probabilityPlanHeader"]
+                .waitForExistence(timeout: 2)
+        )
+        XCTAssertFalse(app.descendants(matching: .any)["summaryPlanHeader"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].isHittable)
+        let fixedMetaHeaderFrame = metaHeader.frame
+        table.swipeLeft()
+        XCTAssertTrue(app.descendants(matching: .any)["probabilityPlanValues"].exists)
+        XCTAssertEqual(metaHeader.frame.minX, fixedMetaHeaderFrame.minX, accuracy: 1)
+        XCTAssertEqual(metaHeader.frame.maxX, fixedMetaHeaderFrame.maxX, accuracy: 1)
+
+        sectionArrow.tap()
+        XCTAssertTrue(
+            app.descendants(matching: .any)["summaryPlanHeader"]
+                .waitForExistence(timeout: 2)
+        )
         table.swipeUp()
         XCTAssertTrue(app.descendants(matching: .any)["planColumnHeader"].isHittable)
 

@@ -20,7 +20,7 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
         placeholder("Road", systemImage: "road.lanes", baseline: 3),
         placeholder("Settlement", systemImage: "house.fill", baseline: 5),
         placeholder("City", systemImage: "building.2.fill", baseline: 7),
-        placeholder("Development Card", systemImage: "rectangle.stack.fill", baseline: 5)
+        placeholder("Dev Card", systemImage: "rectangle.stack.fill", baseline: 5)
     ]
 
     private static func placeholder(

@@ -7,7 +7,7 @@ struct DefaultPlanTests {
     func fixedPlans() {
         #expect(DefaultPlan.placeholders.map(\.name) == [
             "Ore", "Brick", "Wheat", "Sheep", "Wood", "Road",
-            "Settlement", "City", "Development Card"
+            "Settlement", "City", "Dev Card"
         ])
     }
 
