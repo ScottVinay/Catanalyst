@@ -1,0 +1,39 @@
+status: done
+started_datetime: 2026-08-04T22:29:00+01:00
+completed_datetime: 2026-08-04T22:39:00+01:00
+priority: P0
+requirement: REQ-012, REQ-013
+design: SCR-001-board, SCR-004-edit
+
+# Road-chain placement validation
+
+Update valid road placement so a new road may connect to an owned road as well as an owned settlement or city.
+
+## Acceptance criteria
+
+- [x] A road adjoining a road of the same colour is valid.
+- [x] A road adjoining a settlement or city of the same colour remains valid.
+- [x] A road adjoining only opponent-owned roads/buildings remains invalid.
+- [x] A disconnected road remains invalid.
+- [x] Board editing and projected construction-plan editing use the same revised rule.
+- [x] Earlier planned roads count when validating a later road step.
+- [x] Invalid placement shows exactly `Road must be adjacent to a road, settlement or city of the same colour.` for two seconds.
+- [x] Existing ownership, removal, serialization, and building-distance behavior remains unchanged.
+- [x] Domain and UI regression bundles compile.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- This task supersedes TASK-012's literal building-only interpretation of the earlier REQ-012 wording.
+- Connectivity is satisfied when either endpoint touches an owned building or an existing/planned owned road sharing that endpoint.
+
+## Verification
+
+- Add analytical domain fixtures for same-colour chains, opponent-only contact, disconnected roads, and projected ordered steps.
+
+## Evidence
+
+- Revised the shared domain validator to accept an owned building at either endpoint or an owned road sharing either endpoint.
+- Board editing and construction-plan projection already call the same validator, so earlier planned roads participate sequentially without UI-specific rule duplication.
+- Updated the exact error text and added analytical coverage for same-colour chains, opponent-only contact, disconnection, and planned-road projection.
+- The complete app, unit-test, and UI-test bundles compile via `xcodebuild build-for-testing -quiet` using `/private/tmp/Catanalyst-req013-derived`.

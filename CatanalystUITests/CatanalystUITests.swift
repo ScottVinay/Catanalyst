@@ -37,10 +37,16 @@ final class CatanalystUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["doneEditingButton"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.segmentedControls["hexEditModePicker"].exists)
+        XCTAssertEqual(
+            app.segmentedControls["hexEditModePicker"].frame.midX,
+            app.windows.firstMatch.frame.midX,
+            accuracy: 1
+        )
+        XCTAssertTrue(app.buttons["boardEditHelpButton"].exists)
     }
 
     @MainActor
-    func testTapOpensAndClosesTerrainPicker() throws {
+    func testLongPressDragEditsTerrainAndCentreReleaseCancels() throws {
         let app = XCUIApplication()
         app.launch()
         app.buttons["standardBoardButton"].tap()
@@ -49,11 +55,21 @@ final class CatanalystUITests: XCTestCase {
         let centerHex = app.descendants(matching: .any)["hex-0,0"]
         XCTAssertTrue(centerHex.waitForExistence(timeout: 3))
 
-        centerHex.tap()
-        XCTAssertTrue(app.buttons["Brick"].waitForExistence(timeout: 2))
+        let initialTerrain = centerHex.value as? String
+        let centre = centerHex.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
 
         centerHex.tap()
-        XCTAssertFalse(app.buttons["Brick"].exists)
+        centerHex.tap()
+        XCTAssertEqual(centerHex.value as? String, initialTerrain)
+        XCTAssertFalse(app.descendants(matching: .any)["hexPickerOption-0"].exists)
+
+        centre.press(forDuration: 0.6)
+        XCTAssertEqual(centerHex.value as? String, initialTerrain)
+        XCTAssertFalse(app.descendants(matching: .any)["hexPickerOption-0"].exists)
+
+        let brickOption = centre.withOffset(CGVector(dx: 0, dy: -centerHex.frame.width * 0.9))
+        centre.press(forDuration: 0.6, thenDragTo: brickOption)
+        XCTAssertEqual(centerHex.value as? String, "Brick")
     }
 
     @MainActor
@@ -67,6 +83,7 @@ final class CatanalystUITests: XCTestCase {
         plansButton.tap()
 
         XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["planBrowserHelpButton"].exists)
         XCTAssertTrue(app.otherElements["defaultPlanTable"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Dev Card"].exists)
@@ -125,33 +142,40 @@ final class CatanalystUITests: XCTestCase {
         app.buttons["standardBoardButton"].tap()
 
         XCTAssertFalse(app.buttons["selectedPlayerButton"].exists)
+        let viewingBoardFrame = app.otherElements["boardEditor"].frame
         app.buttons["editBoardButton"].tap()
 
         let boardFrame = app.otherElements["boardEditor"].frame
         let pickerFrame = app.segmentedControls["hexEditModePicker"].frame
-        app.buttons["selectedPlayerButton"].tap()
-        XCTAssertTrue(app.navigationBars["Select player"].waitForExistence(timeout: 2))
+        XCTAssertEqual(boardFrame, viewingBoardFrame)
+        XCTAssertLessThan(
+            pickerFrame.maxY,
+            app.descendants(matching: .any)["playerSelector"].frame.minY
+        )
         let selectedFrame = app.buttons["selectedPlayerButton"].frame
         let blueFrame = app.buttons["selectPlayer-blue"].frame
         XCTAssertGreaterThan(blueFrame.minX, selectedFrame.maxX)
         XCTAssertEqual(blueFrame.midY, selectedFrame.midY, accuracy: 1)
-        XCTAssertEqual(app.otherElements["boardEditor"].frame, boardFrame)
-        XCTAssertEqual(app.segmentedControls["hexEditModePicker"].frame, pickerFrame)
 
         app.buttons["selectPlayer-blue"].tap()
-        XCTAssertTrue(app.navigationBars["Board"].waitForExistence(timeout: 2))
-        XCTAssertEqual(app.buttons["selectedPlayerButton"].value as? String, "Collapsed")
+        XCTAssertEqual(app.buttons["selectedPlayerButton"].value as? String, "Selected")
+        XCTAssertEqual(app.otherElements["boardEditor"].frame, boardFrame)
+        XCTAssertEqual(app.segmentedControls["hexEditModePicker"].frame, pickerFrame)
         app.buttons["doneEditingButton"].tap()
         XCTAssertFalse(app.buttons["selectedPlayerButton"].exists)
 
         app.buttons["plansButton"].tap()
         XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Blue"))
+        XCTAssertLessThan(
+            app.descendants(matching: .any)["planTabSelector"].frame.maxY,
+            app.descendants(matching: .any)["playerSelector"].frame.minY
+        )
 
         let tableFrame = app.otherElements["defaultPlanTable"].frame
-        app.buttons["selectedPlayerButton"].tap()
+        app.buttons["selectPlayer-red"].tap()
         XCTAssertEqual(app.otherElements["defaultPlanTable"].frame, tableFrame)
-        app.buttons["selectedPlayerButton"].tap()
+        XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Red"))
     }
 
     @MainActor
@@ -162,15 +186,30 @@ final class CatanalystUITests: XCTestCase {
         app.buttons["plansButton"].tap()
 
         app.buttons["customPlansTab"].tap()
-        XCTAssertTrue(app.otherElements["customPlansList"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.otherElements["customPlanTable"].waitForExistence(timeout: 2))
         app.buttons["newPlanButton"].tap()
+        let chooser = app.descendants(matching: .any)["planTypeChooser"]
+        XCTAssertTrue(chooser.waitForExistence(timeout: 2))
+        XCTAssertEqual(chooser.frame.midX, app.windows.firstMatch.frame.midX, accuracy: 1)
+        XCTAssertEqual(chooser.frame.midY, app.windows.firstMatch.frame.midY, accuracy: 50)
+        XCTAssertTrue(app.buttons["planTypeHelpButton"].exists)
         app.buttons["Cards"].tap()
 
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+
         XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["planEditHelpButton"].exists)
         app.buttons["addCard-brick"].tap()
         app.buttons["addCard-brick"].tap()
         app.buttons["addCard-ore"].tap()
         XCTAssertEqual(app.descendants(matching: .any)["selectedCard-brick"].label, "2 Brick cards")
+        XCTAssertEqual(
+            app.descendants(matching: .any)["selectedCard-brick"].value as? String,
+            "White outlined stack"
+        )
+        app.buttons["clearCardPlanButton"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["emptySelectedCards"].exists)
+        app.buttons["addCard-brick"].tap()
 
         let name = app.textFields["planNameField"]
         name.tap()
@@ -179,12 +218,33 @@ final class CatanalystUITests: XCTestCase {
         name.typeText("City Hand")
         app.buttons["savePlanButton"].tap()
 
-        let plan = app.staticTexts["City Hand"]
+        let plan = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'customPlan-'")
+        ).firstMatch
         XCTAssertTrue(plan.waitForExistence(timeout: 2))
-        plan.press(forDuration: 1)
+        XCTAssertTrue(plan.label.contains("City Hand"))
+        XCTAssertTrue(app.descendants(matching: .any)["summaryPlanHeader"].exists)
+        XCTAssertLessThan(plan.frame.midY, app.buttons["newPlanButton"].frame.midY)
+        let customValues = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'customPlanValues-'")
+        ).firstMatch
+        XCTAssertTrue(customValues.exists)
+        XCTAssertEqual(plan.frame.midY, customValues.frame.midY, accuracy: 1.5)
+
+        app.buttons["selectPlayer-blue"].tap()
+        XCTAssertFalse(plan.exists)
+        XCTAssertTrue(app.buttons["newPlanButton"].exists)
+
+        app.buttons["selectPlayer-red"].tap()
+        XCTAssertTrue(plan.waitForExistence(timeout: 2))
+        plan.tap()
         XCTAssertTrue(app.otherElements["planDetail"].waitForExistence(timeout: 2))
         app.buttons["editCustomPlanButton"].tap()
         XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.otherElements["planDetail"].exists)
+        app.buttons["cancelPlanButton"].tap()
+        XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.otherElements["planDetail"].exists)
     }
 
     @MainActor
@@ -197,10 +257,29 @@ final class CatanalystUITests: XCTestCase {
         app.buttons["newPlanButton"].tap()
         app.buttons["Constructions"].tap()
 
-        XCTAssertTrue(
-            app.otherElements["constructionPlanPlaceholder"]
-                .waitForExistence(timeout: 2)
-        )
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Con plan 1")
+
+        XCTAssertTrue(app.otherElements["newConstructionStep"].waitForExistence(timeout: 2))
+        app.buttons["addConstruction-settlement"].tap()
+        XCTAssertTrue(app.otherElements["constructionPlacement"].waitForExistence(timeout: 2))
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'plannedBuildingTarget-'")
+        ).firstMatch.tap()
+        XCTAssertTrue(app.otherElements["plannedPlacementConfirmation"].waitForExistence(timeout: 0.5))
+        XCTAssertTrue(app.otherElements["constructionPlacement"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["constructionStep-0"].waitForExistence(timeout: 2))
+        app.buttons["previewConstructionPlanButton"].tap()
+        XCTAssertTrue(app.otherElements["constructionPlanPreview"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'plannedBuildingTarget-'")
+        ).firstMatch.exists)
+        app.buttons["closeConstructionPreviewButton"].tap()
+        XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any)["constructionStep-0"].exists)
+        XCTAssertTrue(app.buttons["removeLastConstructionStepButton"].exists)
+        app.buttons["removeLastConstructionStepButton"].tap()
+        XCTAssertFalse(app.descendants(matching: .any)["constructionStep-0"].exists)
+        XCTAssertFalse(app.buttons["clearConstructionPlanButton"].isEnabled)
         XCTAssertTrue(app.buttons["savePlanButton"].isEnabled)
     }
 

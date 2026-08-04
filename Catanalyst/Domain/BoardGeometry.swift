@@ -36,6 +36,14 @@ nonisolated enum BoardGeometry {
         Array(Set(HexCoordinate.standardBoard.flatMap(edges))).sorted { $0.id < $1.id }
     }
 
+    static func adjacentVertices(to vertex: BoardVertex) -> Set<BoardVertex> {
+        Set(standardEdges.compactMap { edge in
+            if edge.start == vertex { return edge.end }
+            if edge.end == vertex { return edge.start }
+            return nil
+        })
+    }
+
     static func point(for vertex: BoardVertex, hexSize: CGFloat, origin: CGPoint) -> CGPoint {
         CGPoint(
             x: origin.x + CGFloat(vertex.x) * sqrt(3) * hexSize / 2,

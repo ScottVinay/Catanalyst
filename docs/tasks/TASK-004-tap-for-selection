@@ -34,3 +34,7 @@ I have updated SCR-001 to make it so that we only tap a hex to bring up the radi
 
 - Confirm opening, closing, and applying both terrain and number options by touch.
 - Confirm a detail-mode tap centres the hex while also opening its editor.
+
+## Superseded behavior
+
+- SCR-001 was updated again on 2026-08-04. TASK-010 replaces this tap-based radial interaction with hold, drag, highlight, and release behavior while preserving tap-to-centre in detail zoom.

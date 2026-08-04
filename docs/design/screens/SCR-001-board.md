@@ -89,3 +89,4 @@ There should be a "Done" button at the bottom to save the board and exit edit mo
 ## Player selection
 
 ITEM-001-player-selector should be visible and active.
+

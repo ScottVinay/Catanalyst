@@ -1,0 +1,52 @@
+status: in-progress
+started_datetime: 2026-08-04T19:35:00+01:00
+completed_datetime:
+priority: P1
+requirement: REQ-002, REQ-010, REQ-011
+design: SCR-001-board
+
+# Long-press hex editing
+
+Implement SCR-001's revised hold-and-drag radial editing behavior, superseding TASK-004's tap-based picker.
+
+## Acceptance criteria
+
+- [x] Holding a hex in edit mode opens the active terrain or number radial wheel.
+- [x] Moving the held touch highlights the nearest radial option.
+- [x] Releasing over an option applies it and closes the wheel.
+- [x] Releasing in the centre or outside the wheel closes it without changing the hex.
+- [x] TASK-003's remove-number choice remains available.
+- [x] A normal tap does not open the picker and still centres a hex in detail zoom.
+- [x] Road and vertex editing remain tap-based.
+- [x] The gesture is disabled outside board edit mode.
+- [x] Entering edit mode reserves controls without changing the Board's on-screen frame.
+- [x] An immediate drag in Detail zoom pans the board instead of opening the radial editor.
+- [x] The radial editor requires an approximately 0.3-second stationary hold with an eight-point movement tolerance.
+- [x] Radial options animate smoothly outward from the held hex centre.
+- [x] Gesture release and cancellation always remove the radial editor.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Implementation notes
+
+- A sequenced 0.3-second `LongPressGesture` and named-coordinate `DragGesture` keep recognition and option tracking in one continuous touch.
+- Movement beyond eight points cancels the pending hold, allowing the parent Detail-mode pan gesture to proceed; once the wheel opens, board pan updates are suppressed.
+- `RadialPickerGeometry` owns deterministic centre/outside cancellation and angular option selection independently of SwiftUI.
+- The selected option scales up and gains a yellow highlight until release.
+- `@GestureState` cleanup closes the picker after both normal completion and gesture cancellation.
+- `pickerExpansion` interpolates option positions, opacity, and scale from the hex centre over 0.18 seconds.
+- TASK-004 remains as historical evidence for the earlier approved design and now points to this superseding task.
+- Board view and edit modes reserve identical selector/tool rows; edit controls are overlaid into that stable footprint.
+
+## Evidence
+
+- Added geometry tests for the top option, centre cancellation, and outside cancellation.
+- Replaced the tap-picker UI scenario with centre-release cancellation and hold-drag selection coverage.
+- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-player-longpress-derived` succeeded for the app and both test bundles.
+- UI coverage compares the Board frame before and after entering edit mode; the final app/test-bundle compile succeeded using `/private/tmp/Catanalyst-selector-position-derived`.
+- Repeated-tap coverage verifies an ordinary tap cannot leave a radial option visible.
+- REQ-011 was recorded before implementation as requested.
+
+## Remaining risks and manual checks
+
+- Run the focused gesture UI scenario after CoreSimulator's launch service is stable.
+- Manually confirm highlighting follows a held finger, every terrain/number option is reachable, detail-mode panning does not compete with selection, and the Board remains stationary when editing begins.

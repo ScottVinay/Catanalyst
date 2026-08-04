@@ -2,54 +2,49 @@ import SwiftUI
 
 struct PlayerSelector: View {
     @Binding var selection: PlayerColor
-    @Binding var isExpanded: Bool
 
     var body: some View {
-        HStack(spacing: 8) {
-            playerButton(selection, isCurrent: true) {
-                withAnimation(.easeInOut(duration: 0.18)) {
-                    isExpanded.toggle()
-                }
-            }
+        HStack(spacing: 7) {
+            Text("Player:")
+                .font(.subheadline.weight(.semibold))
 
-            if isExpanded {
-                ForEach(PlayerColor.allCases.filter { $0 != selection }) { player in
-                    playerButton(player, isCurrent: false) {
-                        selection = player
-                        withAnimation(.easeInOut(duration: 0.18)) {
-                            isExpanded = false
-                        }
-                    }
-                    .transition(.move(edge: .leading).combined(with: .opacity))
+            ForEach(PlayerColor.allCases) { player in
+                playerButton(player) {
+                    selection = player
                 }
             }
         }
         .padding(6)
-        .background(.ultraThinMaterial, in: Capsule())
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("playerSelector")
     }
 
     private func playerButton(
         _ player: PlayerColor,
-        isCurrent: Bool,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             Circle()
                 .fill(player.color)
                 .overlay(Circle().stroke(.primary.opacity(0.35), lineWidth: player == .white ? 1.5 : 0.5))
+                .overlay {
+                    if player == selection {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(player == .white ? .black : .white)
+                    }
+                }
                 .frame(width: 30, height: 30)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(
-            isCurrent
-                ? "Selected player, \(player.displayName)"
-                : "Select \(player.displayName) player"
-        )
-        .accessibilityValue(isCurrent ? (isExpanded ? "Expanded" : "Collapsed") : "")
+        .accessibilityLabel(player == selection
+            ? "Selected player, \(player.displayName)"
+            : "Select \(player.displayName) player")
+        .accessibilityValue(player == selection ? "Selected" : "")
+        .accessibilityAddTraits(player == selection ? .isSelected : [])
         .accessibilityIdentifier(
-            isCurrent ? "selectedPlayerButton" : "selectPlayer-\(player.rawValue)"
+            player == selection ? "selectedPlayerButton" : "selectPlayer-\(player.rawValue)"
         )
     }
 }

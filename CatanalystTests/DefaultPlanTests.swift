@@ -43,4 +43,28 @@ struct DefaultPlanTests {
                     .allSatisfy { $1 >= $0 }
         })
     }
+
+    @Test("Custom plans produce red-ready placeholder table data")
+    func customPlanPlaceholder() {
+        let cards = CustomPlan(
+            name: "City Hand",
+            kind: .cards,
+            player: .blue,
+            cardCounts: [.ore: 3, .hay: 2]
+        )
+        let construction = CustomPlan(
+            name: "Build Route",
+            kind: .constructions,
+            player: .red
+        )
+
+        let cardsPlaceholder = DefaultPlan.placeholder(for: cards, player: .blue)
+        let constructionPlaceholder = DefaultPlan.placeholder(for: construction, player: .red)
+
+        #expect(cardsPlaceholder.name == cards.name)
+        #expect(cardsPlaceholder.systemImage == cards.icon)
+        #expect(cardsPlaceholder.turnProbabilities.count == 10)
+        #expect(constructionPlaceholder.name == construction.name)
+        #expect(constructionPlaceholder.systemImage == construction.icon)
+    }
 }

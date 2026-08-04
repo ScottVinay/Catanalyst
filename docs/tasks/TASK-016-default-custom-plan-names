@@ -1,0 +1,34 @@
+status: done
+started_datetime: 2026-08-04T22:27:00+01:00
+completed_datetime: 2026-08-04T22:29:00+01:00
+priority: P2
+requirement: REQ-013, REQ-009
+design: SCR-002-plans, SCR-004-edit
+
+# Automatic custom-plan names
+
+Generate numbered default names for newly created Cards and Constructions plans.
+
+## Acceptance criteria
+
+- [x] The first Cards plan defaults to `Card plan 1`.
+- [x] The first Constructions plan defaults to `Con plan 1`.
+- [x] If that name exists, the next new plan of the same kind receives the next available positive number.
+- [x] Numbering is independent between Cards and Constructions plans.
+- [x] Numbering is independent for each player because custom-plan collections belong to a player colour.
+- [x] User-entered names remain editable and are never renamed after Save.
+- [x] Cancelling creation does not consume a number permanently.
+- [x] Unit and UI coverage compiles for multiple kinds and player colours.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- Name generation should derive from the selected player's saved plans at creation time rather than global mutable counters.
+- Exact matching of the generated-name pattern should not treat unrelated user names as numbered defaults.
+
+## Evidence
+
+- Added a pure default-name generator derived from saved plans of the selected player and kind, choosing the first unused positive number.
+- Exact generated-name matching leaves unrelated user-entered names alone; names remain freely editable and are only generated when creation begins.
+- Added unit coverage for numbering gaps, plan kinds, player colours, and unrelated names, plus UI assertions for both initial defaults.
+- `xcodebuild build-for-testing -quiet` succeeded using `/private/tmp/Catanalyst-req013-derived`.

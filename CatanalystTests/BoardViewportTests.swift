@@ -12,7 +12,7 @@ struct BoardViewportTests {
 
         viewport.finishMagnification(1.2)
         #expect(viewport.zoom == .detail)
-        #expect(viewport.scale == 1.5)
+        #expect(viewport.scale == 1.65)
 
         viewport.finishMagnification(0.8)
         #expect(viewport.zoom == .overview)

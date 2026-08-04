@@ -10,21 +10,24 @@ Implement `ITEM-001-player-selector` in all relevant screens.
 ## Acceptance criteria
 
 - [x] Six selectable, serializable player colours are available.
-- [x] The collapsed selector shows the selected player colour.
-- [x] Tapping expands player choices rightward and changes the title to "Select player".
+- [x] The selector shows "Player:" followed by all six player colours in one row.
+- [x] The selected colour contains a visible tick and tapping another colour selects it immediately.
 - [x] Selection is shared between the Board and Plan Browser screens.
 - [x] Roads and buildings are stored and rendered in their owning player's colour.
 - [x] Players cannot modify pieces owned by another player.
 - [x] Placeholder plan statistics update for the selected player.
-- [x] The rest of the screen should not be pushed down when the player selector is active.
+- [x] The selector has a stable footprint and does not reflow surrounding content when selection changes.
 - [x] Should only be visible on `SCR-001-board` when in edit mode.
+- [x] On Board it appears below Terrain/Numbers; in Plans it appears below Default/Custom.
 - [ ] Relevant automated checks pass.
 
 ## Implementation notes
 
 - `PlayerColor` defines the six serializable players and their stable display order.
-- `PlayerSelector` is a reusable binding-based horizontal control used by Board and Plan Browser.
-- Both screens present the selector as a leading overlay over a fixed-height footprint, so expanding it rightward does not reflow the screen. Board only presents it while editing.
+- `PlayerSelector` is a reusable binding-based horizontal control used by Board, Plan Browser, and plan editing.
+- The current ITEM-001 design exposes every player at once; it has no collapsed/expanded state or navigation-title side effect.
+- Screens present the selector over a fixed-height footprint. Board only presents it while editing.
+- Board and Plans place the selector in normal layout beneath their respective segmented controls.
 - `BoardSnapshot` retains its existing road/building collections and adds ownership maps, with missing ownership decoded as Red for backward compatibility.
 - Structural editing receives the selected player; occupied pieces owned by another player are left unchanged.
 - All six player profiles vary plan timing and recompute internally consistent summary statistics and monotonic probability curves until the simulation backend replaces them.
@@ -33,10 +36,12 @@ Implement `ITEM-001-player-selector` in all relevant screens.
 
 - Added domain tests for six-player serialization, ownership, isolation, and snapshot round trips.
 - Added plan tests confirming all six profiles have distinct means, ordered percentiles, and monotonic probability curves without changing plan definitions.
-- Added UI coverage confirming horizontal expansion, the "Select player" title, stable surrounding frames, edit-only Board visibility, selection, and shared state in Plans.
+- Added UI coverage confirming all choices share one row, the selected tick state, stable surrounding frames, edit-only Board visibility, and shared state in Plans.
+- The latest selector and stable Board layout compile in the app and both test bundles using `/private/tmp/Catanalyst-selector-position-derived`.
+- UI coverage compares selector/control frames to verify the required vertical ordering.
 - `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-task007-derived` succeeded for the app and both test bundles after the horizontal overlay and profile changes.
 
 ## Remaining risks and manual checks
 
 - Execute the focused domain and UI tests after CoreSimulator provides a concrete destination.
-- Manually confirm selector expansion, all six colours, white-piece contrast, shared selection, and player-owned road/building editing.
+- Manually confirm the six-colour row and tick contrast, shared selection, and player-owned road/building editing.

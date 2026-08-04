@@ -24,31 +24,18 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
     ]
 
     static func placeholders(for player: PlayerColor) -> [DefaultPlan] {
-        let adjustment: Double = switch player {
-        case .red: 0
-        case .blue: 0.8
-        case .white: -0.6
-        case .orange: 1.4
-        case .green: -1.0
-        case .brown: 2.0
-        }
+        placeholders.map { adjusted($0, for: player) }
+    }
 
-        return placeholders.map { plan in
-            let midpoint = max(1, plan.median + adjustment)
-            let median = midpoint.rounded()
-            return DefaultPlan(
-                name: plan.name,
-                systemImage: plan.systemImage,
-                mean: max(1, plan.mean + adjustment),
-                median: median,
-                percentile25: max(1, (median - 1).rounded()),
-                percentile75: max(median, (median + 2).rounded()),
-                turnProbabilities: (1...10).map { turn in
-                    let exponent = -0.75 * (Double(turn) - midpoint)
-                    return Int((100 / (1 + exp(exponent))).rounded())
-                }
-            )
+    static func placeholder(for customPlan: CustomPlan, player: PlayerColor) -> DefaultPlan {
+        let baseline = switch customPlan.kind {
+        case .cards: max(1, customPlan.cardCounts.values.reduce(0, +))
+        case .constructions: 5
         }
+        return adjusted(
+            placeholder(customPlan.name, systemImage: customPlan.icon, baseline: baseline),
+            for: player
+        )
     }
 
     private static func placeholder(
@@ -65,6 +52,32 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
             percentile75: Double(baseline + 2),
             turnProbabilities: (1...10).map { turn in
                 let exponent = -0.75 * Double(turn - baseline)
+                return Int((100 / (1 + exp(exponent))).rounded())
+            }
+        )
+    }
+
+    private static func adjusted(_ plan: DefaultPlan, for player: PlayerColor) -> DefaultPlan {
+        let adjustment: Double = switch player {
+        case .red: 0
+        case .blue: 0.8
+        case .white: -0.6
+        case .orange: 1.4
+        case .green: -1.0
+        case .brown: 2.0
+        }
+        let midpoint = max(1, plan.median + adjustment)
+        let median = midpoint.rounded()
+
+        return DefaultPlan(
+            name: plan.name,
+            systemImage: plan.systemImage,
+            mean: max(1, plan.mean + adjustment),
+            median: median,
+            percentile25: max(1, (median - 1).rounded()),
+            percentile75: max(median, (median + 2).rounded()),
+            turnProbabilities: (1...10).map { turn in
+                let exponent = -0.75 * (Double(turn) - midpoint)
                 return Int((100 / (1 + exp(exponent))).rounded())
             }
         )

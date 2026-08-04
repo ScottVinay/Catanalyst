@@ -1,0 +1,10 @@
+# Radial editing hold and zoomed panning
+
+- In Board edit mode, tapping a hex must not open the radial editor.
+- In Detail zoom, tapping a hex should centre that hex without opening the radial editor.
+- In Detail zoom, dragging without first holding should move the board immediately.
+- The radial editor should open only after a stationary hold of approximately 0.3 seconds. Small natural finger movement during the hold may be tolerated, but an intentional drag must remain board panning in Detail zoom.
+- Once the radial editor has opened, dragging should highlight the radial option under the held touch.
+- Releasing over a radial option should apply it and close the editor.
+- Releasing in the centre, outside the wheel, or cancelling the gesture should close the editor without applying a change.
+- When opened, the radial option circles should animate smoothly outward from the centre of the held hex rather than appearing immediately in their final positions.

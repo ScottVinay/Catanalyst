@@ -14,26 +14,50 @@ struct BoardScreen: View {
     @State private var editTool = BoardEditTool.terrain
     @State private var isShowingPlans = false
     @State private var selectedPlayer = PlayerColor.red
-    @State private var isSelectingPlayer = false
+    @State private var isShowingEditHelp = false
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if isEditing {
-                    HStack(spacing: 12) {
-                        Color.clear.frame(width: 42, height: 42)
-                        Picker("Hex editing mode", selection: $editTool) {
-                            ForEach(BoardEditTool.allCases) { tool in
-                                Text(tool.rawValue).tag(tool)
+                VStack(spacing: 8) {
+                    if isEditing {
+                        ZStack {
+                            Picker("Hex editing mode", selection: $editTool) {
+                                ForEach(BoardEditTool.allCases) { tool in
+                                    Text(tool.rawValue).tag(tool)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(maxWidth: 240)
+                            .accessibilityIdentifier("hexEditModePicker")
+
+                            HStack {
+                                Spacer()
+                                Button {
+                                    isShowingEditHelp = true
+                                } label: {
+                                    Image(systemName: "questionmark.circle.fill")
+                                        .font(.title2)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Board editing help")
+                                .accessibilityIdentifier("boardEditHelpButton")
                             }
                         }
-                        .pickerStyle(.segmented)
-                        .accessibilityIdentifier("hexEditModePicker")
-
-                        Spacer(minLength: 0)
+                    } else {
+                        Color.clear.frame(height: 32)
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 8)
+
+                    if isEditing {
+                        HStack {
+                            PlayerSelector(selection: $selectedPlayer)
+                            Spacer(minLength: 0)
+                        }
+                    } else {
+                        Color.clear.frame(height: 42)
+                    }
                 }
+                .padding(.horizontal)
+                .padding(.top, 8)
 
                 BoardEditorView(
                     board: board,
@@ -43,24 +67,18 @@ struct BoardScreen: View {
                 )
                 .accessibilityIdentifier("boardEditor")
             }
-            .overlay(alignment: .topLeading) {
-                if isEditing {
-                    PlayerSelector(
-                        selection: $selectedPlayer,
-                        isExpanded: $isSelectingPlayer
-                    )
-                    .padding(.leading, 16)
-                    .padding(.top, 8)
-                    .zIndex(2)
-                }
-            }
-            .navigationTitle(isSelectingPlayer ? "Select player" : "Board")
+            .navigationTitle("Board")
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Editing the board", isPresented: $isShowingEditHelp) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Choose Terrain or Numbers, then hold a hex to open its radial choices. Roads and buildings are edited by tapping their edges or vertices.")
+            }
             .safeAreaInset(edge: .bottom) {
                 bottomBar
             }
             .sheet(isPresented: $isShowingPlans) {
-                PlanBrowserView(selectedPlayer: $selectedPlayer)
+                PlanBrowserView(board: board, selectedPlayer: $selectedPlayer)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
@@ -72,7 +90,6 @@ struct BoardScreen: View {
             if isEditing {
                 Button {
                     isEditing = false
-                    isSelectingPlayer = false
                 } label: {
                     Label("Done", systemImage: "checkmark")
                         .frame(maxWidth: .infinity)

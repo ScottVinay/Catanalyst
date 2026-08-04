@@ -1,0 +1,35 @@
+status: in-progress
+started_datetime: 2026-08-04T21:23:00+01:00
+completed_datetime:
+priority: P2
+design: SCR-001-board, SCR-002-plans, SCR-004-edit
+
+# Centred controls and contextual help
+
+Centre the Board edit-mode selector, present the Cards/Constructions choice in the middle of the screen, and add circular question-mark help controls to the relevant editing and plan screens.
+
+## Acceptance criteria
+
+- [x] Terrain/Numbers remains horizontally centred independently of the trailing help button.
+- [x] Choosing New Plan presents Cards/Constructions in a modal box centred on screen.
+- [x] The plan-type box contains a circular question-mark help button and Cancel action.
+- [x] Board editing, plan editing, and Plan Browser each expose a circular question-mark help button.
+- [x] Every help button presents concise contextual guidance rather than being decorative.
+- [x] Existing player-selector ordering and stable Board positioning are preserved.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Implementation notes
+
+- Board uses a `ZStack` so the segmented control stays centred while help remains trailing.
+- The plan-type chooser is an in-view material modal with a dimmed backdrop and scale/opacity transition.
+- Plan Browser consolidates help and default-plan messages in one typed alert state.
+
+## Evidence
+
+- UI coverage checks the Terrain/Numbers midpoint, centred plan-type chooser, and all requested help controls.
+- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-help-layout-derived` succeeded for the app and both test bundles.
+
+## Remaining risks and manual checks
+
+- Run the focused UI scenarios after CoreSimulator is stable.
+- Manually review modal centring, help copy, Dynamic Type wrapping, and compact-screen spacing.

@@ -3,11 +3,18 @@ import SwiftUI
 struct ResourceCardView: View {
     let resource: ResourceCard
     var showsAddBadge = false
+    var showsWhiteOutline = false
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
             RoundedRectangle(cornerRadius: 8)
                 .fill(cardColor)
+                .overlay {
+                    if showsWhiteOutline {
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.white, lineWidth: 2)
+                    }
+                }
                 .aspectRatio(2.5 / 3.5, contentMode: .fit)
 
             Image(systemName: resource.systemImage)

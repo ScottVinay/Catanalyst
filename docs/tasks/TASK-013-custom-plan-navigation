@@ -1,0 +1,38 @@
+status: done
+started_datetime: 2026-08-04T22:05:00+01:00
+completed_datetime: 2026-08-04T22:17:00+01:00
+priority: P1
+requirement: REQ-013
+design: SCR-002-plans, SCR-005-view-plan
+
+# Custom plan navigation and interaction
+
+Make custom-plan viewing and editor dismissal follow a predictable path back to the Plan Browser.
+
+## Acceptance criteria
+
+- [x] Tapping a custom-plan row opens its plan viewer.
+- [x] Holding a custom-plan row is no longer required and does not provide the primary navigation behavior.
+- [x] Closing an editor opened directly from the Plan Browser returns to the Plan Browser.
+- [x] Closing an editor opened from the plan viewer also returns directly to the Plan Browser rather than revealing the viewer again.
+- [x] The edited plan remains updated in the Plan Browser after dismissal.
+- [x] Default-plan interaction remains unchanged.
+- [x] App and complete test bundles compile.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- This task owns presentation routing and row gestures only; editor content controls are covered by TASK-014.
+- Avoid nested-sheet state that can reveal a stale plan viewer after editing.
+
+## Verification
+
+- Add UI coverage for tap-to-view and both editor entry paths.
+- Manually confirm dismissal animations and that no stale sheet remains in the hierarchy.
+
+## Evidence
+
+- Replaced the custom-row long press with tap navigation and updated its accessibility hint.
+- Moved edit presentation into `PlanBrowserView`; the viewer dismisses before the editor opens, eliminating nested-sheet return to a stale viewer.
+- Extended UI coverage through viewer → editor → Cancel → browser.
+- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-req013-derived` succeeded.

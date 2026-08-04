@@ -29,6 +29,10 @@ Under this there is some helper text that says:
 
 "Plan shall be considered complete when the following have been built in order, starting from the state of the board at the point where the plan is made."
 
-The construction UI is TODO.
+- The construction UI is a series of rows, each representing a step.
+- The "new step" row consists of icons side by side for a road, a settlement, and a city. Tapping one of these shows the board, with the title "Placing road", "Placing settlement", or "Placing city".
+- Tapping somewhere places a road/settlement/city in that location, but ghostly so we know it is part of the plan only.
+- This then goes back to the edit page, where we may select a new item to place, or click cancel/save as usual.
+- Note that the ghost items are only available on SCR-004 edit and SCR-005-view-plan, not on SCR-001-board
 
 At the bottom there are two buttons side by side: Cancel and Save

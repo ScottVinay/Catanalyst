@@ -16,10 +16,19 @@ struct BoardEditorView: View {
     let isEditing: Bool
     let editTool: BoardEditTool
     let selectedPlayer: PlayerColor
+    var placementMode: PlannedConstructionKind? = nil
+    var ghostSteps: [PlannedConstructionStep] = []
+    var onPlaceStep: ((PlannedConstructionStep) -> Void)? = nil
 
     @State private var activePicker: ActiveHexPicker?
+    @State private var highlightedPickerIndex: Int?
+    @State private var pickerExpansion: CGFloat = 0
+    @State private var suppressPanCompletion = false
     @State private var viewport = BoardViewport()
     @GestureState private var transientPan = CGSize.zero
+    @GestureState private var isHexEditGestureActive = false
+    @State private var placementMessage: String?
+    @State private var messageDismissalTask: Task<Void, Never>?
 
     var body: some View {
         GeometryReader { proxy in
@@ -55,6 +64,18 @@ struct BoardEditorView: View {
                                 containerSize: availableSize
                             )
                         }
+                        .highPriorityGesture(
+                            hexEditingGesture(
+                                for: tile.coordinate,
+                                center: BoardGeometry.center(
+                                    for: tile.coordinate,
+                                    hexSize: hexSize,
+                                    origin: origin
+                                ),
+                                hexSize: hexSize
+                            ),
+                            including: isEditing ? .all : .none
+                        )
                 }
 
                 ForEach(Array(board.roads)) { edge in
@@ -83,7 +104,11 @@ struct BoardEditorView: View {
                     }
                 }
 
-                if isEditing && activePicker == nil {
+                ghostConstructions(hexSize: hexSize, origin: origin)
+
+                if placementMode != nil {
+                    constructionPlacementTargets(hexSize: hexSize, origin: origin)
+                } else if isEditing && activePicker == nil {
                     structuralEditingTargets(hexSize: hexSize, origin: origin)
                 }
 
@@ -98,16 +123,36 @@ struct BoardEditorView: View {
                         hexSize: hexSize
                     )
                 }
+
+                if let placementMessage {
+                    Text(placementMessage)
+                        .font(.subheadline.weight(.semibold))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .shadow(radius: 8)
+                        .frame(maxWidth: 300)
+                        .position(x: availableSize.width / 2, y: availableSize.height / 2)
+                        .zIndex(20)
+                        .accessibilityIdentifier("placementErrorMessage")
+                }
             }
+            .coordinateSpace(.named("boardEditingSpace"))
             .contentShape(Rectangle())
             .simultaneousGesture(magnificationGesture)
             .simultaneousGesture(panGesture(in: availableSize))
             .animation(.easeInOut(duration: 0.18), value: viewport)
             .onChange(of: isEditing) { _, editing in
-                if !editing { activePicker = nil }
+                if !editing { closePicker() }
             }
             .onChange(of: editTool) { _, _ in
-                activePicker = nil
+                closePicker()
+            }
+            .onChange(of: isHexEditGestureActive) { _, isActive in
+                if !isActive, activePicker != nil {
+                    closePicker()
+                }
             }
         }
         .padding(8)
@@ -123,10 +168,14 @@ struct BoardEditorView: View {
     private func panGesture(in containerSize: CGSize) -> some Gesture {
         DragGesture(minimumDistance: 8)
             .updating($transientPan) { value, state, _ in
-                guard viewport.zoom == .detail else { return }
+                guard viewport.zoom == .detail, activePicker == nil else { return }
                 state = value.translation
             }
             .onEnded { value in
+                if suppressPanCompletion {
+                    suppressPanCompletion = false
+                    return
+                }
                 viewport.finishPan(value.translation, in: containerSize)
             }
     }
@@ -145,11 +194,78 @@ struct BoardEditorView: View {
             viewport.center(on: boardPoint, in: containerSize)
         }
 
-        guard isEditing else { return }
-        if activePicker?.coordinate == coordinate {
-            activePicker = nil
-        } else {
-            activePicker = ActiveHexPicker(coordinate: coordinate)
+    }
+
+    private func hexEditingGesture(
+        for coordinate: HexCoordinate,
+        center: CGPoint,
+        hexSize: CGFloat
+    ) -> some Gesture {
+        LongPressGesture(minimumDuration: 0.3, maximumDistance: 8)
+            .sequenced(before: DragGesture(
+                minimumDistance: 0,
+                coordinateSpace: .named("boardEditingSpace")
+            ))
+            .updating($isHexEditGestureActive) { value, state, _ in
+                switch value {
+                case .first(true), .second(true, _):
+                    state = true
+                default:
+                    break
+                }
+            }
+            .onChanged { value in
+                guard isEditing else { return }
+                switch value {
+                case .first(true):
+                    openPicker(at: coordinate)
+                    highlightedPickerIndex = nil
+                case let .second(true, drag):
+                    openPicker(at: coordinate)
+                    highlightedPickerIndex = drag.flatMap {
+                        RadialPickerGeometry.optionIndex(
+                            at: $0.location,
+                            around: center,
+                            hexSize: hexSize,
+                            optionCount: optionCount
+                        )
+                    }
+                default:
+                    break
+                }
+            }
+            .onEnded { value in
+                guard isEditing else { return }
+                defer { closePicker() }
+                guard case let .second(true, drag) = value,
+                      let drag,
+                      let index = RadialPickerGeometry.optionIndex(
+                        at: drag.location,
+                        around: center,
+                        hexSize: hexSize,
+                        optionCount: optionCount
+                      ) else { return }
+                applySelection(index, to: coordinate)
+            }
+    }
+
+    private func openPicker(at coordinate: HexCoordinate) {
+        guard activePicker?.coordinate != coordinate else { return }
+        suppressPanCompletion = true
+        activePicker = ActiveHexPicker(coordinate: coordinate)
+        pickerExpansion = 0
+        withAnimation(.easeOut(duration: 0.18)) {
+            pickerExpansion = 1
+        }
+    }
+
+    private func closePicker() {
+        activePicker = nil
+        highlightedPickerIndex = nil
+        pickerExpansion = 0
+        Task { @MainActor in
+            await Task.yield()
+            suppressPanCompletion = false
         }
     }
 
@@ -168,7 +284,11 @@ struct BoardEditorView: View {
                 .frame(width: length, height: max(16, hexSize * 0.32))
                 .rotationEffect(.radians(angle))
                 .position(midpoint)
-                .onTapGesture { board.toggleRoad(on: edge, for: selectedPlayer) }
+                .onTapGesture {
+                    if let error = board.toggleRoad(on: edge, for: selectedPlayer) {
+                        showPlacementError(error)
+                    }
+                }
                 .accessibilityLabel(roadEditingLabel(for: edge))
                 .accessibilityAddTraits(.isButton)
         }
@@ -179,9 +299,106 @@ struct BoardEditorView: View {
                 .contentShape(Circle())
                 .frame(width: max(22, hexSize * 0.46), height: max(22, hexSize * 0.46))
                 .position(BoardGeometry.point(for: vertex, hexSize: hexSize, origin: origin))
-                .onTapGesture { board.cycleBuilding(at: vertex, for: selectedPlayer) }
+                .onTapGesture {
+                    if let error = board.cycleBuilding(at: vertex, for: selectedPlayer) {
+                        showPlacementError(error)
+                    }
+                }
                 .accessibilityLabel(buildingEditingLabel(for: vertex))
                 .accessibilityAddTraits(.isButton)
+        }
+    }
+
+    @ViewBuilder
+    private func ghostConstructions(hexSize: CGFloat, origin: CGPoint) -> some View {
+        ForEach(ghostSteps) { step in
+            switch step.location {
+            case let .edge(edge):
+                RoadView(
+                    edge: edge,
+                    hexSize: hexSize,
+                    origin: origin,
+                    color: selectedPlayer.color.opacity(0.38),
+                    outlineColor: .white.opacity(0.65)
+                )
+            case let .vertex(vertex):
+                BuildingView(
+                    building: step.kind == .city ? .city : .settlement,
+                    hexSize: hexSize,
+                    color: selectedPlayer.color
+                )
+                .opacity(0.42)
+                .position(BoardGeometry.point(for: vertex, hexSize: hexSize, origin: origin))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func constructionPlacementTargets(hexSize: CGFloat, origin: CGPoint) -> some View {
+        if placementMode == .road {
+            ForEach(BoardGeometry.standardEdges) { edge in
+                let start = BoardGeometry.point(for: edge.start, hexSize: hexSize, origin: origin)
+                let end = BoardGeometry.point(for: edge.end, hexSize: hexSize, origin: origin)
+                let midpoint = CGPoint(x: (start.x + end.x) / 2, y: (start.y + end.y) / 2)
+                let length = hypot(end.x - start.x, end.y - start.y)
+                let angle = atan2(end.y - start.y, end.x - start.x)
+
+                Capsule()
+                    .fill(.clear)
+                    .contentShape(Capsule())
+                    .frame(width: length, height: max(18, hexSize * 0.34))
+                    .rotationEffect(.radians(angle))
+                    .position(midpoint)
+                    .onTapGesture { placeConstruction(on: .edge(edge)) }
+                    .accessibilityLabel("Place planned road")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityIdentifier("plannedRoadTarget-\(edge.id)")
+            }
+        } else if placementMode == .settlement || placementMode == .city {
+            ForEach(BoardGeometry.standardVertices) { vertex in
+                Circle()
+                    .fill(.clear)
+                    .contentShape(Circle())
+                    .frame(width: max(24, hexSize * 0.5), height: max(24, hexSize * 0.5))
+                    .position(BoardGeometry.point(for: vertex, hexSize: hexSize, origin: origin))
+                    .onTapGesture { placeConstruction(on: .vertex(vertex)) }
+                    .accessibilityLabel("Place planned \(placementMode?.displayName ?? "building")")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityIdentifier("plannedBuildingTarget-\(vertex.id)")
+            }
+        }
+    }
+
+    private func placeConstruction(on location: ConstructionLocation) {
+        guard let placementMode else { return }
+        let projected = board.projected(adding: ghostSteps, for: selectedPlayer)
+        let error: PlacementError?
+
+        switch location {
+        case let .edge(edge):
+            error = projected.placeRoad(on: edge, for: selectedPlayer)
+        case let .vertex(vertex):
+            error = projected.placeBuilding(
+                placementMode == .city ? .city : .settlement,
+                at: vertex,
+                for: selectedPlayer
+            )
+        }
+
+        if let error {
+            showPlacementError(error)
+        } else {
+            onPlaceStep?(PlannedConstructionStep(kind: placementMode, location: location))
+        }
+    }
+
+    private func showPlacementError(_ error: PlacementError) {
+        messageDismissalTask?.cancel()
+        placementMessage = error.message
+        messageDismissalTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            placementMessage = nil
         }
     }
 
@@ -232,20 +449,23 @@ struct BoardEditorView: View {
         let radius = hexSize * 1.55
         ForEach(0..<optionCount, id: \.self) { index in
             let angle = (-Double.pi / 2) + (2 * Double.pi * Double(index) / Double(optionCount))
-            Button {
-                guard let coordinate = activePicker?.coordinate else { return }
-                applySelection(index, to: coordinate)
-                activePicker = nil
-            } label: {
-                pickerOption(at: index)
-            }
-                .buttonStyle(RadialPickerButtonStyle())
+            pickerOption(at: index)
                 .frame(width: hexSize * 0.62, height: hexSize * 0.62)
+                .scaleEffect(highlightedPickerIndex == index ? 1.18 : 1)
+                .overlay {
+                    if highlightedPickerIndex == index {
+                        Circle().stroke(.yellow, lineWidth: 3)
+                    }
+                }
                 .position(
-                    x: center.x + CGFloat(cos(angle)) * radius,
-                    y: center.y + CGFloat(sin(angle)) * radius
+                    x: center.x + CGFloat(cos(angle)) * radius * pickerExpansion,
+                    y: center.y + CGFloat(sin(angle)) * radius * pickerExpansion
                 )
+                .opacity(pickerExpansion)
+                .scaleEffect(0.35 + (0.65 * pickerExpansion))
                 .shadow(radius: 2)
+                .animation(.easeOut(duration: 0.1), value: highlightedPickerIndex)
+                .accessibilityIdentifier("hexPickerOption-\(index)")
         }
     }
 
@@ -282,14 +502,6 @@ struct BoardEditorView: View {
                     .accessibilityLabel("Remove number")
             }
         }
-    }
-}
-
-private struct RadialPickerButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 1.18 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 

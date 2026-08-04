@@ -1,1 +1,6 @@
-This is an element seen on many pages. It is a circle in the colour of the presently selected colour. Tapping it expands it below into a set of circles, one for each player. While expanded, the app should say at the top of the screen "Select player" Tapping a new colour changes to that player. This changes the roads/settlements/cities that are placed in SCR-001-board, and the stats that are shown in SCR-002-plans / SCR-003-graphs, as well as who we are making a plan for in SCR-004-edit.
+This is an element seen on many pages.
+
+It is a set of circles along the top of the screen. If the screen has a header or option bar, it is below these. There is one circle for each player colour. There is a tick in the circle of the currently selected player. To the left, before the circles, it says "Player:"
+
+Deprecated version below, ignore the below
+> It is a circle in the colour of the presently selected colour. Tapping it expands it below into a set of circles, one for each player. While expanded, the app should say at the top of the screen "Select player" Tapping a new colour changes to that player. This changes the roads/settlements/cities that are placed in SCR-001-board, and the stats that are shown in SCR-002-plans / SCR-003-graphs, as well as who we are making a plan for in SCR-004-edit.

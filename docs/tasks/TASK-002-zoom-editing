@@ -20,11 +20,12 @@ requirement: REQ-006
 
 - `BoardViewport` owns discrete zoom, pan clamping, and centring transitions.
 - SwiftUI gesture closures only translate input into viewport operations.
-- Detail scale is fixed at 1.5; magnification is used only to choose a level.
+- Detail scale is fixed at 1.65; magnification is used only to choose a level.
 
 ## Evidence
 
 - Added five deterministic `BoardViewportTests` cases.
+- Updated the fixed-scale assertion to cover the increased 1.65 detail zoom.
 - `xcodebuild build` completed successfully for a generic iOS Simulator destination.
 - `xcodebuild build-for-testing` completed successfully, compiling the app and complete unit/UI test bundles.
 - Test execution was not run because CoreSimulator launch remains unreliable; repository verification is no longer required for this task.

@@ -1,1 +1,42 @@
+status: in-progress
+started_datetime: 2026-08-04T18:52:00+01:00
+completed_datetime:
+priority: P1
+requirement: REQ-003, REQ-008
+design: SCR-002-plans
+
+# Custom plan browser table
+
 The custom plan browser currently looks different to the default browser. When a plan is created, the icon (cards icon or hammer icon) should be shown on the left-most column, along with the given name. The name will likely need to be a small font size and possibly over two lines to stay compact and within the left column. After that, we see the same columns as in default. If the calculation backend is not done, show placeholder values in red.
+
+## Acceptance criteria
+
+- [x] Default and Custom tabs use the same table structure, dimensions, headers, fixed panes, separators, and section navigation.
+- [x] Each saved custom plan shows its Cards or Constructions icon and name in the fixed left column.
+- [x] Custom names use a compact font and may wrap over two lines within the left column.
+- [x] Each custom row has the same four summary and ten cumulative-probability columns as a default row.
+- [x] Custom statistics are deterministic placeholders displayed through the existing red placeholder cells.
+- [x] The New Plan row appears first when Custom is empty and after the final saved plan otherwise.
+- [x] Custom row titles and values remain vertically aligned and custom rows retain long-press view/edit behavior.
+- [x] Each player colour has an independent custom-plan list; changing the selected player changes the visible rows.
+- [x] The player selector appears beneath Default/Custom and above the shared table.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Implementation notes
+
+- `PlanTableRow` adapts default, custom, and New Plan rows into the existing fixed-column table without duplicating the REQ-008 scrolling implementation.
+- `DefaultPlan.placeholder(for:player:)` derives temporary values from custom plan kind/card count and the selected player. These values are not simulation results.
+- Custom rows are filtered by their serialized `CustomPlan.player`; new and edited plans retain the player selected in the editor.
+- The New Plan row has a matching blank values row so vertical scrolling and row alignment remain consistent.
+
+## Evidence
+
+- Added unit coverage for custom placeholder identity, icon, and ten-turn probability data.
+- Extended the custom-plan UI scenario to check the shared table header, plan/value row alignment, and New Plan ordering.
+- Added domain and UI coverage proving a Red plan disappears for Blue and reappears when Red is selected again.
+- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-task009-derived` succeeded for the app and both test bundles.
+
+## Remaining risks and manual checks
+
+- Run the focused custom-plan UI scenario after `launchd_sim` is stable.
+- Manually confirm long two-line names, row alignment during vertical scrolling, both section transitions, and red placeholder readability.

@@ -4,15 +4,20 @@ struct PlanEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedPlayer: PlayerColor
     @State private var draft: CustomPlan
-    @State private var isSelectingPlayer = false
+    @State private var isShowingHelp = false
+    @State private var placementKind: PlannedConstructionKind?
+    @State private var isPreviewingConstructionPlan = false
 
+    let board: BoardState
     let onSave: (CustomPlan) -> Void
 
     init(
+        board: BoardState,
         plan: CustomPlan,
         selectedPlayer: Binding<PlayerColor>,
         onSave: @escaping (CustomPlan) -> Void
     ) {
+        self.board = board
         _draft = State(initialValue: plan)
         _selectedPlayer = selectedPlayer
         self.onSave = onSave
@@ -36,18 +41,13 @@ struct PlanEditorView: View {
                         selectedCards
                         cardPicker
                     } else {
-                        ContentUnavailableView(
-                            "Construction steps coming soon",
-                            systemImage: "hammer.fill",
-                            description: Text("You can name and save this construction plan now.")
-                        )
-                        .accessibilityIdentifier("constructionPlanPlaceholder")
+                        constructionSteps
                     }
                 }
                 .padding()
             }
             .overlay(alignment: .topLeading) {
-                PlayerSelector(selection: $selectedPlayer, isExpanded: $isSelectingPlayer)
+                PlayerSelector(selection: $selectedPlayer)
                     .padding(.leading, 16)
                     .padding(.top, 16)
             }
@@ -72,8 +72,41 @@ struct PlanEditorView: View {
                 .padding()
                 .background(.bar)
             }
-            .navigationTitle(isSelectingPlayer ? "Select player" : editorTitle)
+            .navigationTitle(editorTitle)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        isShowingHelp = true
+                    } label: {
+                        Image(systemName: "questionmark.circle.fill")
+                    }
+                    .accessibilityLabel("Plan editing help")
+                    .accessibilityIdentifier("planEditHelpButton")
+                }
+            }
+            .alert("Editing a plan", isPresented: $isShowingHelp) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(helperText)
+            }
+            .fullScreenCover(item: $placementKind) { kind in
+                ConstructionPlacementView(
+                    board: board,
+                    player: selectedPlayer,
+                    kind: kind,
+                    priorSteps: draft.constructionSteps
+                ) { step in
+                    draft.constructionSteps.append(step)
+                }
+            }
+            .fullScreenCover(isPresented: $isPreviewingConstructionPlan) {
+                ConstructionPlanPreviewView(
+                    board: board,
+                    player: selectedPlayer,
+                    steps: draft.constructionSteps
+                )
+            }
         }
         .accessibilityIdentifier("planEditor")
     }
@@ -93,7 +126,13 @@ struct PlanEditorView: View {
 
     private var selectedCards: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Selected cards").font(.headline)
+            HStack {
+                Text("Selected cards").font(.headline)
+                Spacer()
+                Button("Clear") { draft.clearContents() }
+                    .disabled(draft.cardCounts.isEmpty)
+                    .accessibilityIdentifier("clearCardPlanButton")
+            }
 
             if draft.cardCounts.isEmpty {
                 Text("No cards selected")
@@ -115,7 +154,7 @@ struct PlanEditorView: View {
     private func cardStack(_ resource: ResourceCard, count: Int) -> some View {
         ZStack(alignment: .leading) {
             ForEach(0..<count, id: \.self) { index in
-                ResourceCardView(resource: resource)
+                ResourceCardView(resource: resource, showsWhiteOutline: true)
                     .frame(width: 52)
                     .offset(x: CGFloat(index) * 8)
             }
@@ -123,6 +162,7 @@ struct PlanEditorView: View {
         .frame(width: 52 + CGFloat(max(0, count - 1)) * 8, height: 76, alignment: .leading)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(count) \(resource.displayName) cards")
+        .accessibilityValue("White outlined stack")
         .accessibilityIdentifier("selectedCard-\(resource.rawValue)")
     }
 
@@ -143,6 +183,70 @@ struct PlanEditorView: View {
                     .accessibilityIdentifier("addCard-\(resource.rawValue)")
                 }
             }
+        }
+    }
+
+    private var constructionSteps: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Construction steps").font(.headline)
+                Spacer()
+                Button {
+                    isPreviewingConstructionPlan = true
+                } label: {
+                    Image(systemName: "circle.hexagongrid.fill")
+                }
+                .accessibilityLabel("Preview construction plan")
+                .accessibilityIdentifier("previewConstructionPlanButton")
+                Button("Clear") { draft.clearContents() }
+                    .disabled(draft.constructionSteps.isEmpty)
+                    .accessibilityIdentifier("clearConstructionPlanButton")
+            }
+
+            ForEach(Array(draft.constructionSteps.enumerated()), id: \.element.id) { index, step in
+                HStack(spacing: 12) {
+                    Text("\(index + 1)")
+                        .font(.caption.bold())
+                        .frame(width: 24, height: 24)
+                        .background(.quaternary, in: Circle())
+                    Label(step.kind.displayName, systemImage: step.kind.systemImage)
+                    Spacer()
+                    if index == draft.constructionSteps.count - 1 {
+                        Button {
+                            draft.removeLastConstructionStep()
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Remove final construction step")
+                        .accessibilityIdentifier("removeLastConstructionStepButton")
+                    }
+                }
+                .padding(.vertical, 6)
+                .accessibilityIdentifier("constructionStep-\(index)")
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text("New step").font(.subheadline.weight(.semibold))
+                HStack(spacing: 10) {
+                    ForEach(PlannedConstructionKind.allCases) { kind in
+                        Button {
+                            placementKind = kind
+                        } label: {
+                            Label(kind.displayName, systemImage: kind.systemImage)
+                                .labelStyle(.iconOnly)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityLabel("Add \(kind.displayName) step")
+                        .accessibilityIdentifier("addConstruction-\(kind.rawValue)")
+                    }
+                }
+            }
+            .padding()
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
+            .accessibilityIdentifier("newConstructionStep")
         }
     }
 }

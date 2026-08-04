@@ -1,0 +1,47 @@
+status: in-progress
+started_datetime: 2026-08-04T21:38:00+01:00
+completed_datetime:
+priority: P0
+requirement: REQ-003, REQ-012
+design: SCR-004-edit
+
+# Construction plans and valid placement
+
+Complete SCR-004's ordered construction-plan workflow and enforce REQ-012 in both Board and plan editing.
+
+## Acceptance criteria
+
+- [x] Construction plans store an ordered, serializable sequence of Road, Settlement, and City steps with exact board locations.
+- [x] The construction editor displays each existing step and a New Step row with all three construction choices.
+- [x] Choosing a step opens the Board titled "Placing road", "Placing settlement", or "Placing city".
+- [x] Earlier steps appear as translucent plan-only pieces during subsequent placement.
+- [x] A valid placement appends the step and returns to the editor without mutating the live board.
+- [x] Earlier ordered steps count as built when validating later steps.
+- [x] A new road requires a same-colour settlement or city at either endpoint.
+- [x] A new settlement or city cannot be adjacent to any existing or earlier planned building, regardless of colour.
+- [x] A same-colour settlement can still be upgraded to a city, and owned Board pieces can still be removed.
+- [x] Invalid placement is rejected and shows REQ-012's exact centred message for two seconds.
+- [x] Board editing and plan placement use the same domain legality APIs.
+- [x] Existing serialized card plans decode with an empty construction-step list.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Implementation notes
+
+- `PlacementError`, `placeRoad`, and `placeBuilding` keep legality independent of SwiftUI.
+- `PlannedConstructionStep` and `ConstructionLocation` are Codable value types; `CustomPlan` has backward-compatible decoding for the new collection.
+- `BoardState.projected(adding:for:)` copies the snapshot and applies prior steps for sequential plan validation.
+- `BoardEditorView` accepts an optional placement mode, ghost steps, and completion callback, while normal editing continues to mutate the live board.
+- The REQ-012 road rule is implemented literally: an adjacent road alone is insufficient without a same-colour building.
+
+## Evidence
+
+- Added domain tests for legal/illegal roads, building distance, exact error copy, step serialization, and projected-state isolation.
+- Updated existing road, ownership, and snapshot tests to construct legal fixtures.
+- Added UI coverage that enters construction placement, places a settlement, returns, and sees the first ordered row.
+- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-task012-derived` succeeded for the app and both test bundles after final occupied-location and decoding refinements.
+
+## Remaining risks and manual checks
+
+- Run focused Board legality and construction-plan UI scenarios after CoreSimulator is stable.
+- Manually confirm both two-second messages, ghost contrast for all six colours, every edge/vertex touch target, ordered multi-step projection, and that Cancel leaves the real board unchanged.
+- Deletion/reordering of construction steps is not specified by SCR-004 and is not implemented.

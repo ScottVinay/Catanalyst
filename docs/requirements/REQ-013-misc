@@ -1,0 +1,9 @@
+New requirements:
+- Closing a plan edit screen should go back to the plan browser, even if it was opened from the plan viewer.
+- A custom plan should be tapped to view it, not held.
+- The last steps in a custom plan should have a bin icon to remove it
+- Both card and construction plans should have "Clear" buttons to reset the plan
+- After placing an item in construction plan edit mode, stay on that screen for 0.8s so we can see it
+- The edit construction plan should have a button that looks like a bunch of hexagons together. Pressing this shows the board with the ghost items, to see the current state of the plan.
+- REQ-012-valid-placements has been updated to indicate that roads can also adjoin existing roads.
+- The default names for card and construction plans should be "Card plan 1" and "Con plan 1" respectively. If these exist, the name is "Card plan 2" or "Con plan 2", and so on.

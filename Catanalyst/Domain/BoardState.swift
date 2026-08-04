@@ -97,6 +97,20 @@ nonisolated enum Building: String, Codable, Sendable {
     case city
 }
 
+nonisolated enum PlacementError: Error, Equatable, Sendable {
+    case roadNeedsConnection
+    case buildingTooClose
+
+    var message: String {
+        switch self {
+        case .roadNeedsConnection:
+            "Road must be adjacent to a road, settlement or city of the same colour."
+        case .buildingTooClose:
+            "Cannot place adjacent to a settlement or a city."
+        }
+    }
+}
+
 nonisolated struct BoardSnapshot: Equatable, Sendable {
     var tiles: [HexTile]
     var roads: Set<BoardEdge>
@@ -187,30 +201,77 @@ final class BoardState {
         snapshot.tiles[index].number = nil
     }
 
-    func toggleRoad(on edge: BoardEdge, for player: PlayerColor) {
+    @discardableResult
+    func toggleRoad(on edge: BoardEdge, for player: PlayerColor) -> PlacementError? {
         if snapshot.roads.contains(edge) {
-            guard owner(of: edge) == player else { return }
+            guard owner(of: edge) == player else { return nil }
             snapshot.roads.remove(edge)
             snapshot.roadOwners.removeValue(forKey: edge)
+            return nil
         } else {
-            snapshot.roads.insert(edge)
-            snapshot.roadOwners[edge] = player
+            return placeRoad(on: edge, for: player)
         }
     }
 
-    func cycleBuilding(at vertex: BoardVertex, for player: PlayerColor) {
-        if snapshot.buildings[vertex] != nil, owner(of: vertex) != player { return }
+    @discardableResult
+    func placeRoad(on edge: BoardEdge, for player: PlayerColor) -> PlacementError? {
+        guard !snapshot.roads.contains(edge) else { return .roadNeedsConnection }
+        let hasAdjacentBuilding = [edge.start, edge.end].contains { vertex in
+            snapshot.buildings[vertex] != nil && owner(of: vertex) == player
+        }
+        let hasAdjacentRoad = snapshot.roads.contains { road in
+            owner(of: road) == player && roadsShareVertex(road, edge)
+        }
+        guard hasAdjacentBuilding || hasAdjacentRoad else { return .roadNeedsConnection }
+        snapshot.roads.insert(edge)
+        snapshot.roadOwners[edge] = player
+        return nil
+    }
+
+    private func roadsShareVertex(_ first: BoardEdge, _ second: BoardEdge) -> Bool {
+        first.start == second.start || first.start == second.end ||
+            first.end == second.start || first.end == second.end
+    }
+
+    @discardableResult
+    func cycleBuilding(at vertex: BoardVertex, for player: PlayerColor) -> PlacementError? {
+        if snapshot.buildings[vertex] != nil, owner(of: vertex) != player { return nil }
 
         switch snapshot.buildings[vertex] {
         case nil:
-            snapshot.buildings[vertex] = .settlement
-            snapshot.buildingOwners[vertex] = player
+            return placeBuilding(.settlement, at: vertex, for: player)
         case .settlement:
             snapshot.buildings[vertex] = .city
+            return nil
         case .city:
             snapshot.buildings.removeValue(forKey: vertex)
             snapshot.buildingOwners.removeValue(forKey: vertex)
+            return nil
         }
+    }
+
+    @discardableResult
+    func placeBuilding(
+        _ building: Building,
+        at vertex: BoardVertex,
+        for player: PlayerColor
+    ) -> PlacementError? {
+        if let existing = snapshot.buildings[vertex] {
+            guard owner(of: vertex) == player else { return .buildingTooClose }
+            if existing == .settlement, building == .city {
+                snapshot.buildings[vertex] = .city
+                return nil
+            }
+            return .buildingTooClose
+        }
+
+        let hasAdjacentBuilding = BoardGeometry.adjacentVertices(to: vertex).contains {
+            snapshot.buildings[$0] != nil
+        }
+        guard !hasAdjacentBuilding else { return .buildingTooClose }
+        snapshot.buildings[vertex] = building
+        snapshot.buildingOwners[vertex] = player
+        return nil
     }
 
     func encoded() throws -> Data {

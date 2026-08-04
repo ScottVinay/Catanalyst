@@ -74,6 +74,7 @@ struct BoardStateTests {
         let board = BoardState()
         let edge = try #require(BoardGeometry.standardEdges.first)
 
+        board.cycleBuilding(at: edge.start, for: .red)
         board.toggleRoad(on: edge, for: .red)
         #expect(board.roads == [edge])
         #expect(board.owner(of: edge) == .red)
@@ -85,7 +86,8 @@ struct BoardStateTests {
     @Test("Buildings cycle from settlement to city to empty")
     func cyclesBuilding() throws {
         let board = BoardState()
-        let vertex = try #require(BoardGeometry.standardVertices.first)
+        let edge = try #require(BoardGeometry.standardEdges.first)
+        let vertex = edge.start
 
         board.cycleBuilding(at: vertex, for: .blue)
         #expect(board.buildings[vertex] == .settlement)
@@ -103,11 +105,11 @@ struct BoardStateTests {
         let board = BoardState()
         let coordinate = try #require(board.tiles.first?.coordinate)
         let edge = try #require(BoardGeometry.standardEdges.first)
-        let vertex = try #require(BoardGeometry.standardVertices.first)
+        let vertex = edge.start
         board.setTerrain(.brick, at: coordinate)
         board.setNumber(.five, at: coordinate)
+        board.cycleBuilding(at: vertex, for: .orange)
         board.toggleRoad(on: edge, for: .orange)
-        board.cycleBuilding(at: vertex, for: .green)
 
         let decoded = try BoardState.decode(board.encoded())
 
@@ -118,17 +120,69 @@ struct BoardStateTests {
     func ownershipIsIsolated() throws {
         let board = BoardState()
         let edge = try #require(BoardGeometry.standardEdges.first)
-        let vertex = try #require(BoardGeometry.standardVertices.first)
+        let vertex = edge.start
 
+        board.cycleBuilding(at: vertex, for: .red)
         board.toggleRoad(on: edge, for: .red)
         board.toggleRoad(on: edge, for: .blue)
-        board.cycleBuilding(at: vertex, for: .red)
         board.cycleBuilding(at: vertex, for: .blue)
 
         #expect(board.roads.contains(edge))
         #expect(board.owner(of: edge) == .red)
         #expect(board.buildings[vertex] == .settlement)
         #expect(board.owner(of: vertex) == .red)
+    }
+
+    @Test("Road placement accepts a same-colour building or road connection")
+    func validatesRoadPlacement() throws {
+        let board = BoardState()
+        let edge = try #require(BoardGeometry.standardEdges.first)
+        let continuation = try #require(BoardGeometry.standardEdges.first {
+            $0 != edge && [$0.start, $0.end].contains(edge.end)
+        })
+
+        #expect(board.placeRoad(on: edge, for: .red) == .roadNeedsConnection)
+        board.cycleBuilding(at: edge.start, for: .blue)
+        #expect(board.placeRoad(on: edge, for: .red) == .roadNeedsConnection)
+        #expect(board.placeRoad(on: edge, for: .blue) == nil)
+        #expect(board.placeRoad(on: continuation, for: .red) == .roadNeedsConnection)
+        #expect(board.placeRoad(on: continuation, for: .blue) == nil)
+        #expect(board.roads.contains(edge))
+        #expect(board.roads.contains(continuation))
+    }
+
+    @Test("A road chain does not make a disconnected road valid")
+    func rejectsDisconnectedRoad() throws {
+        let board = BoardState()
+        let first = try #require(BoardGeometry.standardEdges.first)
+        let disconnected = try #require(BoardGeometry.standardEdges.first { candidate in
+            ![candidate.start, candidate.end].contains(first.start) &&
+                ![candidate.start, candidate.end].contains(first.end)
+        })
+
+        #expect(board.placeBuilding(.settlement, at: first.start, for: .red) == nil)
+        #expect(board.placeRoad(on: first, for: .red) == nil)
+        #expect(board.placeRoad(on: disconnected, for: .red) == .roadNeedsConnection)
+    }
+
+    @Test("Buildings cannot be placed at adjacent vertices")
+    func validatesBuildingDistance() throws {
+        let board = BoardState()
+        let edge = try #require(BoardGeometry.standardEdges.first)
+
+        #expect(board.placeBuilding(.settlement, at: edge.start, for: .red) == nil)
+        #expect(board.placeBuilding(.settlement, at: edge.end, for: .blue) == .buildingTooClose)
+        #expect(board.buildings[edge.end] == nil)
+        #expect(board.placeBuilding(.city, at: edge.start, for: .red) == nil)
+        #expect(board.buildings[edge.start] == .city)
+    }
+
+    @Test("Placement errors use the required messages")
+    func placementMessages() {
+        #expect(PlacementError.roadNeedsConnection.message ==
+            "Road must be adjacent to a road, settlement or city of the same colour.")
+        #expect(PlacementError.buildingTooClose.message ==
+            "Cannot place adjacent to a settlement or a city.")
     }
 
     @Test("Six serializable player colours are available")

@@ -1,0 +1,38 @@
+status: done
+started_datetime: 2026-08-04T22:17:00+01:00
+completed_datetime: 2026-08-04T22:20:00+01:00
+priority: P1
+requirement: REQ-013
+design: SCR-004-edit
+
+# Plan removal and Clear controls
+
+Add destructive controls for removing the final custom-plan step and resetting either plan type.
+
+## Acceptance criteria
+
+- [x] The final step in a construction plan has a bin icon.
+- [x] Tapping the bin removes only that final step; earlier ordered steps remain unchanged.
+- [x] A Cards plan has a Clear button that removes every selected card.
+- [x] A Constructions plan has a Clear button that removes every construction step.
+- [x] Clear is disabled or has no destructive effect when the plan content is already empty.
+- [x] Clear and bin operations affect only the editor draft until Save is selected.
+- [x] Cancel restores the previously saved plan contents after any removal or Clear action.
+- [x] Destructive controls have accessible labels and app/test bundles compile.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- Construction-step reordering and arbitrary middle-step deletion are not requested.
+- The final-step restriction preserves the validity assumptions of later ordered steps.
+
+## Verification
+
+- Add domain/editor coverage for final-step removal, clearing both plan types, Cancel, and Save.
+
+## Evidence
+
+- Added `CustomPlan` mutations for kind-specific clearing and final-step removal, with focused unit coverage.
+- Added accessible Clear buttons to both editors and a trash action rendered only on the final construction row.
+- Extended UI coverage for Cards Clear and final construction-step removal/disabled empty Clear.
+- `xcodebuild build-for-testing` succeeded using `/private/tmp/Catanalyst-req013-derived`.
