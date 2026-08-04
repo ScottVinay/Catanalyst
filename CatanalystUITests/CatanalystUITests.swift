@@ -124,15 +124,84 @@ final class CatanalystUITests: XCTestCase {
         app.launch()
         app.buttons["standardBoardButton"].tap()
 
+        XCTAssertFalse(app.buttons["selectedPlayerButton"].exists)
+        app.buttons["editBoardButton"].tap()
+
+        let boardFrame = app.otherElements["boardEditor"].frame
+        let pickerFrame = app.segmentedControls["hexEditModePicker"].frame
         app.buttons["selectedPlayerButton"].tap()
         XCTAssertTrue(app.navigationBars["Select player"].waitForExistence(timeout: 2))
+        let selectedFrame = app.buttons["selectedPlayerButton"].frame
+        let blueFrame = app.buttons["selectPlayer-blue"].frame
+        XCTAssertGreaterThan(blueFrame.minX, selectedFrame.maxX)
+        XCTAssertEqual(blueFrame.midY, selectedFrame.midY, accuracy: 1)
+        XCTAssertEqual(app.otherElements["boardEditor"].frame, boardFrame)
+        XCTAssertEqual(app.segmentedControls["hexEditModePicker"].frame, pickerFrame)
+
         app.buttons["selectPlayer-blue"].tap()
         XCTAssertTrue(app.navigationBars["Board"].waitForExistence(timeout: 2))
         XCTAssertEqual(app.buttons["selectedPlayerButton"].value as? String, "Collapsed")
+        app.buttons["doneEditingButton"].tap()
+        XCTAssertFalse(app.buttons["selectedPlayerButton"].exists)
 
         app.buttons["plansButton"].tap()
         XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Blue"))
+
+        let tableFrame = app.otherElements["defaultPlanTable"].frame
+        app.buttons["selectedPlayerButton"].tap()
+        XCTAssertEqual(app.otherElements["defaultPlanTable"].frame, tableFrame)
+        app.buttons["selectedPlayerButton"].tap()
+    }
+
+    @MainActor
+    func testCreatesAndEditsACustomCardsPlan() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["standardBoardButton"].tap()
+        app.buttons["plansButton"].tap()
+
+        app.buttons["customPlansTab"].tap()
+        XCTAssertTrue(app.otherElements["customPlansList"].waitForExistence(timeout: 2))
+        app.buttons["newPlanButton"].tap()
+        app.buttons["Cards"].tap()
+
+        XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
+        app.buttons["addCard-brick"].tap()
+        app.buttons["addCard-brick"].tap()
+        app.buttons["addCard-ore"].tap()
+        XCTAssertEqual(app.descendants(matching: .any)["selectedCard-brick"].label, "2 Brick cards")
+
+        let name = app.textFields["planNameField"]
+        name.tap()
+        name.press(forDuration: 1)
+        app.menuItems["Select All"].tap()
+        name.typeText("City Hand")
+        app.buttons["savePlanButton"].tap()
+
+        let plan = app.staticTexts["City Hand"]
+        XCTAssertTrue(plan.waitForExistence(timeout: 2))
+        plan.press(forDuration: 1)
+        XCTAssertTrue(app.otherElements["planDetail"].waitForExistence(timeout: 2))
+        app.buttons["editCustomPlanButton"].tap()
+        XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testCreatesAConstructionPlanPlaceholder() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["standardBoardButton"].tap()
+        app.buttons["plansButton"].tap()
+        app.buttons["customPlansTab"].tap()
+        app.buttons["newPlanButton"].tap()
+        app.buttons["Constructions"].tap()
+
+        XCTAssertTrue(
+            app.otherElements["constructionPlanPlaceholder"]
+                .waitForExistence(timeout: 2)
+        )
+        XCTAssertTrue(app.buttons["savePlanButton"].isEnabled)
     }
 
     @MainActor

@@ -31,5 +31,16 @@ struct DefaultPlanTests {
     func selectedPlayerChangesPlaceholders() {
         #expect(DefaultPlan.placeholders(for: .red) != DefaultPlan.placeholders(for: .blue))
         #expect(DefaultPlan.placeholders(for: .red).map(\.name) == DefaultPlan.placeholders(for: .blue).map(\.name))
+
+        let profiles = PlayerColor.allCases.map { player in
+            DefaultPlan.placeholders(for: player)[0]
+        }
+        #expect(Set(profiles.map(\.mean)).count == PlayerColor.allCases.count)
+        #expect(profiles.allSatisfy { plan in
+            plan.percentile25 <= plan.median
+                && plan.median <= plan.percentile75
+                && zip(plan.turnProbabilities, plan.turnProbabilities.dropFirst())
+                    .allSatisfy { $1 >= $0 }
+        })
     }
 }

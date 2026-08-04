@@ -18,14 +18,9 @@ struct BoardScreen: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                HStack(alignment: .top, spacing: 12) {
-                    PlayerSelector(
-                        selection: $selectedPlayer,
-                        isExpanded: $isSelectingPlayer
-                    )
-                    .zIndex(1)
-
-                    if isEditing {
+                if isEditing {
+                    HStack(spacing: 12) {
+                        Color.clear.frame(width: 42, height: 42)
                         Picker("Hex editing mode", selection: $editTool) {
                             ForEach(BoardEditTool.allCases) { tool in
                                 Text(tool.rawValue).tag(tool)
@@ -33,12 +28,12 @@ struct BoardScreen: View {
                         }
                         .pickerStyle(.segmented)
                         .accessibilityIdentifier("hexEditModePicker")
-                    }
 
-                    Spacer(minLength: 0)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 8)
                 }
-                .padding(.horizontal)
-                .padding(.top, 8)
 
                 BoardEditorView(
                     board: board,
@@ -47,6 +42,17 @@ struct BoardScreen: View {
                     selectedPlayer: selectedPlayer
                 )
                 .accessibilityIdentifier("boardEditor")
+            }
+            .overlay(alignment: .topLeading) {
+                if isEditing {
+                    PlayerSelector(
+                        selection: $selectedPlayer,
+                        isExpanded: $isSelectingPlayer
+                    )
+                    .padding(.leading, 16)
+                    .padding(.top, 8)
+                    .zIndex(2)
+                }
             }
             .navigationTitle(isSelectingPlayer ? "Select player" : "Board")
             .navigationBarTitleDisplayMode(.inline)
@@ -66,6 +72,7 @@ struct BoardScreen: View {
             if isEditing {
                 Button {
                     isEditing = false
+                    isSelectingPlayer = false
                 } label: {
                     Label("Done", systemImage: "checkmark")
                         .frame(maxWidth: .infinity)

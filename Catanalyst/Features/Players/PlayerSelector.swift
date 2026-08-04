@@ -5,7 +5,7 @@ struct PlayerSelector: View {
     @Binding var isExpanded: Bool
 
     var body: some View {
-        VStack(spacing: 8) {
+        HStack(spacing: 8) {
             playerButton(selection, isCurrent: true) {
                 withAnimation(.easeInOut(duration: 0.18)) {
                     isExpanded.toggle()
@@ -20,7 +20,7 @@ struct PlayerSelector: View {
                             isExpanded = false
                         }
                     }
-                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .transition(.move(edge: .leading).combined(with: .opacity))
                 }
             }
         }

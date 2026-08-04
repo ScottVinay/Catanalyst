@@ -19,6 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
+- TASK-008's initial custom-plan edit/detail screens are implemented and remain `in-progress` pending two runtime UI checks.
 - TASK-007's shared player selector and piece ownership are implemented and remain `in-progress` pending runtime checks.
 - TASK-006's Default Plan Browser is implemented and remains `in-progress` pending runtime checks.
 - TASK-002 and TASK-004 are implemented and remain `in-progress` pending their required manual gesture checks.
@@ -26,9 +27,14 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
-- Added six serializable player colours and reusable expanding player selection on Board and Plans.
+- Enabled the Custom plans tab with New Plan type selection, in-memory saved rows, long-press detail, and edit navigation.
+- Added serializable custom-plan/card models plus the initial cards and construction editors from SCR-004.
+- Added poker-proportioned resource cards, duplicate-card stacking, shared player selection, name editing, and Cancel/Save actions.
+- Added the current SCR-005 plan detail scope: icon/name and an Edit action.
+- Added six serializable player colours and reusable rightward-expanding player selection on Board and Plans.
+- Presented the selector as a fixed-footprint overlay so expansion does not move other content, and limited its Board presence to edit mode.
 - Added per-player road/building ownership, rendering, isolation, and backward-compatible decoding.
-- Made placeholder plan statistics respond deterministically to the shared selected player.
+- Made all six placeholder player profiles meaningfully distinct, with recomputed summary statistics and monotonic probability curves.
 - Added a bottom-sheet Default Plan Browser with all nine fixed plan rows.
 - Added red deterministic placeholder summary and turn-probability values.
 - Added separate fixed plan/header panes synchronized with the clipped values viewport, plus grouped super-column headers and boundary lines.
@@ -46,8 +52,8 @@ Use the area below the three dashes for your current notes:
 
 ## Known blocker
 
-- CoreSimulator still cannot launch tests, consistent with the saved AccessibilityUIServer crash. On 2026-08-03, TASK-006's app and test bundles compiled successfully, but the focused test run reported no concrete simulator devices and offered only placeholder destinations.
+- CoreSimulator now lists an iPhone 17, and TASK-008's three unit tests passed. UI launches remain blocked: the parallel run reported `DebuggerVersionStore.StoreError`, while a serial retry failed before testing because `launchd_sim` crashed and could not bind to the simulator session.
 
 ## Recommended next action
 
-- Restart or repair CoreSimulator, then run the focused TASK-002, TASK-004, TASK-006, and TASK-007 tests and manual checks. If they pass, check the final acceptance criteria, set completion timestamps, and mark the tasks `done`.
+- Repair the Xcode debugger/simulator service, then run TASK-008's two focused UI tests followed by the outstanding TASK-002, TASK-004, TASK-006, and TASK-007 runtime checks. If they pass, check the final acceptance criteria, set completion timestamps, and mark the tasks `done`.

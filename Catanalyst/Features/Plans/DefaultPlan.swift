@@ -24,16 +24,29 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
     ]
 
     static func placeholders(for player: PlayerColor) -> [DefaultPlan] {
-        let adjustment = player.placeholderIndex
+        let adjustment: Double = switch player {
+        case .red: 0
+        case .blue: 0.8
+        case .white: -0.6
+        case .orange: 1.4
+        case .green: -1.0
+        case .brown: 2.0
+        }
+
         return placeholders.map { plan in
-            DefaultPlan(
+            let midpoint = max(1, plan.median + adjustment)
+            let median = midpoint.rounded()
+            return DefaultPlan(
                 name: plan.name,
                 systemImage: plan.systemImage,
-                mean: plan.mean + (Double(adjustment) * 0.1),
-                median: plan.median,
-                percentile25: plan.percentile25,
-                percentile75: plan.percentile75,
-                turnProbabilities: plan.turnProbabilities.map { max(0, $0 - adjustment) }
+                mean: max(1, plan.mean + adjustment),
+                median: median,
+                percentile25: max(1, (median - 1).rounded()),
+                percentile75: max(median, (median + 2).rounded()),
+                turnProbabilities: (1...10).map { turn in
+                    let exponent = -0.75 * (Double(turn) - midpoint)
+                    return Int((100 / (1 + exp(exponent))).rounded())
+                }
             )
         }
     }

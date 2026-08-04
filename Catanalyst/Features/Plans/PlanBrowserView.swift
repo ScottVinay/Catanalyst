@@ -5,6 +5,13 @@ private enum PlanTableSection: Equatable {
     case probability
 }
 
+private enum PlanBrowserTab: String, CaseIterable, Identifiable {
+    case `default` = "Default"
+    case custom = "Custom"
+
+    var id: Self { self }
+}
+
 struct PlanBrowserView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedPlayer: PlayerColor
@@ -12,6 +19,12 @@ struct PlanBrowserView: View {
     @State private var verticalOverscroll: CGFloat = 0
     @State private var tableSection = PlanTableSection.summary
     @State private var isSelectingPlayer = false
+    @State private var selectedTab = PlanBrowserTab.default
+    @State private var customPlans: [CustomPlan] = []
+    @State private var editingPlan: CustomPlan?
+    @State private var viewedPlan: CustomPlan?
+    @State private var isChoosingPlanKind = false
+    @State private var showsDefaultPlanMessage = false
 
     private let summaryColumns = ["Mean", "Median", "25th", "75th"]
     private let planColumnWidth: CGFloat = 118
@@ -23,17 +36,21 @@ struct PlanBrowserView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
-                HStack {
-                    PlayerSelector(
-                        selection: $selectedPlayer,
-                        isExpanded: $isSelectingPlayer
-                    )
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .zIndex(1)
+                Color.clear.frame(height: 42)
                 tabSelector
-                planTable
+                if selectedTab == .default {
+                    planTable
+                } else {
+                    customPlansView
+                }
+            }
+            .overlay(alignment: .topLeading) {
+                PlayerSelector(
+                    selection: $selectedPlayer,
+                    isExpanded: $isSelectingPlayer
+                )
+                .padding(.horizontal)
+                .zIndex(2)
             }
             .padding(.top, 8)
             .navigationTitle(isSelectingPlayer ? "Select player" : "Plans")
@@ -53,32 +70,77 @@ struct PlanBrowserView: View {
                     .accessibilityIdentifier("planGraphsButton")
                 }
             }
+            .confirmationDialog(
+                "Choose plan type",
+                isPresented: $isChoosingPlanKind,
+                titleVisibility: .visible
+            ) {
+                Button("Cards") { beginNewPlan(kind: .cards) }
+                Button("Constructions") { beginNewPlan(kind: .constructions) }
+                Button("Cancel", role: .cancel) {}
+            }
+            .sheet(item: $editingPlan) { plan in
+                PlanEditorView(plan: plan, selectedPlayer: $selectedPlayer) { save($0) }
+            }
+            .sheet(item: $viewedPlan) { plan in
+                PlanDetailView(plan: plan, selectedPlayer: $selectedPlayer) { save($0) }
+            }
+            .alert("Default plans cannot be edited.", isPresented: $showsDefaultPlanMessage) {
+                Button("OK", role: .cancel) {}
+            }
         }
         .accessibilityIdentifier("planBrowser")
     }
 
     private var tabSelector: some View {
         HStack(spacing: 0) {
-            Text("Default")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 7))
-                .accessibilityAddTraits(.isSelected)
-
-            Text("Custom")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .accessibilityLabel("Custom, unavailable")
+            ForEach(PlanBrowserTab.allCases) { tab in
+                Button {
+                    selectedTab = tab
+                    isSelectingPlayer = false
+                } label: {
+                    Text(tab.rawValue)
+                        .font(.subheadline.weight(selectedTab == tab ? .semibold : .regular))
+                        .foregroundStyle(selectedTab == tab ? .white : .secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(
+                            selectedTab == tab ? Color.accentColor : Color.clear,
+                            in: RoundedRectangle(cornerRadius: 7)
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
+                .accessibilityIdentifier("\(tab.rawValue.lowercased())PlansTab")
+            }
         }
         .padding(2)
         .background(.quaternary, in: RoundedRectangle(cornerRadius: 9))
         .padding(.horizontal)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("planTabSelector")
+    }
+
+    private var customPlansView: some View {
+        List {
+            ForEach(customPlans) { plan in
+                Label(plan.name, systemImage: plan.icon)
+                    .contentShape(Rectangle())
+                    .onLongPressGesture { viewedPlan = plan }
+                    .accessibilityHint("Hold to view or edit this plan")
+                    .accessibilityIdentifier("customPlan-\(plan.id.uuidString)")
+            }
+
+            Button {
+                isChoosingPlanKind = true
+            } label: {
+                Label("New Plan", systemImage: "plus")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .accessibilityIdentifier("newPlanButton")
+        }
+        .listStyle(.plain)
+        .accessibilityIdentifier("customPlansList")
     }
 
     private var planTable: some View {
@@ -236,6 +298,8 @@ struct PlanBrowserView: View {
             .minimumScaleFactor(0.75)
             .frame(width: planColumnWidth, height: rowHeight, alignment: .leading)
             .background(Color(uiColor: .systemBackground))
+            .contentShape(Rectangle())
+            .onLongPressGesture { showsDefaultPlanMessage = true }
             .accessibilityIdentifier("defaultPlan-\(plan.id)")
     }
 
@@ -440,6 +504,23 @@ struct PlanBrowserView: View {
 
     private var plans: [DefaultPlan] {
         DefaultPlan.placeholders(for: selectedPlayer)
+    }
+
+    private func beginNewPlan(kind: CustomPlanKind) {
+        editingPlan = CustomPlan(
+            name: kind == .cards ? "New Cards Plan" : "New Construction Plan",
+            kind: kind,
+            player: selectedPlayer
+        )
+    }
+
+    private func save(_ plan: CustomPlan) {
+        selectedPlayer = plan.player
+        if let index = customPlans.firstIndex(where: { $0.id == plan.id }) {
+            customPlans[index] = plan
+        } else {
+            customPlans.append(plan)
+        }
     }
 }
 

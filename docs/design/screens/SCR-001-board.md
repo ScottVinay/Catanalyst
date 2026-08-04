@@ -33,8 +33,8 @@ There should be a toggle switch in the top right determining if we are editing t
 
 ### Terrain type editing
 
-Tapping a hex opens the terrain selector. This is a set of 7 coloured circles surrounding the hex.
-By tapping one of these circles, it applies the chosen terrain type to the hex. If we tap the hex again without making a choice, then it closes the radial.
+Holding a hex opens the terrain selector. This is a set of 7 coloured circles surrounding the hex.
+By moving while holding to one of these circles, that circle will be highlighted. Releasing applies the chosen terrain type to the hex. If we release the hex again while in the centre making a choice, then it closes the radial without applying.
 
 If we are in zoomed-in mode, then tapping a hex centres the view on that hex.
 
