@@ -1,0 +1,24 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P2
+requirement: REQ-017
+design: SCR-002-plans, ITEM-001-player-selector
+depends_on: TASK-032
+
+# All-player owner corner markers
+
+Replace custom-item ownership dots with coloured corner triangles shown only in the All-player Analysis view.
+
+## Acceptance criteria
+
+- [ ] A custom Analysis row has no owner marker while one player colour is selected.
+- [ ] All-player mode shows an owner marker for every saved production check and plan.
+- [ ] The marker is a triangle filled with the owning player's colour.
+- [ ] The triangle fills the upper-right corner of the row's fixed left-hand cell.
+- [ ] The marker is positioned slightly left/up relative to the former dot while remaining inside the cell bounds.
+- [ ] The marker does not alter row height, name/icon alignment, expansion, or fixed/value-pane synchronization.
+- [ ] The marker has an accessible ownership label that does not duplicate the row action.
+- [ ] Switching between a player and All updates markers immediately without changing stored ownership.
+- [ ] UI regression coverage compiles.
+- [ ] Focused rendering checks pass on a functioning simulator or device.

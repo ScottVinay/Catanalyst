@@ -12,7 +12,7 @@ struct BoardScreen: View {
 
     @State private var isEditing = false
     @State private var editTool = BoardEditTool.terrain
-    @State private var isShowingPlans = false
+    @State private var isShowingAnalysis = false
     @State private var isShowingHand = false
     @State private var selectedPlayer = PlayerColor.red
     @State private var isShowingEditHelp = false
@@ -74,7 +74,7 @@ struct BoardScreen: View {
             .overlay(alignment: .bottom) {
                 bottomBar
             }
-            .sheet(isPresented: $isShowingPlans) {
+            .sheet(isPresented: $isShowingAnalysis) {
                 PlanBrowserView(board: board, selectedPlayer: $selectedPlayer)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
@@ -109,10 +109,10 @@ struct BoardScreen: View {
                 }
                 .accessibilityIdentifier("handButton")
 
-                toolbarButton("Plans", systemImage: "list.bullet.rectangle") {
-                    isShowingPlans = true
+                toolbarButton("Analysis", systemImage: "list.bullet.rectangle") {
+                    isShowingAnalysis = true
                 }
-                .accessibilityIdentifier("plansButton")
+                .accessibilityIdentifier("analysisButton")
             }
         }
         .padding(.horizontal)

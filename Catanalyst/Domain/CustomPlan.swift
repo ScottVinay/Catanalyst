@@ -5,7 +5,25 @@ nonisolated enum CustomPlanKind: String, CaseIterable, Codable, Identifiable, Se
     case constructions
 
     var id: Self { self }
-    var displayName: String { rawValue.capitalized }
+    var displayName: String { self == .cards ? "Production check" : "Plan" }
+
+    var defaultSystemImage: String {
+        self == .cards ? "rectangle.stack.fill" : "hammer.fill"
+    }
+}
+
+nonisolated enum AnalysisItemIcon {
+    static let choices = [
+        "rectangle.stack.fill",
+        "hammer.fill",
+        "road.lanes",
+        "house.fill",
+        "building.2.fill",
+        "target",
+        "flag.fill",
+        "chart.bar.fill",
+        "circle.hexagongrid.fill"
+    ]
 }
 
 nonisolated enum ResourceCard: String, CaseIterable, Codable, Identifiable, Sendable {
@@ -72,6 +90,7 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
     var name: String
     var kind: CustomPlanKind
     var player: PlayerColor
+    var systemImage: String
     var cardCounts: [ResourceCard: Int]
     var constructionSteps: [PlannedConstructionStep]
 
@@ -80,6 +99,7 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
         name: String,
         kind: CustomPlanKind,
         player: PlayerColor,
+        systemImage: String? = nil,
         cardCounts: [ResourceCard: Int] = [:],
         constructionSteps: [PlannedConstructionStep] = []
     ) {
@@ -87,12 +107,13 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
         self.name = name
         self.kind = kind
         self.player = player
+        self.systemImage = systemImage ?? kind.defaultSystemImage
         self.cardCounts = ResourceCardCounts.sanitized(cardCounts)
         self.constructionSteps = constructionSteps
     }
 
     var icon: String {
-        kind == .cards ? "rectangle.stack.fill" : "hammer.fill"
+        systemImage
     }
 
     static func belonging(to player: PlayerColor, in plans: [CustomPlan]) -> [CustomPlan] {
@@ -112,7 +133,7 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
         player: PlayerColor,
         in plans: [CustomPlan]
     ) -> String {
-        let prefix = kind == .cards ? "Card plan" : "Con plan"
+        let prefix = kind == .cards ? "Prod" : "Plan"
         let usedNames = Set(plans.lazy
             .filter { $0.player == player && $0.kind == kind }
             .map(\.name))
@@ -146,7 +167,7 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, kind, player, cardCounts, constructionSteps
+        case id, name, kind, player, systemImage, cardCounts, constructionSteps
     }
 
     init(from decoder: Decoder) throws {
@@ -155,6 +176,8 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
         name = try container.decode(String.self, forKey: .name)
         kind = try container.decode(CustomPlanKind.self, forKey: .kind)
         player = try container.decode(PlayerColor.self, forKey: .player)
+        systemImage = try container.decodeIfPresent(String.self, forKey: .systemImage)
+            ?? kind.defaultSystemImage
         cardCounts = try container.decodeIfPresent(
             [ResourceCard: Int].self,
             forKey: .cardCounts
@@ -171,6 +194,7 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
         try container.encode(name, forKey: .name)
         try container.encode(kind, forKey: .kind)
         try container.encode(player, forKey: .player)
+        try container.encode(systemImage, forKey: .systemImage)
         try container.encode(cardCounts, forKey: .cardCounts)
         try container.encode(constructionSteps, forKey: .constructionSteps)
     }

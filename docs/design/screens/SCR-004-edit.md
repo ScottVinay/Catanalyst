@@ -1,47 +1,17 @@
-This screen allows for the editing of a plan. A plan consists of one or more things that are to be built. Actually, there are two kinds of plans. A plan may consist of a set of cards we want to have in our hand, or a set of things that we want to build. When we select new plan, it should first bring up two options, "cards" or "constructions". These options shall be arranged vertically, with Cards above Constructions, rather than side by side. If we click cards, this takes us to screen edit cards. If we click construction, this takes us to screen edit construction.
+# SCR-004 – Edit Analysis item
 
-New Cards plans default to `Card plan N` and new Constructions plans default to `Con plan N`. Each player and plan type has its own sequence, derived from that player's existing saved plans of the same type.
+Analysis opens the appropriate editor directly: Production creates a production check and Plans creates an ordered construction plan. Both editors provide player ownership, an editable generated name, a 3×3 icon grid, Clear, Cancel, and Save. Changing owner updates an untouched generated name but preserves a user-edited name.
 
-# Cards
+The shared icon choices are cards, hammer, road, settlement, city, target, flag, chart, and hex grid. Production defaults to cards and names `Prod N`; Plans default to hammer and names `Plan N`. Numbering is independent per player and kind.
 
-At the top left show `ITEM-001-player-selector`.
+## Production check
 
-At the top there is a bar to edit the name of this plan.
+The helper explains that the check completes when the player's hand contains at least the selected cards. Brick, Wood, Hay, Sheep, and Ore add one card. Selected duplicates stack with white outlines; tapping a stack removes one copy. Clear removes all selected cards from the draft.
 
-Under this there is some helper text that says:
+## Plan
 
-"Plan shall be considered complete when the player's hand contains at least the cards selected."
+The helper explains that ordered constructions start from the Board state when the plan is made. Existing Road, Settlement, and City steps are ordered rows. The final step may be removed and Clear removes all draft steps.
 
-Under this there is a blank space where selected cards go.
+New-step icons open Board placement with the matching title. Earlier steps are translucent projected pieces. Valid placement shows the new ghost for 0.65 seconds, then returns without mutating the live Board. Roads render behind real and ghost buildings. The preview button remains immediately right of the player selector.
 
-Under this there are, side by side, icons for Brick, Wood, Hay, Sheep, Ore, in that order. See `ITEM-002-cards`. Each of these has a + symbol on it. Tapping one of these adds a copy of this card to the selected cards section.
-
-Copies of the same card in the selected cards section should be stacked, but staggered to the right so we can see how many copies there are.
-
-Tapping a selected card stack removes exactly one card of that resource. Removing the final card removes the stack. This modifies only the current editor draft until Save is selected, and Cancel restores the saved plan.
-
-At the bottom there are two buttons side by side: Cancel and Save
-
-# Constructions
-
-
-At the top left show `ITEM-001-player-selector`.
-
-At the top right, immediately to the right of the player selector, show the hexagon-cluster button for previewing the current construction plan on the Board.
-
-At the top there is a bar to edit the name of this plan.
-
-Under this there is some helper text that says:
-
-"Plan shall be considered complete when the following have been built in order, starting from the state of the board at the point where the plan is made."
-
-- The construction UI is a series of rows, each representing a step.
-- The "new step" row consists of icons side by side for a road, a settlement, and a city. Tapping one of these shows the board, with the title "Placing road", "Placing settlement", or "Placing city".
-- Tapping somewhere places a road/settlement/city in that location, but ghostly so we know it is part of the plan only.
-- After a valid placement, keep the new ghost item visible for 0.65 seconds before returning to the plan editor.
-- Ghost roads always render behind both real and ghost settlements/cities wherever they overlap.
-- A planned city may only upgrade an existing settlement belonging to the selected player, including a settlement added by an earlier plan step.
-- This then goes back to the edit page, where we may select a new item to place, or click cancel/save as usual.
-- Note that the ghost items are only available on SCR-004 edit and SCR-005-view-plan, not on SCR-001-board
-
-At the bottom there are two buttons side by side: Cancel and Save
+Cancel discards the draft. Save persists its name, owner, icon, and contents for the lifetime of Analysis.

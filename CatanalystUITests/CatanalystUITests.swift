@@ -32,7 +32,7 @@ final class CatanalystUITests: XCTestCase {
         standardBoard.tap()
 
         XCTAssertLessThan(app.buttons["editBoardButton"].frame.midX, app.buttons["handButton"].frame.midX)
-        XCTAssertLessThan(app.buttons["handButton"].frame.midX, app.buttons["plansButton"].frame.midX)
+        XCTAssertLessThan(app.buttons["handButton"].frame.midX, app.buttons["analysisButton"].frame.midX)
         app.buttons["handButton"].tap()
         XCTAssertTrue(app.otherElements["handSheet"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.navigationBars["Cards in hand"].exists)
@@ -112,24 +112,24 @@ final class CatanalystUITests: XCTestCase {
         app.launch()
         app.buttons["standardBoardButton"].tap()
 
-        let plansButton = app.buttons["plansButton"]
-        XCTAssertTrue(plansButton.waitForExistence(timeout: 3))
-        plansButton.tap()
+        let analysisButton = app.buttons["analysisButton"]
+        XCTAssertTrue(analysisButton.waitForExistence(timeout: 3))
+        analysisButton.tap()
 
-        XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.buttons["planBrowserHelpButton"].exists)
+        XCTAssertTrue(app.otherElements["analysisBrowser"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["analysisHelpButton"].exists)
         let graphButton = app.buttons["planGraphsButton"]
-        let helpButton = app.buttons["planBrowserHelpButton"]
+        let helpButton = app.buttons["analysisHelpButton"]
         XCTAssertFalse(graphButton.frame.intersects(helpButton.frame))
         graphButton.tap()
-        XCTAssertFalse(app.alerts["Plan Browser"].exists)
+        XCTAssertFalse(app.alerts["Analysis"].exists)
         helpButton.tap()
-        XCTAssertTrue(app.alerts["Plan Browser"].waitForExistence(timeout: 1))
-        app.alerts["Plan Browser"].buttons["OK"].tap()
+        XCTAssertTrue(app.alerts["Analysis"].waitForExistence(timeout: 1))
+        app.alerts["Analysis"].buttons["OK"].tap()
         graphButton.tap()
-        XCTAssertFalse(app.alerts["Plan Browser"].exists)
-        XCTAssertTrue(app.otherElements["planBrowser"].exists)
-        XCTAssertTrue(app.otherElements["defaultPlanTable"].exists)
+        XCTAssertFalse(app.alerts["Analysis"].exists)
+        XCTAssertTrue(app.otherElements["analysisBrowser"].exists)
+        XCTAssertTrue(app.otherElements["productionTable"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Dev Card"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["planSuperHeader"].exists)
@@ -176,8 +176,8 @@ final class CatanalystUITests: XCTestCase {
         table.swipeUp()
         XCTAssertTrue(app.descendants(matching: .any)["planColumnHeader"].isHittable)
 
-        app.buttons["closePlanBrowserButton"].tap()
-        XCTAssertFalse(app.otherElements["planBrowser"].exists)
+        app.buttons["closeAnalysisButton"].tap()
+        XCTAssertFalse(app.otherElements["analysisBrowser"].exists)
     }
 
     @MainActor
@@ -209,17 +209,17 @@ final class CatanalystUITests: XCTestCase {
         app.buttons["doneEditingButton"].tap()
         XCTAssertFalse(app.buttons["selectedPlayerButton"].exists)
 
-        app.buttons["plansButton"].tap()
-        XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
+        app.buttons["analysisButton"].tap()
+        XCTAssertTrue(app.otherElements["analysisBrowser"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Blue"))
         XCTAssertLessThan(
             app.descendants(matching: .any)["planTabSelector"].frame.maxY,
             app.descendants(matching: .any)["playerSelector"].frame.minY
         )
 
-        let tableFrame = app.otherElements["defaultPlanTable"].frame
+        let tableFrame = app.otherElements["productionTable"].frame
         app.buttons["selectPlayer-red"].tap()
-        XCTAssertEqual(app.otherElements["defaultPlanTable"].frame, tableFrame)
+        XCTAssertEqual(app.otherElements["productionTable"].frame, tableFrame)
         XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Red"))
     }
 
@@ -228,24 +228,16 @@ final class CatanalystUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         app.buttons["standardBoardButton"].tap()
-        app.buttons["plansButton"].tap()
+        app.buttons["analysisButton"].tap()
 
-        app.buttons["customPlansTab"].tap()
-        XCTAssertTrue(app.otherElements["customPlanTable"].waitForExistence(timeout: 2))
-        app.buttons["newPlanButton"].tap()
-        let chooser = app.descendants(matching: .any)["planTypeChooser"]
-        XCTAssertTrue(chooser.waitForExistence(timeout: 2))
-        XCTAssertEqual(chooser.frame.midX, app.windows.firstMatch.frame.midX, accuracy: 1)
-        XCTAssertEqual(chooser.frame.midY, app.windows.firstMatch.frame.midY, accuracy: 50)
-        XCTAssertTrue(app.buttons["planTypeHelpButton"].exists)
-        XCTAssertLessThan(app.buttons["Cards"].frame.midY, app.buttons["Constructions"].frame.midY)
-        XCTAssertEqual(app.buttons["Cards"].frame.midX, app.buttons["Constructions"].frame.midX, accuracy: 1)
-        app.buttons["Cards"].tap()
-
-        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        XCTAssertTrue(app.otherElements["productionTable"].waitForExistence(timeout: 2))
+        app.buttons["newProductionCheckButton"].tap()
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Prod 1")
 
         XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.buttons["planEditHelpButton"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["analysisIconPicker"].exists)
+        app.buttons["analysisIcon-flag.fill"].tap()
         app.buttons["addCard-brick"].tap()
         app.buttons["addCard-brick"].tap()
         app.buttons["addCard-ore"].tap()
@@ -271,7 +263,7 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 2))
         XCTAssertTrue(plan.label.contains("City Hand"))
         XCTAssertTrue(app.descendants(matching: .any)["summaryPlanHeader"].exists)
-        XCTAssertLessThan(plan.frame.midY, app.buttons["newPlanButton"].frame.midY)
+        XCTAssertLessThan(plan.frame.midY, app.buttons["newProductionCheckButton"].frame.midY)
         let customValues = app.descendants(matching: .any).matching(
             NSPredicate(format: "identifier BEGINSWITH 'customPlanValues-'")
         ).firstMatch
@@ -298,17 +290,16 @@ final class CatanalystUITests: XCTestCase {
 
         app.buttons["selectPlayer-blue"].tap()
         XCTAssertFalse(plan.exists)
-        XCTAssertTrue(app.buttons["newPlanButton"].exists)
+        XCTAssertTrue(app.buttons["newProductionCheckButton"].exists)
 
         app.buttons["selectAllPlayers"].tap()
         XCTAssertTrue(plan.waitForExistence(timeout: 2))
         XCTAssertTrue(app.descendants(matching: .any)["planOwner-red"].exists)
-        app.buttons["newPlanButton"].tap()
-        app.buttons["Cards"].tap()
+        app.buttons["newProductionCheckButton"].tap()
         XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Red"))
-        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Prod 1")
         app.buttons["selectPlayer-blue"].tap()
-        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Prod 1")
         app.buttons["cancelPlanButton"].tap()
 
         app.buttons["selectPlayer-red"].tap()
@@ -320,7 +311,7 @@ final class CatanalystUITests: XCTestCase {
         savedBrickStack.tap()
         XCTAssertTrue(app.descendants(matching: .any)["emptySelectedCards"].exists)
         app.buttons["cancelPlanButton"].tap()
-        XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.otherElements["analysisBrowser"].waitForExistence(timeout: 2))
 
         plan.press(forDuration: 0.7)
         XCTAssertEqual(
@@ -329,25 +320,19 @@ final class CatanalystUITests: XCTestCase {
         )
         app.buttons["cancelPlanButton"].tap()
 
-        app.buttons["newPlanButton"].tap()
-        app.buttons["Cards"].tap()
-        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
-        app.buttons["cancelPlanButton"].tap()
-
-        app.buttons["newPlanButton"].tap()
-        app.buttons["Constructions"].tap()
-        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Con plan 1")
-        app.buttons["cancelPlanButton"].tap()
-
-        app.buttons["newPlanButton"].tap()
-        app.buttons["Cards"].tap()
-        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        app.buttons["newProductionCheckButton"].tap()
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Prod 1")
         app.buttons["cancelPlanButton"].tap()
 
         app.buttons["selectPlayer-blue"].tap()
+        app.buttons["newProductionCheckButton"].tap()
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Prod 1")
+        app.buttons["cancelPlanButton"].tap()
+
+        app.buttons["plansAnalysisTab"].tap()
+        XCTAssertTrue(app.otherElements["plansTable"].waitForExistence(timeout: 2))
         app.buttons["newPlanButton"].tap()
-        app.buttons["Cards"].tap()
-        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Plan 1")
         app.buttons["cancelPlanButton"].tap()
     }
 
@@ -356,12 +341,11 @@ final class CatanalystUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         app.buttons["standardBoardButton"].tap()
-        app.buttons["plansButton"].tap()
-        app.buttons["customPlansTab"].tap()
+        app.buttons["analysisButton"].tap()
+        app.buttons["plansAnalysisTab"].tap()
         app.buttons["newPlanButton"].tap()
-        app.buttons["Constructions"].tap()
 
-        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Con plan 1")
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Plan 1")
 
         XCTAssertTrue(app.otherElements["newConstructionStep"].waitForExistence(timeout: 2))
         XCTAssertGreaterThan(
@@ -396,10 +380,9 @@ final class CatanalystUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         app.buttons["standardBoardButton"].tap()
-        app.buttons["plansButton"].tap()
-        app.buttons["customPlansTab"].tap()
+        app.buttons["analysisButton"].tap()
+        app.buttons["plansAnalysisTab"].tap()
         app.buttons["newPlanButton"].tap()
-        app.buttons["Constructions"].tap()
         app.buttons["addConstruction-road"].tap()
 
         let board = app.otherElements["boardEditor"]

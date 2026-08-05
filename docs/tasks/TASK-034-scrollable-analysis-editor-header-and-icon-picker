@@ -1,0 +1,26 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-017
+design: SCR-004-edit, ITEM-001-player-selector
+depends_on: TASK-032, TASK-033
+
+# Scrollable Analysis editor header and on-demand icon picker
+
+Refine both Analysis editors so ownership scrolls with the content and icon choices appear only when requested.
+
+## Acceptance criteria
+
+- [ ] The player selector is part of the editor's scrollable content and is not fixed above or below it.
+- [ ] Scrolling a long construction plan moves the player selector naturally with the editor content.
+- [ ] The current item icon appears beside the editable name.
+- [ ] A small pencil affordance beside the icon communicates that it can be changed.
+- [ ] The 3×3 icon grid is hidden by default.
+- [ ] Tapping the current icon or its pencil reveals the shared 3×3 icon grid.
+- [ ] Selecting an icon updates the draft and dismisses or collapses the picker without changing unrelated fields.
+- [ ] Production and Plan editors retain their respective cards and hammer defaults.
+- [ ] Cancel discards an icon change; Save persists it through TASK-033's storage path.
+- [ ] Editor scrolling, naming, player changes, preview placement, Clear, Cancel, and Save continue to work.
+- [ ] UI regression coverage compiles.
+- [ ] Focused layout and interaction checks pass on a functioning simulator or device.

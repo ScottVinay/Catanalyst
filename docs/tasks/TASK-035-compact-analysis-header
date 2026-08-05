@@ -1,0 +1,23 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P2
+requirement: REQ-017
+design: SCR-002-plans
+depends_on: TASK-032
+
+# Compact Analysis tab header
+
+Shorten the Production/Plans selector and place the Graph and Help actions to its right.
+
+## Acceptance criteria
+
+- [ ] Production and Plans remain a two-option selector with clear selected state.
+- [ ] The selector no longer consumes the full available width.
+- [ ] Graph and Help appear to the right of the selector in the same header row.
+- [ ] Graph and Help retain separate non-overlapping hit targets and independent pressed states.
+- [ ] Tapping either action cannot activate the other action or change the selected tab.
+- [ ] The player selector remains below the header.
+- [ ] The layout fits supported compact iPhone widths without clipping or wrapping.
+- [ ] UI regression coverage compiles.
+- [ ] Focused compact-width checks pass on a functioning simulator or device.

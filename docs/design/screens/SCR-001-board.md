@@ -10,7 +10,7 @@ There is an edit button, which changes the toolbars, and takes us into edit mode
 - In Overview zoom, bias the board slightly upward so it is visually centred within the complete screen layout.
 - Toolbar on bottom:
     - Button: Edit
-    - Button: View plans panel
+    - Button: View Analysis panel
     - Button: Player summary panel
 
 # Zoom

@@ -1,0 +1,25 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-017
+design: SCR-001-board
+depends_on: TASK-020, TASK-023
+
+# Board rotation controls and compact bottom labels
+
+Add left/right quarter-turn controls to the Board and keep every bottom-bar label on one line.
+
+## Acceptance criteria
+
+- [ ] The Board screen shows a circular-arrow-left action and a circular-arrow-right action.
+- [ ] Tapping left rotates the board view 90 degrees counter-clockwise.
+- [ ] Tapping right rotates the board view 90 degrees clockwise.
+- [ ] Four repeated rotations in either direction return to the original orientation without cumulative geometry drift.
+- [ ] Rotation applies consistently in view and edit modes, including terrain, numbers, roads, buildings, ghosts, and interaction targets.
+- [ ] Rotation does not mutate the underlying logical board coordinates or saved board state.
+- [ ] Existing pan, zoom, tap-to-focus, and hold/radial editing remain correct in every orientation.
+- [ ] Edit, Hand, and Analysis bottom-bar labels use smaller fonts and fit comfortably on one line.
+- [ ] Controls have distinct accessible labels and identifiers.
+- [ ] Geometry/unit and UI regression coverage compile.
+- [ ] Focused rotation and compact-layout checks pass on a functioning simulator or device.

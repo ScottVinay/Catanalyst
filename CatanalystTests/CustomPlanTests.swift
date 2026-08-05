@@ -24,6 +24,7 @@ struct CustomPlanTests {
         #expect(plan.cardCounts[.ore] == 3)
         #expect(plan.cardCounts[.hay] == 2)
         #expect(plan.icon == "rectangle.stack.fill")
+        #expect(AnalysisItemIcon.choices.count == 9)
     }
 
     @Test("Custom plans serialize without losing card counts")
@@ -81,18 +82,39 @@ struct CustomPlanTests {
     @Test("Default names are numbered independently by kind and player")
     func defaultNames() {
         let plans = [
-            CustomPlan(name: "Card plan 1", kind: .cards, player: .red),
-            CustomPlan(name: "Card plan 3", kind: .cards, player: .red),
-            CustomPlan(name: "Card plan 2 extra", kind: .cards, player: .red),
-            CustomPlan(name: "Con plan 1", kind: .constructions, player: .red),
-            CustomPlan(name: "Card plan 1", kind: .cards, player: .blue)
+            CustomPlan(name: "Prod 1", kind: .cards, player: .red),
+            CustomPlan(name: "Prod 3", kind: .cards, player: .red),
+            CustomPlan(name: "Prod 2 extra", kind: .cards, player: .red),
+            CustomPlan(name: "Plan 1", kind: .constructions, player: .red),
+            CustomPlan(name: "Prod 1", kind: .cards, player: .blue)
         ]
 
-        #expect(CustomPlan.nextDefaultName(for: .cards, player: .red, in: plans) == "Card plan 2")
-        #expect(CustomPlan.nextDefaultName(for: .constructions, player: .red, in: plans) == "Con plan 2")
-        #expect(CustomPlan.nextDefaultName(for: .cards, player: .blue, in: plans) == "Card plan 2")
-        #expect(CustomPlan.nextDefaultName(for: .constructions, player: .blue, in: plans) == "Con plan 1")
-        #expect(CustomPlan.nextDefaultName(for: .cards, player: .green, in: plans) == "Card plan 1")
+        #expect(CustomPlan.nextDefaultName(for: .cards, player: .red, in: plans) == "Prod 2")
+        #expect(CustomPlan.nextDefaultName(for: .constructions, player: .red, in: plans) == "Plan 2")
+        #expect(CustomPlan.nextDefaultName(for: .cards, player: .blue, in: plans) == "Prod 2")
+        #expect(CustomPlan.nextDefaultName(for: .constructions, player: .blue, in: plans) == "Plan 1")
+        #expect(CustomPlan.nextDefaultName(for: .cards, player: .green, in: plans) == "Prod 1")
+    }
+
+    @Test("Chosen Analysis icons serialize and old payloads receive kind defaults")
+    func analysisIcons() throws {
+        let chosen = CustomPlan(
+            name: "Route",
+            kind: .constructions,
+            player: .orange,
+            systemImage: "flag.fill"
+        )
+        let decoded = try JSONDecoder().decode(
+            CustomPlan.self,
+            from: JSONEncoder().encode(chosen)
+        )
+        #expect(decoded.systemImage == "flag.fill")
+
+        let legacyJSON = """
+        {"id":"00000000-0000-0000-0000-000000000001","name":"Legacy","kind":"constructions","player":"red","cardCounts":{},"constructionSteps":[]}
+        """.data(using: .utf8)!
+        let legacy = try JSONDecoder().decode(CustomPlan.self, from: legacyJSON)
+        #expect(legacy.systemImage == "hammer.fill")
     }
 
     @Test("Ordered construction steps serialize with their locations")

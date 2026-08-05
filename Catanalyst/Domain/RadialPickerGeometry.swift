@@ -22,8 +22,7 @@ nonisolated enum RadialPickerGeometry {
         let dx = location.x - center.x
         let dy = location.y - center.y
         let distance = hypot(dx, dy)
-        guard distance >= hexSize * innerRadiusScale,
-              distance <= hexSize * outerRadiusScale else { return nil }
+        guard distance >= hexSize * innerRadiusScale else { return nil }
 
         let step = (2 * Double.pi) / Double(optionCount)
         var relativeAngle = atan2(dy, dx) + (Double.pi / 2)

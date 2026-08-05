@@ -1,3 +1,3 @@
-TODO
+# SCR-005 – Analysis item detail (superseded)
 
-For now, this simply shows the icon (for default plans) or name (for custom plans) and a button to edit.
+Inline expansion in SCR-002 supersedes tap-to-detail navigation. Holding a custom Production check or Plan opens SCR-004 directly. Built-in Production checks are not editable.

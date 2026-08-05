@@ -79,14 +79,14 @@ struct RadialPickerGeometryTests {
         ) == nil)
     }
 
-    @Test("Releasing beyond the wheel cancels selection")
-    func outsideCancels() {
+    @Test("Dragging beyond the wheel preserves angular selection")
+    func outsidePreservesSelection() {
         let location = CGPoint(x: center.x, y: center.y - (hexSize * 3))
         #expect(RadialPickerGeometry.optionIndex(
             at: location,
             around: center,
             hexSize: hexSize,
             optionCount: 7
-        ) == nil)
+        ) == 0)
     }
 }

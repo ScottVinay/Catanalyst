@@ -1,3 +1,12 @@
+status: done
+started_datetime: 2026-08-05T14:45:00+01:00
+completed_datetime: 2026-08-05T14:56:00+01:00
+priority: P0
+requirement: REQ-016
+design: SCR-001-board, SCR-002-plans, SCR-004-edit
+
+# Rename and restructure Plans as Analysis
+
 At the moment we have Plans which are composed into Default and Construction.
 
 I want to change the name of this functionality to "Analysis". The panel now known as Defaults shall be called "Production". We will add a "New production check" button at the bottom. This will lead to the interface previously known as "New plan / Cards".
@@ -5,3 +14,38 @@ I want to change the name of this functionality to "Analysis". The panel now kno
 The panel previously called "Custom" will now be called "Plans". Pressing "New plan" goes straight to the new construction plan UI.
 
 Each UI will have a default symbol to be shown in the plan viewer, but has an element in the UI to change this.
+
+Subrows extended from a plan should have a block of whitespace to the left-side of their left-most column to show they are within the above row. Also, increase the density between rows in all parts of the plan viewer.
+
+## Acceptance criteria
+
+- [x] Board navigation and the sheet title call the feature Analysis.
+- [x] Analysis has Production and Plans tabs.
+- [x] Production contains the nine built-in checks, saved card-based checks, and a final New production check row.
+- [x] Built-in checks remain non-editable; saved production checks remain expandable and long-press editable.
+- [x] Plans contains construction plans and a final New plan row.
+- [x] Creation rows open their corresponding editor directly without a type chooser.
+- [x] New generated names use `Prod N` and `Plan N`, independently per player/type.
+- [x] All-player selection and owner dots work on both tabs.
+- [x] Both editors provide a 3×3 icon grid, with cards and hammer defaults respectively.
+- [x] The selected icon is serialized backward-compatibly and displayed in Analysis.
+- [x] Analysis rows are denser while fixed and scrolling panes remain aligned.
+- [x] Expanded group labels and icon-only subrows have a visible leading whitespace inset.
+- [x] Existing expansion, statistics, scrolling, editing, and hand/player behavior remains intact.
+- [x] Domain and UI regression coverage compiles.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Implementation notes
+
+- Replaced the former Default/Custom presentation with Production/Plans and removed the intermediate type chooser.
+- Stored a selectable SF Symbol on each custom analysis item with kind-specific fallbacks for previously saved data.
+- Kept the existing custom-plan storage model so saved production checks and construction plans remain isolated by player and kind.
+- Reduced table rows to 36 points and applied a 12-point hierarchy inset identically to fixed-pane subrows while retaining shared row metrics for the values pane.
+
+## Evidence
+
+- Added domain coverage for the nine shared icon choices, selected-icon round trips, legacy decoding, and independent `Prod N`/`Plan N` sequences.
+- Updated UI regression coverage for Analysis navigation, both tabs, direct editor creation, icon selection, All-player filtering, expansion, editing, and row alignment.
+- `xcodebuild build -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` succeeded.
+- `xcodebuild build-for-testing -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` compiled the app, unit tests, and UI tests successfully.
+- Live focused UI verification remains intentionally deferred.

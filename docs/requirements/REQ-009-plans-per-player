@@ -1,1 +1,1 @@
-A plan is attached to a specific player. Changing the selected player on custom plans changes to their custom plans. If a player does not have a plan, only "new plan" is shown.
+Every custom production check and construction plan is attached to one player. Changing the selected player filters the active Analysis tab to that player's matching items. All shows every owner. If no matching custom item exists, only the tab's creation row follows its fixed content, if any.

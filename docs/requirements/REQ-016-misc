@@ -1,0 +1,20 @@
+# Analysis and radial refinements
+
+## Analysis
+
+- Rename the Plans feature and its Board navigation control to **Analysis**.
+- Analysis has two tabs: **Production** and **Plans**.
+- Production contains the nine built-in production checks plus player-owned custom production checks. Its final row is **New production check**, which opens the card-target editor directly.
+- Built-in production checks remain fixed and non-editable. Custom production checks may expand and may be edited by holding their row.
+- Plans contains only player-owned ordered construction plans. Its final row is **New plan**, which opens the construction editor directly.
+- New production checks use generated names `Prod N`; new construction plans use `Plan N`. Sequences are independent per player and type.
+- Both tabs offer individual-player and All-player selection. All-player creation defaults to Red and the editor permits only individual owners.
+- Both editors provide a 3×3 grid of simple icons. Production defaults to cards and Plans defaults to a hammer; the chosen icon is saved and shown in Analysis.
+- Expanded subrows have a blank leading inset in the fixed column to communicate hierarchy.
+- All Analysis data rows use a denser common height, with exact fixed/value alignment maintained through expansion and scrolling.
+
+## Hex radial
+
+- In Overview edit mode the hex radial opens immediately on touch-down. In Detail it retains an approximately 0.3-second stationary hold so immediate dragging pans.
+- Terrain choices use seven equal coloured/symbolled ring segments. Number choices use one equal segment for each token plus Remove.
+- The centre/inner gap cancels selection. Dragging outward beyond the ring retains the segment selected by its angular bounds.

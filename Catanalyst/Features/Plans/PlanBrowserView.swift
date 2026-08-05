@@ -12,35 +12,33 @@ private enum PlanTableSection: Equatable {
 }
 
 private enum PlanBrowserTab: String, CaseIterable, Identifiable {
-    case `default` = "Default"
-    case custom = "Custom"
+    case production = "Production"
+    case plans = "Plans"
 
     var id: Self { self }
+
+    var kind: CustomPlanKind { self == .production ? .cards : .constructions }
 }
 
 private enum PlanBrowserAlert: String, Identifiable {
     case browserHelp
-    case planTypeHelp
     case defaultPlan
 
     var id: Self { self }
 
     var title: String {
         switch self {
-        case .browserHelp: "Plan Browser"
-        case .planTypeHelp: "Choosing a plan type"
-        case .defaultPlan: "Default plans cannot be edited."
+        case .browserHelp: "Analysis"
+        case .defaultPlan: "Built-in production checks cannot be edited."
         }
     }
 
     var message: String {
         switch self {
         case .browserHelp:
-            "Use Default for standard build estimates and Custom for plans belonging to the selected player. Swipe the table to move between turns and probability columns."
-        case .planTypeHelp:
-            "Cards plans target a hand of resources. Constructions plans target an ordered sequence of things to build."
+            "Use Production for built-in and custom resource checks, and Plans for ordered construction analysis. Swipe the table to move between turns and probability columns."
         case .defaultPlan:
-            "Create a Custom plan if you want to edit its name, player, or contents."
+            "Create a production check if you want to edit its name, player, icon, or cards."
         }
     }
 }
@@ -77,13 +75,10 @@ struct PlanBrowserView: View {
     @Binding var selectedPlayer: PlayerColor
     @State private var scrollOffset = CGPoint.zero
     @State private var tableSection = PlanTableSection.summary
-    @State private var selectedTab = PlanBrowserTab.default
+    @State private var selectedTab = PlanBrowserTab.production
     @State private var customPlans: [CustomPlan] = []
     @State private var isShowingAllPlayers = false
     @State private var editingPlan: CustomPlan?
-    @State private var viewedPlan: CustomPlan?
-    @State private var pendingEditPlan: CustomPlan?
-    @State private var isChoosingPlanKind = false
     @State private var activeAlert: PlanBrowserAlert?
     @State private var expandedPlanIDs: Set<UUID> = []
 
@@ -92,7 +87,8 @@ struct PlanBrowserView: View {
     private let probabilityColumnWidth: CGFloat = 58
     private let superHeaderHeight: CGFloat = 30
     private let columnHeaderHeight: CGFloat = 34
-    private let rowHeight: CGFloat = 44
+    private let rowHeight: CGFloat = 36
+    private let subrowLeadingInset: CGFloat = 12
 
     var body: some View {
         NavigationStack {
@@ -102,7 +98,7 @@ struct PlanBrowserView: View {
                 HStack {
                     PlayerSelector(
                         selection: $selectedPlayer,
-                        allSelection: selectedTab == .custom ? $isShowingAllPlayers : nil
+                        allSelection: $isShowingAllPlayers
                     )
                     Spacer(minLength: 0)
                 }
@@ -110,12 +106,12 @@ struct PlanBrowserView: View {
                 planTable
             }
             .padding(.top, 8)
-            .navigationTitle("Plans")
+            .navigationTitle("Analysis")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Close") { dismiss() }
-                        .accessibilityIdentifier("closePlanBrowserButton")
+                        .accessibilityIdentifier("closeAnalysisButton")
                 }
             }
             .sheet(item: $editingPlan) { plan in
@@ -130,18 +126,6 @@ struct PlanBrowserView: View {
                     }
                 ) { save($0) }
             }
-            .sheet(item: $viewedPlan, onDismiss: openPendingEditor) { plan in
-                PlanDetailView(plan: plan) { planToEdit in
-                    pendingEditPlan = planToEdit
-                    viewedPlan = nil
-                }
-            }
-            .overlay {
-                if isChoosingPlanKind {
-                    planTypeChooser
-                        .transition(.scale(scale: 0.92).combined(with: .opacity))
-                }
-            }
             .alert(item: $activeAlert) { alert in
                 Alert(
                     title: Text(alert.title),
@@ -150,7 +134,7 @@ struct PlanBrowserView: View {
                 )
             }
         }
-        .accessibilityIdentifier("planBrowser")
+        .accessibilityIdentifier("analysisBrowser")
     }
 
     private var planHeaderActions: some View {
@@ -173,73 +157,13 @@ struct PlanBrowserView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(PlanHeaderButtonStyle())
-            .accessibilityLabel("Plan Browser help")
-            .accessibilityIdentifier("planBrowserHelpButton")
+            .accessibilityLabel("Analysis help")
+            .accessibilityIdentifier("analysisHelpButton")
         }
         .padding(.horizontal, 12)
         .frame(height: 44)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("planHeaderActions")
-    }
-
-    private var planTypeChooser: some View {
-        ZStack {
-            Color.black.opacity(0.28)
-                .ignoresSafeArea()
-
-            VStack(spacing: 16) {
-                HStack {
-                    Text("Choose plan type")
-                        .font(.headline)
-                    Spacer()
-                    Button {
-                        activeAlert = .planTypeHelp
-                    } label: {
-                        Image(systemName: "questionmark.circle.fill")
-                            .font(.title2)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Plan type help")
-                    .accessibilityIdentifier("planTypeHelpButton")
-                }
-
-                VStack(spacing: 12) {
-                    planTypeButton("Cards", systemImage: "rectangle.stack.fill", kind: .cards)
-                    planTypeButton("Constructions", systemImage: "hammer.fill", kind: .constructions)
-                }
-
-                Button("Cancel", role: .cancel) {
-                    withAnimation(.easeInOut(duration: 0.16)) {
-                        isChoosingPlanKind = false
-                    }
-                }
-            }
-            .padding(20)
-            .frame(maxWidth: 320)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
-            .shadow(radius: 18)
-            .accessibilityIdentifier("planTypeChooser")
-        }
-        .zIndex(10)
-    }
-
-    private func planTypeButton(
-        _ title: String,
-        systemImage: String,
-        kind: CustomPlanKind
-    ) -> some View {
-        Button {
-            withAnimation(.easeInOut(duration: 0.16)) {
-                isChoosingPlanKind = false
-            }
-            beginNewPlan(kind: kind)
-        } label: {
-            Label(title, systemImage: systemImage)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-        }
-        .buttonStyle(.borderedProminent)
-        .accessibilityIdentifier("choosePlanType-\(kind.rawValue)")
     }
 
     private var tabSelector: some View {
@@ -261,7 +185,7 @@ struct PlanBrowserView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
-                .accessibilityIdentifier("\(tab.rawValue.lowercased())PlansTab")
+                .accessibilityIdentifier("\(tab.rawValue.lowercased())AnalysisTab")
             }
         }
         .padding(2)
@@ -299,7 +223,7 @@ struct PlanBrowserView: View {
             .animation(.easeInOut(duration: 0.24), value: expandedPlanIDs)
         }
         .padding(.horizontal)
-        .accessibilityIdentifier(selectedTab == .default ? "defaultPlanTable" : "customPlanTable")
+        .accessibilityIdentifier(selectedTab == .production ? "productionTable" : "plansTable")
     }
 
     private var fixedCornerHeader: some View {
@@ -307,7 +231,7 @@ struct PlanBrowserView: View {
             Color.clear.frame(height: superHeaderHeight)
             tableHorizontalDivider
             tableCell(
-                "Plan",
+                "Analysis",
                 width: planColumnWidth,
                 height: columnHeaderHeight,
                 alignment: .leading
@@ -424,25 +348,34 @@ struct PlanBrowserView: View {
     private func planCell(_ row: PlanTableRow) -> some View {
         if row.isNewPlan {
             Button {
-                isChoosingPlanKind = true
+                beginNewPlan(kind: selectedTab.kind)
             } label: {
-                Label("New Plan", systemImage: "plus")
+                Label(row.name, systemImage: "plus")
                     .font(.caption.weight(.semibold))
                     .frame(width: planColumnWidth, height: rowHeight, alignment: .leading)
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("newPlanButton")
+            .accessibilityIdentifier(row.accessibilityID)
         } else if row.isGroupLabel {
             Text(row.name)
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
                 .minimumScaleFactor(0.7)
+                .frame(
+                    width: planColumnWidth - subrowLeadingInset,
+                    height: rowHeight,
+                    alignment: .leading
+                )
+                .padding(.leading, subrowLeadingInset)
                 .frame(width: planColumnWidth, height: rowHeight, alignment: .leading)
                 .background(Color(uiColor: .systemBackground))
                 .accessibilityIdentifier(row.accessibilityID)
         } else {
             HStack(spacing: 5) {
+                if row.isStep {
+                    Color.clear.frame(width: subrowLeadingInset)
+                }
                 Image(systemName: row.systemImage)
                 if !row.isStep {
                     Text(row.name)
@@ -459,8 +392,8 @@ struct PlanBrowserView: View {
                         .accessibilityIdentifier("planOwner-\(owner.rawValue)")
                 }
             }
-                .font(selectedTab == .custom ? .caption.weight(.medium) : .subheadline.weight(.medium))
-                .lineLimit(selectedTab == .custom ? 2 : 1)
+                .font(.caption.weight(.medium))
+                .lineLimit(row.customPlan == nil ? 1 : 2)
                 .minimumScaleFactor(0.72)
                 .frame(width: planColumnWidth, height: rowHeight, alignment: .leading)
                 .background(Color(uiColor: .systemBackground))
@@ -479,7 +412,7 @@ struct PlanBrowserView: View {
                 .onLongPressGesture {
                     if let customPlan = row.customPlan {
                         editingPlan = customPlan
-                    } else if selectedTab == .default {
+                    } else if !row.isStep && !row.isGroupLabel {
                         activeAlert = .defaultPlan
                     }
                 }
@@ -720,9 +653,10 @@ struct PlanBrowserView: View {
     }
 
     private var tableRows: [PlanTableRow] {
-        switch selectedTab {
-        case .default:
-            return DefaultPlan.placeholders(
+        var rows: [PlanTableRow] = []
+
+        if selectedTab == .production {
+            rows.append(contentsOf: DefaultPlan.placeholders(
                 for: selectedPlayer,
                 hand: board.hand(for: selectedPlayer)
             ).map { plan in
@@ -738,114 +672,135 @@ struct PlanBrowserView: View {
                     isStep: false,
                     accessibilityID: "defaultPlan-\(plan.name)"
                 )
-            }
-        case .custom:
-            let visiblePlans = CustomPlan.visible(
-                to: selectedPlayer,
-                includesAllPlayers: isShowingAllPlayers,
-                in: customPlans
-            )
-            var rows: [PlanTableRow] = []
-            for plan in visiblePlans {
-                rows.append(PlanTableRow(
-                    id: "custom-\(plan.id.uuidString)",
-                    name: plan.name,
-                    systemImage: plan.icon,
-                    statistics: DefaultPlan.placeholder(
-                        for: plan,
-                        player: plan.player,
-                        hand: board.hand(for: plan.player)
-                    ),
-                    customPlan: plan,
-                    owner: plan.player,
-                    isNewPlan: false,
-                    isGroupLabel: false,
-                    isStep: false,
-                    accessibilityID: "customPlan-\(plan.id.uuidString)"
-                ))
+            })
+        }
 
-                if expandedPlanIDs.contains(plan.id) {
-                    if !plan.constructionSteps.isEmpty {
-                        rows.append(PlanTableRow(
-                            id: "custom-\(plan.id.uuidString)-steps",
-                            name: "Steps",
-                            systemImage: "",
-                            statistics: nil,
-                            customPlan: nil,
-                            owner: nil,
-                            isNewPlan: false,
-                            isGroupLabel: true,
-                            isStep: false,
-                            accessibilityID: "customPlanSteps-\(plan.id.uuidString)"
-                        ))
-                        let statistics = DefaultPlan.placeholders(
-                            forConstructionStepsIn: plan,
-                            player: plan.player,
-                            hand: board.hand(for: plan.player)
-                        )
-                        for (index, statistic) in statistics.enumerated() {
-                            rows.append(PlanTableRow(
-                                id: "custom-\(plan.id.uuidString)-step-\(index)",
-                                name: "Step \(index + 1)",
-                                systemImage: statistic.systemImage,
-                                statistics: statistic,
-                                customPlan: nil,
-                                owner: nil,
-                                isNewPlan: false,
-                                isGroupLabel: false,
-                                isStep: true,
-                                accessibilityID: "customPlanStep-\(plan.id.uuidString)-\(index)"
-                            ))
-                        }
-                    }
+        rows.append(contentsOf: customRows(kind: selectedTab.kind))
+        let creationName = selectedTab == .production ? "New production check" : "New plan"
+        rows.append(PlanTableRow(
+            id: "new-\(selectedTab.kind.rawValue)",
+            name: creationName,
+            systemImage: "plus",
+            statistics: nil,
+            customPlan: nil,
+            owner: nil,
+            isNewPlan: true,
+            isGroupLabel: false,
+            isStep: false,
+            accessibilityID: selectedTab == .production
+                ? "newProductionCheckButton"
+                : "newPlanButton"
+        ))
+        return rows
+    }
 
-                    rows.append(PlanTableRow(
-                        id: "custom-\(plan.id.uuidString)-card-stats",
-                        name: "Card stats after plan completion",
-                        systemImage: "",
-                        statistics: nil,
-                        customPlan: nil,
-                        owner: nil,
-                        isNewPlan: false,
-                        isGroupLabel: true,
-                        isStep: false,
-                        accessibilityID: "customPlanCardStats-\(plan.id.uuidString)"
-                    ))
-                    let cardStatistics = DefaultPlan.placeholders(
-                        forCardStatsAfter: plan,
-                        player: plan.player,
-                        hand: board.hand(for: plan.player)
-                    )
-                    for (resource, statistic) in zip(ResourceCard.allCases, cardStatistics) {
-                        rows.append(PlanTableRow(
-                            id: "custom-\(plan.id.uuidString)-card-\(resource.rawValue)",
-                            name: resource.displayName,
-                            systemImage: resource.systemImage,
-                            statistics: statistic,
-                            customPlan: nil,
-                            owner: nil,
-                            isNewPlan: false,
-                            isGroupLabel: false,
-                            isStep: true,
-                            accessibilityID: "customPlanCard-\(plan.id.uuidString)-\(resource.rawValue)"
-                        ))
-                    }
-                }
-            }
+    private func customRows(kind: CustomPlanKind) -> [PlanTableRow] {
+        let visibleItems = CustomPlan.visible(
+            to: selectedPlayer,
+            includesAllPlayers: isShowingAllPlayers,
+            in: customPlans
+        ).filter { $0.kind == kind }
+        var rows: [PlanTableRow] = []
+
+        for plan in visibleItems {
             rows.append(PlanTableRow(
-                id: "new-plan",
-                name: "New Plan",
-                systemImage: "plus",
-                statistics: nil,
-                customPlan: nil,
-                owner: nil,
-                isNewPlan: true,
+                id: "custom-\(plan.id.uuidString)",
+                name: plan.name,
+                systemImage: plan.icon,
+                statistics: DefaultPlan.placeholder(
+                    for: plan,
+                    player: plan.player,
+                    hand: board.hand(for: plan.player)
+                ),
+                customPlan: plan,
+                owner: plan.player,
+                isNewPlan: false,
                 isGroupLabel: false,
                 isStep: false,
-                accessibilityID: "newPlan"
+                accessibilityID: "customPlan-\(plan.id.uuidString)"
             ))
-            return rows
+
+            guard expandedPlanIDs.contains(plan.id) else { continue }
+
+            if !plan.constructionSteps.isEmpty {
+                rows.append(groupRow(
+                    id: "custom-\(plan.id.uuidString)-steps",
+                    name: "Steps",
+                    accessibilityID: "customPlanSteps-\(plan.id.uuidString)"
+                ))
+                let statistics = DefaultPlan.placeholders(
+                    forConstructionStepsIn: plan,
+                    player: plan.player,
+                    hand: board.hand(for: plan.player)
+                )
+                for (index, statistic) in statistics.enumerated() {
+                    rows.append(subrow(
+                        id: "custom-\(plan.id.uuidString)-step-\(index)",
+                        name: "Step \(index + 1)",
+                        systemImage: statistic.systemImage,
+                        statistics: statistic,
+                        accessibilityID: "customPlanStep-\(plan.id.uuidString)-\(index)"
+                    ))
+                }
+            }
+
+            rows.append(groupRow(
+                id: "custom-\(plan.id.uuidString)-card-stats",
+                name: "Card stats after plan completion",
+                accessibilityID: "customPlanCardStats-\(plan.id.uuidString)"
+            ))
+            let cardStatistics = DefaultPlan.placeholders(
+                forCardStatsAfter: plan,
+                player: plan.player,
+                hand: board.hand(for: plan.player)
+            )
+            for (resource, statistic) in zip(ResourceCard.allCases, cardStatistics) {
+                rows.append(subrow(
+                    id: "custom-\(plan.id.uuidString)-card-\(resource.rawValue)",
+                    name: resource.displayName,
+                    systemImage: resource.systemImage,
+                    statistics: statistic,
+                    accessibilityID: "customPlanCard-\(plan.id.uuidString)-\(resource.rawValue)"
+                ))
+            }
         }
+        return rows
+    }
+
+    private func groupRow(id: String, name: String, accessibilityID: String) -> PlanTableRow {
+        PlanTableRow(
+            id: id,
+            name: name,
+            systemImage: "",
+            statistics: nil,
+            customPlan: nil,
+            owner: nil,
+            isNewPlan: false,
+            isGroupLabel: true,
+            isStep: false,
+            accessibilityID: accessibilityID
+        )
+    }
+
+    private func subrow(
+        id: String,
+        name: String,
+        systemImage: String,
+        statistics: DefaultPlan,
+        accessibilityID: String
+    ) -> PlanTableRow {
+        PlanTableRow(
+            id: id,
+            name: name,
+            systemImage: systemImage,
+            statistics: statistics,
+            customPlan: nil,
+            owner: nil,
+            isNewPlan: false,
+            isGroupLabel: false,
+            isStep: true,
+            accessibilityID: accessibilityID
+        )
     }
 
     private func beginNewPlan(kind: CustomPlanKind) {
@@ -871,11 +826,6 @@ struct PlanBrowserView: View {
         }
     }
 
-    private func openPendingEditor() {
-        guard let pendingEditPlan else { return }
-        self.pendingEditPlan = nil
-        editingPlan = pendingEditPlan
-    }
 }
 
 #Preview {

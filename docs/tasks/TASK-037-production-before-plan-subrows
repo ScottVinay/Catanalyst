@@ -1,0 +1,23 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-017
+design: SCR-002-plans
+depends_on: TASK-029, TASK-030, TASK-032
+
+# Order Production subrows before Plan steps
+
+Reorder expanded plan details so production/card-stat rows precede ordered construction-step rows.
+
+## Acceptance criteria
+
+- [ ] An expanded construction plan shows its Production/card-stat group before its ordered Plan-step group.
+- [ ] The Production group retains exactly five resource rows in Brick, Wood, Hay, Sheep, Ore order.
+- [ ] Ordered Road, Settlement, and City steps retain their saved order after the Production rows.
+- [ ] Expanded production checks continue to show their applicable Production rows without an empty step group.
+- [ ] Group labels and icon-only subrows retain the hierarchy inset introduced by TASK-032.
+- [ ] Fixed labels/icons and scrolling values remain vertically aligned after reordering.
+- [ ] Stable row identities preserve smooth expansion, collapse, scrolling, and section switching.
+- [ ] Domain row-order and UI regression coverage compile.
+- [ ] Focused expansion/alignment checks pass on a functioning simulator or device.

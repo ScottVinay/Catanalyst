@@ -40,6 +40,8 @@ struct PlanEditorView: View {
                             .textFieldStyle(.roundedBorder)
                             .accessibilityIdentifier("planNameField")
 
+                        iconPicker
+
                         Text(helperText)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -155,14 +157,51 @@ struct PlanEditorView: View {
     private var helperText: String {
         switch draft.kind {
         case .cards:
-            "Plan shall be considered complete when the player's hand contains at least the cards selected."
+            "Production check is complete when the player's hand contains at least the cards selected."
         case .constructions:
             "Plan shall be considered complete when the following have been built in order, starting from the state of the board at the point where the plan is made."
         }
     }
 
     private var editorTitle: String {
-        draft.kind == .cards ? "Edit Cards Plan" : "Edit Construction Plan"
+        draft.kind == .cards ? "Edit Production Check" : "Edit Plan"
+    }
+
+    private var iconPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Icon").font(.headline)
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 8) {
+                ForEach(AnalysisItemIcon.choices, id: \.self) { systemImage in
+                    Button {
+                        draft.systemImage = systemImage
+                    } label: {
+                        Image(systemName: systemImage)
+                            .font(.title3)
+                            .frame(maxWidth: .infinity, minHeight: 38)
+                            .background(
+                                draft.systemImage == systemImage
+                                    ? Color.accentColor.opacity(0.2)
+                                    : Color.secondary.opacity(0.08),
+                                in: RoundedRectangle(cornerRadius: 8)
+                            )
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(
+                                        draft.systemImage == systemImage ? Color.accentColor : .clear,
+                                        lineWidth: 2
+                                    )
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Use \(systemImage) icon")
+                    .accessibilityValue(draft.systemImage == systemImage ? "Selected" : "")
+                    .accessibilityAddTraits(draft.systemImage == systemImage ? .isSelected : [])
+                    .accessibilityIdentifier("analysisIcon-\(systemImage)")
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("analysisIconPicker")
     }
 
     private var selectedCards: some View {

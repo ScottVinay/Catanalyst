@@ -19,14 +19,17 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-001 through TASK-031 are implemented and marked `done`.
+- TASK-001 through TASK-032 are implemented and marked `done`.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
 - TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
 - TASK-031 supersedes circular hex-picker options with a segmented ring and makes activation immediate in Overview while retaining Detail-mode pan arbitration.
+- TASK-032 renames Plans to Analysis, splits it into Production/Plans, and replaces type selection with direct creation.
 
 ## Completed in this branch
 
+- Completed TASK-032 with Production/Plans tabs, direct creation, `Prod N`/`Plan N` naming, per-item 3×3 icon selection, denser rows, and inset expansion hierarchy.
+- Extended TASK-031 hit-testing so a drag beyond the visible radial ring retains the segment selected by its angle; centre and inner-gap release still cancel.
 - Completed TASK-031 with a seven-wedge terrain ring, an eleven-wedge number/remove ring, shared annular hit-testing, and zoom-aware activation timing.
 - Completed REQ-015's TASK-025 through TASK-030: elastic values overscroll, construction-editor overflow, All-player custom browsing, independent Plan header buttons, expandable ordered step rows, and five post-completion card-stat rows.
 - Added six-slice All-player selection, owner dots, owner-aware filtering/statistics, Red-default creation, and generated-name migration when an untouched new plan changes owner.
@@ -91,4 +94,4 @@ Use the area below the three dashes for your current notes:
 
 ## Recommended next action
 
-- On a functioning simulator/device, perform the remaining unchecked focused UI checks, with priority on elastic Plans scrolling, expansion alignment/animation, independent Graph/Help press feedback, and long-press Board gesture arbitration.
+- On a functioning simulator/device, perform the remaining unchecked focused UI checks, with priority on Analysis direct creation/icon persistence, dense expansion alignment, beyond-ring radial selection, and long-press Board gesture arbitration.

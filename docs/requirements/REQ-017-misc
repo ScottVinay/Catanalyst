@@ -1,0 +1,17 @@
+The player selector in the plan edit should not be a fixed element, it should move with the scroll.
+
+The icon selector should only appear when we tap the icon that is next to the name in the plan edit screen. It should have a small pencil next to it to show we can edit it.
+
+Make the Production / Plan toggle shorter, so the graph and question mark are to the right of it
+
+The coloured dot icon to show who owns a plan should only appear when in multicoloured browser. Also move it a tiny bit left, and up, so it is in the upper-right corner of the left-most box. Also make it a triangle that fills that corner instead of a dot.
+
+Also, the plan disappears when the analysis browser is closed and opened again. This is a critical issue, address this please.
+
+Make the Production subrows appear above the step subrows.
+
+Place left circular arrow and right circular arrow on the board page, which rotate the board view left and right 90 degrees respectively.
+
+Make the fonts on the bottom bar smaller so that each word fits easily on one line
+
+Move "Selected cards" and "Add cards" sections in the Hand page further down the screen. Above "Selected cards" add a small amount of helper text that explains the hand.
