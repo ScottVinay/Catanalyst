@@ -111,6 +111,41 @@ nonisolated enum Building: String, Codable, Sendable {
     case city
 }
 
+nonisolated enum BoardOrientation: Int, Codable, CaseIterable, Sendable {
+    case north = 0
+    case east = 1
+    case south = 2
+    case west = 3
+
+    var degrees: Double { Double(rawValue * 90) }
+
+    func rotatedRight() -> Self {
+        Self(rawValue: (rawValue + 1) % Self.allCases.count) ?? .north
+    }
+
+    func rotatedLeft() -> Self {
+        Self(rawValue: (rawValue - 1 + Self.allCases.count) % Self.allCases.count) ?? .north
+    }
+}
+
+nonisolated struct BoardRotationPresentation: Equatable, Sendable {
+    private(set) var quarterTurns: Int
+
+    init(orientation: BoardOrientation) {
+        quarterTurns = orientation.rawValue
+    }
+
+    var degrees: Double { Double(quarterTurns * 90) }
+
+    mutating func rotateLeft() {
+        quarterTurns -= 1
+    }
+
+    mutating func rotateRight() {
+        quarterTurns += 1
+    }
+}
+
 nonisolated enum PlacementError: Error, Equatable, Sendable {
     case roadNeedsConnection
     case buildingTooClose
@@ -135,6 +170,8 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
     var roadOwners: [BoardEdge: PlayerColor]
     var buildingOwners: [BoardVertex: PlayerColor]
     var hands: [PlayerColor: ResourceHand]
+    var customPlans: [CustomPlan]
+    var orientation: BoardOrientation
 
     init(
         tiles: [HexTile],
@@ -142,7 +179,9 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
         buildings: [BoardVertex: Building],
         roadOwners: [BoardEdge: PlayerColor] = [:],
         buildingOwners: [BoardVertex: PlayerColor] = [:],
-        hands: [PlayerColor: ResourceHand] = [:]
+        hands: [PlayerColor: ResourceHand] = [:],
+        customPlans: [CustomPlan] = [],
+        orientation: BoardOrientation = .north
     ) {
         self.tiles = tiles
         self.roads = roads
@@ -150,12 +189,14 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
         self.roadOwners = roadOwners
         self.buildingOwners = buildingOwners
         self.hands = hands
+        self.customPlans = customPlans
+        self.orientation = orientation
     }
 }
 
 extension BoardSnapshot: Codable {
     private enum CodingKeys: String, CodingKey {
-        case tiles, roads, buildings, roadOwners, buildingOwners, hands
+        case tiles, roads, buildings, roadOwners, buildingOwners, hands, customPlans, orientation
     }
 
     init(from decoder: Decoder) throws {
@@ -175,6 +216,14 @@ extension BoardSnapshot: Codable {
             [PlayerColor: ResourceHand].self,
             forKey: .hands
         ) ?? [:]
+        customPlans = try container.decodeIfPresent(
+            [CustomPlan].self,
+            forKey: .customPlans
+        ) ?? []
+        orientation = try container.decodeIfPresent(
+            BoardOrientation.self,
+            forKey: .orientation
+        ) ?? .north
     }
 
     func encode(to encoder: Encoder) throws {
@@ -185,6 +234,8 @@ extension BoardSnapshot: Codable {
         try container.encode(roadOwners, forKey: .roadOwners)
         try container.encode(buildingOwners, forKey: .buildingOwners)
         try container.encode(hands, forKey: .hands)
+        try container.encode(customPlans, forKey: .customPlans)
+        try container.encode(orientation, forKey: .orientation)
     }
 }
 
@@ -199,6 +250,24 @@ final class BoardState {
     var tiles: [HexTile] { snapshot.tiles }
     var roads: Set<BoardEdge> { snapshot.roads }
     var buildings: [BoardVertex: Building] { snapshot.buildings }
+    var customPlans: [CustomPlan] { snapshot.customPlans }
+    var orientation: BoardOrientation { snapshot.orientation }
+
+    func rotateLeft() {
+        snapshot.orientation = snapshot.orientation.rotatedLeft()
+    }
+
+    func rotateRight() {
+        snapshot.orientation = snapshot.orientation.rotatedRight()
+    }
+
+    func savePlan(_ plan: CustomPlan) {
+        if let index = snapshot.customPlans.firstIndex(where: { $0.id == plan.id }) {
+            snapshot.customPlans[index] = plan
+        } else {
+            snapshot.customPlans.append(plan)
+        }
+    }
 
     func hand(for player: PlayerColor) -> ResourceHand {
         snapshot.hands[player] ?? ResourceHand()
@@ -344,6 +413,8 @@ extension BoardSnapshot {
         buildings: [:],
         roadOwners: [:],
         buildingOwners: [:],
-        hands: [:]
+        hands: [:],
+        customPlans: [],
+        orientation: .north
     )
 }

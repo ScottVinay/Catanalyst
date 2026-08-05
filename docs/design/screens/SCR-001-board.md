@@ -7,6 +7,9 @@ There is an edit button, which changes the toolbars, and takes us into edit mode
 # Layout
 
 - Board centred on screen
+- In view mode, place the burger menu, rotate-left, and rotate-right controls side by side at the upper-left.
+- The burger menu initially contains only **New game**, which opens SCR-000-new-game.
+- In edit mode, hide the burger menu and both rotation controls. They return when editing ends.
 - In Overview zoom, bias the board slightly upward so it is visually centred within the complete screen layout.
 - Toolbar on bottom:
     - Button: Edit
@@ -21,6 +24,8 @@ Two zoom levels are supported:
 - Detail
 
 Users may switch between them.
+
+The left and right circular-arrow controls rotate the Board view by 90 degrees around the rendered Board's geometric centre. Left always animates through 90 degrees counter-clockwise and right through 90 degrees clockwise, including across the normalized orientation wrap point. The motion uses smooth acceleration and deceleration. Orientation persists for the active game across application termination and resets for a new game. Rotation changes presentation and hit-testing consistently without changing logical Board coordinates.
 
 The board does not support continuous pinch zoom.
 

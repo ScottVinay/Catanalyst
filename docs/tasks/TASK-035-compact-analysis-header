@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T18:17:00+01:00
+completed_datetime: 2026-08-05T18:20:00+01:00
 priority: P2
 requirement: REQ-017
 design: SCR-002-plans
@@ -12,12 +12,19 @@ Shorten the Production/Plans selector and place the Graph and Help actions to it
 
 ## Acceptance criteria
 
-- [ ] Production and Plans remain a two-option selector with clear selected state.
-- [ ] The selector no longer consumes the full available width.
-- [ ] Graph and Help appear to the right of the selector in the same header row.
-- [ ] Graph and Help retain separate non-overlapping hit targets and independent pressed states.
-- [ ] Tapping either action cannot activate the other action or change the selected tab.
-- [ ] The player selector remains below the header.
-- [ ] The layout fits supported compact iPhone widths without clipping or wrapping.
-- [ ] UI regression coverage compiles.
+- [x] Production and Plans remain a two-option selector with clear selected state.
+- [x] The selector no longer consumes the full available width.
+- [x] Graph and Help appear to the right of the selector in the same header row.
+- [x] Graph and Help retain separate non-overlapping hit targets and independent pressed states.
+- [x] Tapping either action cannot activate the other action or change the selected tab.
+- [x] The player selector remains below the header.
+- [x] The layout fits supported compact iPhone widths without clipping or wrapping.
+- [x] UI regression coverage compiles.
 - [ ] Focused compact-width checks pass on a functioning simulator or device.
+
+## Evidence
+
+- Combined the bounded-width Production/Plans selector and the two independent 44-point actions into one adaptive header row.
+- Retained the player selector as the following row and added single-line text scaling for compact widths.
+- Extended UI coverage to assert selector/Graph ordering and existing Graph/Help non-overlap.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.

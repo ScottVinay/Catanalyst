@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T18:33:00+01:00
+completed_datetime: 2026-08-05T18:35:00+01:00
 priority: P2
 requirement: REQ-017
 design: SCR-006-hand
@@ -12,12 +12,19 @@ Add explanatory copy above the selected hand and move both card sections farther
 
 ## Acceptance criteria
 
-- [ ] A short helper paragraph appears above the Selected cards section.
-- [ ] The helper explains that these are the selected player's current cards and that they affect Analysis values.
-- [ ] Selected cards and Add cards are positioned farther down the screen than their current layout.
-- [ ] The player selector remains clearly associated with the helper and card sections.
-- [ ] The layout remains usable with an empty hand, stacked cards, Dynamic Type, and compact-height devices.
-- [ ] Add, tap-to-remove, Clear, per-player switching, autosave, and dependent Analysis refresh behavior remain unchanged.
-- [ ] The helper text is accessible and read before the card-editing sections.
-- [ ] UI regression coverage compiles.
+- [x] A short helper paragraph appears above the Selected cards section.
+- [x] The helper explains that these are the selected player's current cards and that they affect Analysis values.
+- [x] Selected cards and Add cards are positioned farther down the screen than their current layout.
+- [x] The player selector remains clearly associated with the helper and card sections.
+- [x] The layout remains usable with an empty hand, stacked cards, Dynamic Type, and compact-height devices.
+- [x] Add, tap-to-remove, Clear, per-player switching, autosave, and dependent Analysis refresh behavior remain unchanged.
+- [x] The helper text is accessible and read before the card-editing sections.
+- [x] UI regression coverage compiles.
 - [ ] Focused layout and accessibility checks pass on a functioning simulator or device.
+
+## Evidence
+
+- Added wrapping secondary helper copy directly after the player selector and before the Selected/Add card sections, with extra top separation and a stable accessibility identifier.
+- Kept the entire content in the existing ScrollView for Dynamic Type and compact-height support.
+- Added UI coverage for helper presence and reading/layout order before Selected cards.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.

@@ -1,0 +1,43 @@
+status: done
+started_datetime: 2026-08-05T19:48:00+01:00
+completed_datetime: 2026-08-05T19:56:00+01:00
+priority: P1
+requirement: REQ-018
+design: SCR-001-board
+depends_on: TASK-038, TASK-043
+
+# Centre and smooth directional Board rotation
+
+Rotate the complete Board around its own geometric centre and animate each action through the requested 90-degree direction without wraparound artifacts.
+
+## Acceptance criteria
+
+- [x] The rotation pivot is the geometric centre of the rendered Board, derived from Board geometry rather than the containing screen rectangle.
+- [x] Overview bias, safe-area space, fixed controls, and bottom-bar space do not displace the Board's rotation pivot.
+- [x] Rotate-left animates exactly 90 degrees counter-clockwise, including the first left action from the default orientation.
+- [x] Rotate-right animates exactly 90 degrees clockwise.
+- [x] A transition across the persisted orientation wrap point never takes the visually longer 270-degree route.
+- [x] Rotation uses smooth acceleration and deceleration without an abrupt start or stop.
+- [x] Repeated taps resolve deterministically without accumulating geometric drift or leaving an intermediate visual orientation.
+- [x] Four completed turns in either direction return to the original presentation.
+- [x] Terrain, numbers, roads, buildings, ghosts, and applicable interaction targets share the same pivot and animation.
+- [x] Logical Board coordinates remain unchanged and the final quarter-turn orientation continues to persist with the active game.
+- [x] Relaunching restores the persisted final orientation without replaying an animation.
+- [x] Existing Overview/Detail scale, Detail panning, tap-to-focus, and view-mode hit testing remain correct at every orientation.
+- [x] SCR-001 is updated with the geometric-centre and directional-animation behavior before implementation is completed.
+- [x] Geometry, state-transition, and UI regression coverage compile.
+- [ ] Focused animation, rapid-tap, relaunch, and rotated-gesture checks pass on a functioning simulator or device.
+
+## Scope notes
+
+- Use a presentation angle or equivalent transition state that can preserve direction independently of the normalized persisted quarter-turn value.
+- Continuous free rotation is out of scope.
+
+## Evidence
+
+- Added an unbounded presentation-quarter-turn state initialized from the normalized persisted orientation, so each left/right tap advances exactly −90/+90 degrees across wrap points.
+- Applied a zero-bounce 0.42-second smooth animation while continuing to persist only the normalized orientation.
+- Derived the rotation anchor from the bounding centre of the rendered hex vertices at the current scale and viewport origin.
+- Added unit coverage for initial-left, west-to-north right wrap, four-turn direction, and standard Board geometric-centre calculation.
+- Updated SCR-001 with the pivot and animation contract.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.

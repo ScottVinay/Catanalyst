@@ -16,6 +16,7 @@ struct BoardEditorView: View {
     let isEditing: Bool
     let editTool: BoardEditTool
     let selectedPlayer: PlayerColor
+    var presentationRotationDegrees: Double? = nil
     var placementMode: PlannedConstructionKind? = nil
     var ghostSteps: [PlannedConstructionStep] = []
     var onPlaceStep: ((PlannedConstructionStep) -> Void)? = nil
@@ -46,6 +47,15 @@ struct BoardEditorView: View {
             let origin = CGPoint(
                 x: (availableSize.width / 2) + pan.width,
                 y: (availableSize.height / 2) + pan.height
+            )
+            let geometricCenter = BoardGeometry.geometricCenter(
+                for: board.tiles.map(\.coordinate),
+                hexSize: hexSize,
+                origin: origin
+            )
+            let rotationAnchor = UnitPoint(
+                x: availableSize.width == 0 ? 0.5 : geometricCenter.x / availableSize.width,
+                y: availableSize.height == 0 ? 0.5 : geometricCenter.y / availableSize.height
             )
 
             ZStack {
@@ -139,6 +149,10 @@ struct BoardEditorView: View {
                         .accessibilityIdentifier("placementErrorMessage")
                 }
             }
+            .rotationEffect(
+                .degrees(presentationRotationDegrees ?? board.orientation.degrees),
+                anchor: rotationAnchor
+            )
             .coordinateSpace(.named("boardEditingSpace"))
             .contentShape(Rectangle())
             .simultaneousGesture(magnificationGesture)

@@ -22,6 +22,8 @@ This screen assigns the resource cards currently held by each player. Stored han
 
 ## Card editing
 
+- Place a short helper paragraph above **Selected cards** explaining that these are the selected player's current cards and that they affect Analysis values.
+- Position both **Selected cards** and **Add cards** farther down the sheet while keeping them usable at compact heights and with Dynamic Type.
 - Reuse the card presentation and resource order from the Cards section of SCR-004 and `ITEM-002-cards`.
 - Tapping Brick, Wood, Hay, Sheep, or Ore adds one copy to the selected player's hand and autosaves it immediately.
 - Copies of one resource appear as a staggered selected-card stack.

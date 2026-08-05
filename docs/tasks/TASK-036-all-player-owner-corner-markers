@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T18:20:00+01:00
+completed_datetime: 2026-08-05T18:25:00+01:00
 priority: P2
 requirement: REQ-017
 design: SCR-002-plans, ITEM-001-player-selector
@@ -12,13 +12,20 @@ Replace custom-item ownership dots with coloured corner triangles shown only in 
 
 ## Acceptance criteria
 
-- [ ] A custom Analysis row has no owner marker while one player colour is selected.
-- [ ] All-player mode shows an owner marker for every saved production check and plan.
-- [ ] The marker is a triangle filled with the owning player's colour.
-- [ ] The triangle fills the upper-right corner of the row's fixed left-hand cell.
-- [ ] The marker is positioned slightly left/up relative to the former dot while remaining inside the cell bounds.
-- [ ] The marker does not alter row height, name/icon alignment, expansion, or fixed/value-pane synchronization.
-- [ ] The marker has an accessible ownership label that does not duplicate the row action.
-- [ ] Switching between a player and All updates markers immediately without changing stored ownership.
-- [ ] UI regression coverage compiles.
+- [x] A custom Analysis row has no owner marker while one player colour is selected.
+- [x] All-player mode shows an owner marker for every saved production check and plan.
+- [x] The marker is a triangle filled with the owning player's colour.
+- [x] The triangle fills the upper-right corner of the row's fixed left-hand cell.
+- [x] The marker is positioned slightly left/up relative to the former dot while remaining inside the cell bounds.
+- [x] The marker does not alter row height, name/icon alignment, expansion, or fixed/value-pane synchronization.
+- [x] The marker has an accessible ownership label that does not duplicate the row action.
+- [x] Switching between a player and All updates markers immediately without changing stored ownership.
+- [x] UI regression coverage compiles.
 - [ ] Focused rendering checks pass on a functioning simulator or device.
+
+## Evidence
+
+- Replaced the inline owner dot with a non-layout-affecting 13-point upper-right corner triangle overlay.
+- Restricted owner markers to All-player mode while preserving the existing accessible ownership identifier and label.
+- Added UI coverage that verifies the marker is absent for a single-player selection and present in All-player mode.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.

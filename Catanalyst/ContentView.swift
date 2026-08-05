@@ -2,16 +2,39 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var board: BoardState?
+    private let persistence: ActiveGamePersistence
+
+    @MainActor
+    init() {
+        self.init(persistence: ActiveGamePersistence())
+    }
+
+    @MainActor
+    init(persistence: ActiveGamePersistence) {
+        self.persistence = persistence
+        if ProcessInfo.processInfo.arguments.contains("--reset-active-game") {
+            persistence.clear()
+        }
+        _board = State(initialValue: persistence.load().map(BoardState.init(snapshot:)))
+    }
 
     var body: some View {
         Group {
             if let board {
-                BoardScreen(board: board)
+                BoardScreen(board: board) {
+                    persistence.clear()
+                    self.board = nil
+                }
             } else {
                 BoardSelectionScreen {
-                    board = BoardState()
+                    let newBoard = BoardState()
+                    persistence.save(newBoard.snapshot)
+                    board = newBoard
                 }
             }
+        }
+        .onChange(of: board?.snapshot) { _, snapshot in
+            if let snapshot { persistence.save(snapshot) }
         }
     }
 }
@@ -48,12 +71,14 @@ private struct BoardSelectionScreen: View {
                     }
                     .buttonStyle(.bordered)
                     .disabled(true)
+                    .accessibilityIdentifier("largeBoardButton")
 
                     Button(action: {}) {
                         BoardChoiceLabel(title: "Custom board", detail: "Coming later")
                     }
                     .buttonStyle(.bordered)
                     .disabled(true)
+                    .accessibilityIdentifier("customBoardButton")
                 }
                 .frame(maxWidth: 360)
             }
@@ -82,5 +107,7 @@ private struct BoardChoiceLabel: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(persistence: ActiveGamePersistence(
+        defaults: UserDefaults(suiteName: "CatanalystPreview") ?? .standard
+    ))
 }

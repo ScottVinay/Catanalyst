@@ -1,0 +1,4 @@
+- Remove the "Graph" button entirely, move the question mark to the right side of the screen level with the player selector. Make the Production / Plans tab full-width again.
+- The coloured triangle that indicates player. This should have a line across the hypotenuse, so we can see if there is a white label there.
+- Remove burger menu and rotation buttons in edit mode
+- Rotation should be about the geometric centre of the board. When rotating 90 degrees right or left, it should turn smoothly in that direction. At the moment, the first time we click left rotation, it does this with a 270 degree rotation to the right instead. Make rotation have smoother acceleration and deceleration too.

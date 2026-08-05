@@ -5,6 +5,7 @@ struct PlanEditorView: View {
     @Binding var selectedPlayer: PlayerColor
     @State private var draft: CustomPlan
     @State private var isShowingHelp = false
+    @State private var isShowingIconPicker = false
     @State private var placementKind: PlannedConstructionKind?
     @State private var isPreviewingConstructionPlan = false
     @State private var generatedDefaultName: String?
@@ -34,13 +35,52 @@ struct PlanEditorView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        Color.clear.frame(height: 42)
+                        HStack(spacing: 8) {
+                            PlayerSelector(selection: $selectedPlayer)
+                            if draft.kind == .constructions {
+                                Button {
+                                    isPreviewingConstructionPlan = true
+                                } label: {
+                                    Image(systemName: "circle.hexagongrid.fill")
+                                        .frame(width: 30, height: 30)
+                                }
+                                .buttonStyle(.bordered)
+                                .accessibilityLabel("Preview construction plan")
+                                .accessibilityIdentifier("previewConstructionPlanButton")
+                            }
+                        }
 
-                        TextField("Plan name", text: $draft.name)
-                            .textFieldStyle(.roundedBorder)
-                            .accessibilityIdentifier("planNameField")
+                        HStack(spacing: 10) {
+                            TextField("Plan name", text: $draft.name)
+                                .textFieldStyle(.roundedBorder)
+                                .accessibilityIdentifier("planNameField")
 
-                        iconPicker
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.18)) {
+                                    isShowingIconPicker.toggle()
+                                }
+                            } label: {
+                                ZStack(alignment: .bottomTrailing) {
+                                    Image(systemName: draft.systemImage)
+                                        .font(.title3)
+                                        .frame(width: 42, height: 36)
+                                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+                                    Image(systemName: "pencil.circle.fill")
+                                        .font(.caption)
+                                        .symbolRenderingMode(.palette)
+                                        .foregroundStyle(.white, Color.accentColor)
+                                        .offset(x: 4, y: 4)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Change item icon")
+                            .accessibilityIdentifier("analysisIconButton")
+                        }
+
+                        if isShowingIconPicker {
+                            iconPicker
+                                .transition(.opacity.combined(with: .move(edge: .top)))
+                        }
 
                         Text(helperText)
                             .font(.subheadline)
@@ -68,26 +108,18 @@ struct PlanEditorView: View {
                     }
                 }
             }
-            .overlay(alignment: .topLeading) {
-                HStack(spacing: 8) {
-                    PlayerSelector(selection: $selectedPlayer)
-                    if draft.kind == .constructions {
-                        Button {
-                            isPreviewingConstructionPlan = true
-                        } label: {
-                            Image(systemName: "circle.hexagongrid.fill")
-                                .frame(width: 30, height: 30)
-                        }
-                        .buttonStyle(.bordered)
-                        .accessibilityLabel("Preview construction plan")
-                        .accessibilityIdentifier("previewConstructionPlanButton")
-                    }
-                }
-                .padding(.leading, 16)
-                .padding(.top, 16)
-            }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 12) {
+                    Button("Clear") { draft.clearContents() }
+                        .buttonStyle(.bordered)
+                        .frame(maxWidth: .infinity)
+                        .disabled(draft.cardCounts.isEmpty && draft.constructionSteps.isEmpty)
+                        .accessibilityIdentifier(
+                            draft.kind == .cards
+                                ? "clearCardPlanButton"
+                                : "clearConstructionPlanButton"
+                        )
+
                     Button("Cancel") { dismiss() }
                         .buttonStyle(.bordered)
                         .frame(maxWidth: .infinity)
@@ -174,6 +206,9 @@ struct PlanEditorView: View {
                 ForEach(AnalysisItemIcon.choices, id: \.self) { systemImage in
                     Button {
                         draft.systemImage = systemImage
+                        withAnimation(.easeInOut(duration: 0.18)) {
+                            isShowingIconPicker = false
+                        }
                     } label: {
                         Image(systemName: systemImage)
                             .font(.title3)
@@ -206,13 +241,7 @@ struct PlanEditorView: View {
 
     private var selectedCards: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Selected cards").font(.headline)
-                Spacer()
-                Button("Clear") { draft.clearContents() }
-                    .disabled(draft.cardCounts.isEmpty)
-                    .accessibilityIdentifier("clearCardPlanButton")
-            }
+            Text("Selected cards").font(.headline)
 
             if draft.cardCounts.isEmpty {
                 Text("No cards selected")
@@ -263,13 +292,7 @@ struct PlanEditorView: View {
 
     private var constructionSteps: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Construction steps").font(.headline)
-                Spacer()
-                Button("Clear") { draft.clearContents() }
-                    .disabled(draft.constructionSteps.isEmpty)
-                    .accessibilityIdentifier("clearConstructionPlanButton")
-            }
+            Text("Construction steps").font(.headline)
 
             ForEach(Array(draft.constructionSteps.enumerated()), id: \.element.id) { index, step in
                 HStack(spacing: 12) {

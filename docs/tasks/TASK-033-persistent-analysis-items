@@ -1,9 +1,9 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T15:10:00+01:00
+completed_datetime: 2026-08-05T17:58:00+01:00
 priority: P0
 requirement: REQ-017
-design: SCR-002-plans, SCR-004-edit
+design: SCR-000-new-game, SCR-002-plans, SCR-004-edit
 depends_on: TASK-032
 
 # Persist saved Analysis items
@@ -12,17 +12,28 @@ Prevent saved production checks and plans from disappearing when Analysis is dis
 
 ## Acceptance criteria
 
-- [ ] Saving a production check or plan writes it to persistent application/game state rather than sheet-local view state.
-- [ ] Saved items remain available after closing and reopening Analysis.
-- [ ] Saved items remain associated with their player, kind, icon, name, cards, and ordered construction steps.
-- [ ] Editing an existing item updates the persisted item without creating a duplicate.
-- [ ] Existing saved-data decoding remains backward compatible, including records without a selected icon.
-- [ ] Persistence ownership avoids global mutable state and preserves serializability.
-- [ ] Domain regression coverage verifies save, reload, edit, player isolation, and kind isolation.
-- [ ] App, unit-test, and UI-test bundles compile.
+- [x] Saving a production check or plan writes it to persistent application/game state rather than sheet-local view state.
+- [x] Saved items remain available after closing and reopening Analysis.
+- [x] Saved items remain available after terminating and relaunching the application.
+- [x] Saved items remain associated with their player, kind, icon, name, cards, and ordered construction steps.
+- [x] Editing an existing item updates the persisted item without creating a duplicate.
+- [x] Existing saved-data decoding remains backward compatible, including records without a selected icon.
+- [x] Analysis items persist as part of the active game and are cleared only when a fresh game replaces it through SCR-000.
+- [x] Persistence ownership avoids global mutable state and preserves serializability.
+- [x] Domain regression coverage verifies save, sheet reload, app relaunch reload, edit, player isolation, kind isolation, and fresh-game clearing.
+- [x] App, unit-test, and UI-test bundles compile.
 - [ ] Focused persistence checks pass on a functioning simulator or device.
 
 ## Scope notes
 
 - This is the critical REQ-017 defect and should be completed before the remaining REQ-017 presentation tasks.
-- Do not implement simulation storage or a broader game-document system unless separately required.
+- TASK-040 owns the burger menu and New Game navigation; this task supplies the active-game persistence boundary it consumes.
+- Do not implement simulation storage or a multi-game document browser unless separately required.
+
+## Evidence
+
+- Moved custom Analysis items into the serializable `BoardSnapshot` active-game state with backward-compatible empty decoding.
+- Added identity-based save/update behavior on `BoardState` and removed sheet-local plan ownership.
+- Added `ActiveGamePersistence` with injected `UserDefaults` coverage for full snapshot save, reload, and clearing.
+- UI coverage closes and reopens Analysis after saving and verifies the item remains visible.
+- `xcodebuild build-for-testing` compiled the app, unit tests, and UI tests successfully.

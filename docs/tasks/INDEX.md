@@ -39,3 +39,8 @@
 - [TASK-037: Production Before Plan Subrows](TASK-037-production-before-plan-subrows)
 - [TASK-038: Board Rotation and Compact Bottom Labels](TASK-038-board-rotation-and-compact-bottom-labels)
 - [TASK-039: Hand Helper Text and Vertical Spacing](TASK-039-hand-helper-and-vertical-spacing)
+- [TASK-040: New Game Menu and Entry Screen](TASK-040-new-game-menu-and-entry-screen)
+- [TASK-041: Analysis Header Layout Revision](TASK-041-analysis-header-layout-revision)
+- [TASK-042: Owner Triangle Contrast Edge](TASK-042-owner-triangle-contrast-edge)
+- [TASK-043: Hide Game and Rotation Controls While Editing](TASK-043-hide-game-and-rotation-controls-while-editing)
+- [TASK-044: Centred Directional Board Rotation Animation](TASK-044-centred-directional-board-rotation-animation)

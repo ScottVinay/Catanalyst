@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T18:14:00+01:00
+completed_datetime: 2026-08-05T18:17:00+01:00
 priority: P1
 requirement: REQ-017
 design: SCR-004-edit, ITEM-001-player-selector
@@ -12,15 +12,24 @@ Refine both Analysis editors so ownership scrolls with the content and icon choi
 
 ## Acceptance criteria
 
-- [ ] The player selector is part of the editor's scrollable content and is not fixed above or below it.
-- [ ] Scrolling a long construction plan moves the player selector naturally with the editor content.
-- [ ] The current item icon appears beside the editable name.
-- [ ] A small pencil affordance beside the icon communicates that it can be changed.
-- [ ] The 3×3 icon grid is hidden by default.
-- [ ] Tapping the current icon or its pencil reveals the shared 3×3 icon grid.
-- [ ] Selecting an icon updates the draft and dismisses or collapses the picker without changing unrelated fields.
-- [ ] Production and Plan editors retain their respective cards and hammer defaults.
-- [ ] Cancel discards an icon change; Save persists it through TASK-033's storage path.
-- [ ] Editor scrolling, naming, player changes, preview placement, Clear, Cancel, and Save continue to work.
-- [ ] UI regression coverage compiles.
+- [x] The name, editable icon, player selector, and type-specific editor content belong to one scrollable content region.
+- [x] Clear, Cancel, and Save remain fixed outside that scrolling region.
+- [x] Scrolling a long construction plan moves the player selector naturally with the editor content.
+- [x] The current item icon appears beside the editable name.
+- [x] A small pencil affordance beside the icon communicates that it can be changed.
+- [x] The 3×3 icon grid is hidden by default.
+- [x] Tapping the current icon or its pencil reveals the shared 3×3 icon grid.
+- [x] Selecting an icon updates the draft and automatically collapses the picker without changing unrelated fields.
+- [x] Production and Plan editors retain their respective cards and hammer defaults.
+- [x] Cancel discards an icon change; Save persists it through TASK-033's storage path.
+- [x] Editor scrolling, naming, player changes, preview placement, Clear, Cancel, and Save continue to work.
+- [x] UI regression coverage compiles.
 - [ ] Focused layout and interaction checks pass on a functioning simulator or device.
+
+## Evidence
+
+- Moved the player selector and construction preview control into the editor's scroll content.
+- Placed the current icon and pencil affordance beside the name, with an animated on-demand picker that collapses after selection.
+- Consolidated Clear, Cancel, and Save into the fixed bottom action bar.
+- Updated UI regression coverage for the hidden/revealed/collapsed picker lifecycle.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded for app, unit-test, and UI-test bundles.

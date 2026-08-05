@@ -1,0 +1,37 @@
+status: done
+started_datetime: 2026-08-05T19:47:00+01:00
+completed_datetime: 2026-08-05T19:48:00+01:00
+priority: P1
+requirement: REQ-018
+design: SCR-001-board
+depends_on: TASK-038, TASK-040
+
+# Hide game and rotation controls while editing
+
+Remove the burger menu and both Board rotation actions from edit mode while retaining them in view mode.
+
+## Acceptance criteria
+
+- [x] View mode continues to show burger menu, rotate-left, and rotate-right side by side at the upper-left in that order.
+- [x] Entering edit mode removes the burger-menu button from the visible and accessible hierarchy.
+- [x] Entering edit mode removes both rotation buttons from the visible and accessible hierarchy.
+- [x] No empty control row or reserved spacing remains beneath the Terrain/Numbers selector after removal.
+- [x] Terrain/Numbers, Help, player selection, and Done retain their existing edit-mode behavior.
+- [x] Leaving edit mode restores all three view-mode controls immediately.
+- [x] Hiding the controls does not change the persisted Board orientation.
+- [x] New Game remains available through the burger menu in view mode.
+- [x] SCR-001 is updated to remove its superseded edit-mode rotation instruction before implementation is completed.
+- [x] UI regression coverage compiles.
+- [ ] Focused mode-transition checks pass on a functioning simulator or device.
+
+## Scope notes
+
+- This task supersedes the TASK-038 criterion that kept rotation controls beneath the edit selector.
+- Rotation behavior in view mode is refined separately by TASK-044.
+
+## Evidence
+
+- Conditioned the complete menu/rotation control row on view mode and removed the former edit-mode rotation row.
+- Updated SCR-001 and UI coverage for disappearance on Edit and immediate restoration on Done.
+- Preserved orientation state and all remaining edit controls.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.

@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T18:25:00+01:00
+completed_datetime: 2026-08-05T18:28:00+01:00
 priority: P1
 requirement: REQ-017
 design: SCR-002-plans
@@ -8,16 +8,24 @@ depends_on: TASK-029, TASK-030, TASK-032
 
 # Order Production subrows before Plan steps
 
-Reorder expanded plan details so production/card-stat rows precede ordered construction-step rows.
+Reorder expanded plan details so the five post-completion Production/card-stat rows precede ordered construction-step rows.
 
 ## Acceptance criteria
 
-- [ ] An expanded construction plan shows its Production/card-stat group before its ordered Plan-step group.
-- [ ] The Production group retains exactly five resource rows in Brick, Wood, Hay, Sheep, Ore order.
-- [ ] Ordered Road, Settlement, and City steps retain their saved order after the Production rows.
-- [ ] Expanded production checks continue to show their applicable Production rows without an empty step group.
-- [ ] Group labels and icon-only subrows retain the hierarchy inset introduced by TASK-032.
-- [ ] Fixed labels/icons and scrolling values remain vertically aligned after reordering.
-- [ ] Stable row identities preserve smooth expansion, collapse, scrolling, and section switching.
-- [ ] Domain row-order and UI regression coverage compile.
+- [x] An expanded construction plan shows its post-completion Production/card-stat group before its ordered Plan-step group.
+- [x] Reordering does not change the Production rows' existing post-completion meaning or placeholder calculations.
+- [x] The Production group retains exactly five resource rows in Brick, Wood, Hay, Sheep, Ore order.
+- [x] Ordered Road, Settlement, and City steps retain their saved order after the Production rows.
+- [x] Expanded production checks continue to show their applicable Production rows without an empty step group.
+- [x] Group labels and icon-only subrows retain the hierarchy inset introduced by TASK-032.
+- [x] Fixed labels/icons and scrolling values remain vertically aligned after reordering.
+- [x] Stable row identities preserve smooth expansion, collapse, scrolling, and section switching.
+- [x] Domain row-order and UI regression coverage compile.
 - [ ] Focused expansion/alignment checks pass on a functioning simulator or device.
+
+## Evidence
+
+- Reordered only the row composition so the unchanged post-completion card-stat group and its five `ResourceCard.allCases` rows precede the unchanged saved construction-step group.
+- Preserved all row IDs, statistics builders, hierarchy flags, and synchronized fixed/value rendering.
+- Existing expanded-row UI coverage still compiles, including five-row cardinality and fixed/value alignment checks.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.

@@ -9,6 +9,12 @@ import XCTest
 
 final class CatanalystUITests: XCTestCase {
 
+    private func makeApp() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments.append("--reset-active-game")
+        return app
+    }
+
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
 
@@ -23,19 +29,44 @@ final class CatanalystUITests: XCTestCase {
     }
 
     @MainActor
+    func testNewGameReturnsToBoardSelectionAndCreatesCleanGame() throws {
+        let app = makeApp()
+        app.launch()
+        if app.buttons["standardBoardButton"].waitForExistence(timeout: 1) {
+            app.buttons["standardBoardButton"].tap()
+        }
+
+        XCTAssertTrue(app.buttons["gameMenuButton"].waitForExistence(timeout: 2))
+        app.buttons["gameMenuButton"].tap()
+        app.buttons["newGameButton"].tap()
+
+        XCTAssertTrue(app.buttons["standardBoardButton"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.buttons["largeBoardButton"].isEnabled)
+        XCTAssertFalse(app.buttons["customBoardButton"].isEnabled)
+        app.buttons["standardBoardButton"].tap()
+        XCTAssertTrue(app.buttons["editBoardButton"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
     func testCreatesAStandardBoardAndEntersEditMode() throws {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
 
         let standardBoard = app.buttons["standardBoardButton"]
         XCTAssertTrue(standardBoard.waitForExistence(timeout: 3))
         standardBoard.tap()
 
+        XCTAssertLessThan(app.buttons["gameMenuButton"].frame.midX, app.buttons["rotateBoardLeftButton"].frame.midX)
+        XCTAssertLessThan(app.buttons["rotateBoardLeftButton"].frame.midX, app.buttons["rotateBoardRightButton"].frame.midX)
+
         XCTAssertLessThan(app.buttons["editBoardButton"].frame.midX, app.buttons["handButton"].frame.midX)
         XCTAssertLessThan(app.buttons["handButton"].frame.midX, app.buttons["analysisButton"].frame.midX)
         app.buttons["handButton"].tap()
         XCTAssertTrue(app.otherElements["handSheet"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.navigationBars["Cards in hand"].exists)
+        let handHelper = app.staticTexts["handHelperText"]
+        XCTAssertTrue(handHelper.exists)
+        XCTAssertLessThan(handHelper.frame.maxY, app.staticTexts["Selected cards"].frame.minY)
         XCTAssertTrue(app.descendants(matching: .any)["emptyHandCards"].exists)
         app.buttons["handAddCard-brick"].tap()
         app.buttons["handAddCard-brick"].tap()
@@ -71,6 +102,9 @@ final class CatanalystUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["doneEditingButton"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.segmentedControls["hexEditModePicker"].exists)
+        XCTAssertFalse(app.buttons["gameMenuButton"].exists)
+        XCTAssertFalse(app.buttons["rotateBoardLeftButton"].exists)
+        XCTAssertFalse(app.buttons["rotateBoardRightButton"].exists)
         XCTAssertEqual(
             app.segmentedControls["hexEditModePicker"].frame.midX,
             app.windows.firstMatch.frame.midX,
@@ -81,7 +115,7 @@ final class CatanalystUITests: XCTestCase {
 
     @MainActor
     func testLongPressDragEditsTerrainAndCentreReleaseCancels() throws {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
         app.buttons["standardBoardButton"].tap()
         app.buttons["editBoardButton"].tap()
@@ -108,7 +142,7 @@ final class CatanalystUITests: XCTestCase {
 
     @MainActor
     func testOpensDefaultPlanBrowser() throws {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
         app.buttons["standardBoardButton"].tap()
 
@@ -118,16 +152,16 @@ final class CatanalystUITests: XCTestCase {
 
         XCTAssertTrue(app.otherElements["analysisBrowser"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["analysisHelpButton"].exists)
-        let graphButton = app.buttons["planGraphsButton"]
         let helpButton = app.buttons["analysisHelpButton"]
-        XCTAssertFalse(graphButton.frame.intersects(helpButton.frame))
-        graphButton.tap()
-        XCTAssertFalse(app.alerts["Analysis"].exists)
+        let tabSelector = app.descendants(matching: .any)["planTabSelector"]
+        let playerSelector = app.descendants(matching: .any)["playerSelector"]
+        XCTAssertFalse(app.buttons["planGraphsButton"].exists)
+        XCTAssertEqual(tabSelector.frame.width, app.windows.firstMatch.frame.width - 32, accuracy: 2)
+        XCTAssertEqual(helpButton.frame.midY, playerSelector.frame.midY, accuracy: 1)
+        XCTAssertGreaterThan(helpButton.frame.minX, playerSelector.frame.maxX)
         helpButton.tap()
         XCTAssertTrue(app.alerts["Analysis"].waitForExistence(timeout: 1))
         app.alerts["Analysis"].buttons["OK"].tap()
-        graphButton.tap()
-        XCTAssertFalse(app.alerts["Analysis"].exists)
         XCTAssertTrue(app.otherElements["analysisBrowser"].exists)
         XCTAssertTrue(app.otherElements["productionTable"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)
@@ -182,7 +216,7 @@ final class CatanalystUITests: XCTestCase {
 
     @MainActor
     func testPlayerSelectionIsSharedWithPlans() throws {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
         app.buttons["standardBoardButton"].tap()
 
@@ -208,6 +242,9 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertEqual(app.segmentedControls["hexEditModePicker"].frame, pickerFrame)
         app.buttons["doneEditingButton"].tap()
         XCTAssertFalse(app.buttons["selectedPlayerButton"].exists)
+        XCTAssertTrue(app.buttons["gameMenuButton"].exists)
+        XCTAssertTrue(app.buttons["rotateBoardLeftButton"].exists)
+        XCTAssertTrue(app.buttons["rotateBoardRightButton"].exists)
 
         app.buttons["analysisButton"].tap()
         XCTAssertTrue(app.otherElements["analysisBrowser"].waitForExistence(timeout: 3))
@@ -225,7 +262,7 @@ final class CatanalystUITests: XCTestCase {
 
     @MainActor
     func testCreatesAndEditsACustomCardsPlan() throws {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
         app.buttons["standardBoardButton"].tap()
         app.buttons["analysisButton"].tap()
@@ -236,8 +273,11 @@ final class CatanalystUITests: XCTestCase {
 
         XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.buttons["planEditHelpButton"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["analysisIconPicker"].exists)
+        app.buttons["analysisIconButton"].tap()
         XCTAssertTrue(app.descendants(matching: .any)["analysisIconPicker"].exists)
         app.buttons["analysisIcon-flag.fill"].tap()
+        XCTAssertFalse(app.descendants(matching: .any)["analysisIconPicker"].exists)
         app.buttons["addCard-brick"].tap()
         app.buttons["addCard-brick"].tap()
         app.buttons["addCard-ore"].tap()
@@ -262,6 +302,7 @@ final class CatanalystUITests: XCTestCase {
         ).firstMatch
         XCTAssertTrue(plan.waitForExistence(timeout: 2))
         XCTAssertTrue(plan.label.contains("City Hand"))
+        XCTAssertFalse(app.descendants(matching: .any)["planOwner-red"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["summaryPlanHeader"].exists)
         XCTAssertLessThan(plan.frame.midY, app.buttons["newProductionCheckButton"].frame.midY)
         let customValues = app.descendants(matching: .any).matching(
@@ -269,6 +310,10 @@ final class CatanalystUITests: XCTestCase {
         ).firstMatch
         XCTAssertTrue(customValues.exists)
         XCTAssertEqual(plan.frame.midY, customValues.frame.midY, accuracy: 1.5)
+
+        app.buttons["closeAnalysisButton"].tap()
+        app.buttons["analysisButton"].tap()
+        XCTAssertTrue(plan.waitForExistence(timeout: 2))
 
         plan.tap()
         let cardRows = app.descendants(matching: .any).matching(
@@ -338,7 +383,7 @@ final class CatanalystUITests: XCTestCase {
 
     @MainActor
     func testCreatesAConstructionPlanPlaceholder() throws {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
         app.buttons["standardBoardButton"].tap()
         app.buttons["analysisButton"].tap()
@@ -377,7 +422,7 @@ final class CatanalystUITests: XCTestCase {
 
     @MainActor
     func testInvalidPlacementFeedbackAppearsLowAndDismisses() throws {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
         app.buttons["standardBoardButton"].tap()
         app.buttons["analysisButton"].tap()
@@ -411,7 +456,7 @@ final class CatanalystUITests: XCTestCase {
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+            makeApp().launch()
         }
     }
 }

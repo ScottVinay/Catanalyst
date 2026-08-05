@@ -1,0 +1,36 @@
+status: done
+started_datetime: 2026-08-05T17:59:00+01:00
+completed_datetime: 2026-08-05T18:14:00+01:00
+priority: P1
+requirement: REQ-017
+design: SCR-000-new-game, SCR-001-board
+depends_on: TASK-033
+
+# New Game menu and entry screen
+
+Add Board navigation for leaving the persisted active game and starting a fresh game from SCR-000.
+
+## Acceptance criteria
+
+- [x] A burger-menu button appears at the upper-left of the Board.
+- [x] The menu initially contains exactly one option labelled `New game`.
+- [x] Choosing New game returns to SCR-000-new-game, the existing board-size selection screen.
+- [x] SCR-000 shows Standard board enabled and Large board/Custom board visible but greyed out.
+- [x] Choosing Standard board creates a clean Board, player hands, Analysis collection, player ownership state, and orientation.
+- [x] The new game replaces the previously persisted active game and remains active after app termination.
+- [x] No state from the previous game leaks into the new game.
+- [x] Menu and board-choice controls have stable accessibility identifiers and labels.
+- [x] Persistence/navigation and UI regression coverage compile.
+- [ ] Focused new-game checks pass on a functioning simulator or device.
+
+## Scope notes
+
+- Additional burger-menu actions and additional board sizes remain out of scope.
+
+## Evidence
+
+- Added the upper-left Board menu with its sole `New game` action and stable accessibility identifiers.
+- New Game clears the active snapshot and returns to the existing size chooser; Standard creates and immediately persists a fresh `BoardState`.
+- Large and Custom choices remain visible and disabled.
+- Added UI regression coverage for the menu-to-entry-to-clean-Board flow and isolated other UI tests from persisted launch state.
+- `xcodebuild build-for-testing -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` succeeded.

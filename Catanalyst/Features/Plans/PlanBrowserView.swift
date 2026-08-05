@@ -69,6 +69,26 @@ private struct PlanHeaderButtonStyle: ButtonStyle {
     }
 }
 
+private struct OwnerCornerTriangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+            path.closeSubpath()
+        }
+    }
+}
+
+private struct OwnerTriangleHypotenuse: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.minX + 0.5, y: rect.minY + 0.5))
+            path.addLine(to: CGPoint(x: rect.maxX - 0.5, y: rect.maxY - 0.5))
+        }
+    }
+}
+
 struct PlanBrowserView: View {
     @Environment(\.dismiss) private var dismiss
     let board: BoardState
@@ -76,7 +96,6 @@ struct PlanBrowserView: View {
     @State private var scrollOffset = CGPoint.zero
     @State private var tableSection = PlanTableSection.summary
     @State private var selectedTab = PlanBrowserTab.production
-    @State private var customPlans: [CustomPlan] = []
     @State private var isShowingAllPlayers = false
     @State private var editingPlan: CustomPlan?
     @State private var activeAlert: PlanBrowserAlert?
@@ -93,16 +112,28 @@ struct PlanBrowserView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
-                planHeaderActions
                 tabSelector
+                    .padding(.horizontal)
                 HStack {
                     PlayerSelector(
                         selection: $selectedPlayer,
                         allSelection: $isShowingAllPlayers
                     )
                     Spacer(minLength: 0)
+                    Button {
+                        activeAlert = .browserHelp
+                    } label: {
+                        Image(systemName: "questionmark.circle.fill")
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlanHeaderButtonStyle())
+                    .accessibilityLabel("Analysis help")
+                    .accessibilityIdentifier("analysisHelpButton")
                 }
                 .padding(.horizontal)
+                .frame(height: 44)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("analysisPlayerRow")
                 planTable
             }
             .padding(.top, 8)
@@ -115,14 +146,14 @@ struct PlanBrowserView: View {
                 }
             }
             .sheet(item: $editingPlan) { plan in
-                let isNewPlan = !customPlans.contains { $0.id == plan.id }
+                let isNewPlan = !board.customPlans.contains { $0.id == plan.id }
                 PlanEditorView(
                     board: board,
                     plan: plan,
                     selectedPlayer: $selectedPlayer,
                     generatedDefaultName: isNewPlan ? plan.name : nil,
                     defaultNameProvider: { kind, player in
-                        CustomPlan.nextDefaultName(for: kind, player: player, in: customPlans)
+                        CustomPlan.nextDefaultName(for: kind, player: player, in: board.customPlans)
                     }
                 ) { save($0) }
             }
@@ -137,35 +168,6 @@ struct PlanBrowserView: View {
         .accessibilityIdentifier("analysisBrowser")
     }
 
-    private var planHeaderActions: some View {
-        HStack(spacing: 4) {
-            Spacer(minLength: 0)
-
-            Button {} label: {
-                Image(systemName: "chart.bar.xaxis")
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(PlanHeaderButtonStyle())
-            .accessibilityLabel("Graphs")
-            .accessibilityHint("Graph navigation is not available yet")
-            .accessibilityIdentifier("planGraphsButton")
-
-            Button {
-                activeAlert = .browserHelp
-            } label: {
-                Image(systemName: "questionmark.circle.fill")
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(PlanHeaderButtonStyle())
-            .accessibilityLabel("Analysis help")
-            .accessibilityIdentifier("analysisHelpButton")
-        }
-        .padding(.horizontal, 12)
-        .frame(height: 44)
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("planHeaderActions")
-    }
-
     private var tabSelector: some View {
         HStack(spacing: 0) {
             ForEach(PlanBrowserTab.allCases) { tab in
@@ -175,6 +177,8 @@ struct PlanBrowserView: View {
                 } label: {
                     Text(tab.rawValue)
                         .font(.subheadline.weight(selectedTab == tab ? .semibold : .regular))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                         .foregroundStyle(selectedTab == tab ? .white : .secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
@@ -190,7 +194,6 @@ struct PlanBrowserView: View {
         }
         .padding(2)
         .background(.quaternary, in: RoundedRectangle(cornerRadius: 9))
-        .padding(.horizontal)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("planTabSelector")
     }
@@ -383,20 +386,26 @@ struct PlanBrowserView: View {
                 } else {
                     Spacer(minLength: 0)
                 }
-                if let owner = row.owner {
-                    Circle()
-                        .fill(owner.color)
-                        .overlay(Circle().stroke(.primary.opacity(0.3), lineWidth: 0.5))
-                        .frame(width: 8, height: 8)
-                        .accessibilityLabel("Owned by \(owner.displayName) player")
-                        .accessibilityIdentifier("planOwner-\(owner.rawValue)")
-                }
             }
                 .font(.caption.weight(.medium))
                 .lineLimit(row.customPlan == nil ? 1 : 2)
                 .minimumScaleFactor(0.72)
                 .frame(width: planColumnWidth, height: rowHeight, alignment: .leading)
                 .background(Color(uiColor: .systemBackground))
+                .overlay(alignment: .topTrailing) {
+                    if isShowingAllPlayers, let owner = row.owner {
+                        OwnerCornerTriangle()
+                            .fill(owner.color)
+                            .overlay {
+                                OwnerTriangleHypotenuse()
+                                    .stroke(.primary.opacity(0.65), lineWidth: 1)
+                            }
+                            .frame(width: 13, height: 13)
+                            .padding(.trailing, 2)
+                            .accessibilityLabel("Owned by \(owner.displayName) player")
+                            .accessibilityIdentifier("planOwner-\(owner.rawValue)")
+                    }
+                }
                 .contentShape(Rectangle())
                 .onTapGesture {
                     if let customPlan = row.customPlan {
@@ -698,7 +707,7 @@ struct PlanBrowserView: View {
         let visibleItems = CustomPlan.visible(
             to: selectedPlayer,
             includesAllPlayers: isShowingAllPlayers,
-            in: customPlans
+            in: board.customPlans
         ).filter { $0.kind == kind }
         var rows: [PlanTableRow] = []
 
@@ -722,6 +731,26 @@ struct PlanBrowserView: View {
 
             guard expandedPlanIDs.contains(plan.id) else { continue }
 
+            rows.append(groupRow(
+                id: "custom-\(plan.id.uuidString)-card-stats",
+                name: "Card stats after plan completion",
+                accessibilityID: "customPlanCardStats-\(plan.id.uuidString)"
+            ))
+            let cardStatistics = DefaultPlan.placeholders(
+                forCardStatsAfter: plan,
+                player: plan.player,
+                hand: board.hand(for: plan.player)
+            )
+            for (resource, statistic) in zip(ResourceCard.allCases, cardStatistics) {
+                rows.append(subrow(
+                    id: "custom-\(plan.id.uuidString)-card-\(resource.rawValue)",
+                    name: resource.displayName,
+                    systemImage: resource.systemImage,
+                    statistics: statistic,
+                    accessibilityID: "customPlanCard-\(plan.id.uuidString)-\(resource.rawValue)"
+                ))
+            }
+
             if !plan.constructionSteps.isEmpty {
                 rows.append(groupRow(
                     id: "custom-\(plan.id.uuidString)-steps",
@@ -742,26 +771,6 @@ struct PlanBrowserView: View {
                         accessibilityID: "customPlanStep-\(plan.id.uuidString)-\(index)"
                     ))
                 }
-            }
-
-            rows.append(groupRow(
-                id: "custom-\(plan.id.uuidString)-card-stats",
-                name: "Card stats after plan completion",
-                accessibilityID: "customPlanCardStats-\(plan.id.uuidString)"
-            ))
-            let cardStatistics = DefaultPlan.placeholders(
-                forCardStatsAfter: plan,
-                player: plan.player,
-                hand: board.hand(for: plan.player)
-            )
-            for (resource, statistic) in zip(ResourceCard.allCases, cardStatistics) {
-                rows.append(subrow(
-                    id: "custom-\(plan.id.uuidString)-card-\(resource.rawValue)",
-                    name: resource.displayName,
-                    systemImage: resource.systemImage,
-                    statistics: statistic,
-                    accessibilityID: "customPlanCard-\(plan.id.uuidString)-\(resource.rawValue)"
-                ))
             }
         }
         return rows
@@ -810,7 +819,7 @@ struct PlanBrowserView: View {
             name: CustomPlan.nextDefaultName(
                 for: kind,
                 player: owner,
-                in: customPlans
+                in: board.customPlans
             ),
             kind: kind,
             player: owner
@@ -819,11 +828,7 @@ struct PlanBrowserView: View {
 
     private func save(_ plan: CustomPlan) {
         selectedPlayer = plan.player
-        if let index = customPlans.firstIndex(where: { $0.id == plan.id }) {
-            customPlans[index] = plan
-        } else {
-            customPlans.append(plan)
-        }
+        board.savePlan(plan)
     }
 
 }

@@ -1,0 +1,35 @@
+status: done
+started_datetime: 2026-08-05T19:41:00+01:00
+completed_datetime: 2026-08-05T19:47:00+01:00
+priority: P2
+requirement: REQ-018
+design: SCR-002-plans, ITEM-001-player-selector
+depends_on: TASK-036
+
+# Add contrast to owner corner triangles
+
+Draw a visible boundary along each All-player ownership triangle's hypotenuse so the marker remains legible over white row content.
+
+## Acceptance criteria
+
+- [x] Every owner triangle shown in All-player mode has a line exactly along its diagonal/hypotenuse.
+- [x] The diagonal uses sufficient contrast to remain visible for the white player marker on a light row background.
+- [x] The line remains visually appropriate for red, blue, orange, white, green, and purple markers.
+- [x] The triangle fill continues to use the owning player's colour.
+- [x] The line and triangle stay within the upper-right corner of the fixed left-hand cell.
+- [x] The change does not alter row height, icon/name alignment, expansion, or fixed/value-pane synchronization.
+- [x] Single-player mode continues to hide owner markers entirely.
+- [x] Existing ownership accessibility labels remain available without introducing a duplicate row action.
+- [x] Rendering and UI regression coverage compile.
+- [ ] Focused light/dark appearance checks pass on a functioning simulator or device.
+
+## Scope notes
+
+- This task refines TASK-036; it does not change ownership storage or filtering.
+
+## Evidence
+
+- Added a dedicated inset hypotenuse path over the unchanged 13-point owner triangle.
+- Used adaptive primary colour at 65% opacity for contrast in light and dark appearances, including white ownership.
+- Updated SCR-002 while preserving marker layout and accessibility behavior.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.

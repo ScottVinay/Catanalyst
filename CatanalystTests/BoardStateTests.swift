@@ -119,10 +119,50 @@ struct BoardStateTests {
         board.toggleRoad(on: edge, for: .orange)
         board.addCard(.ore, to: .orange)
         board.addCard(.ore, to: .orange)
+        board.savePlan(CustomPlan(
+            name: "Persisted route",
+            kind: .constructions,
+            player: .orange,
+            systemImage: "flag.fill"
+        ))
 
         let decoded = try BoardState.decode(board.encoded())
 
         #expect(decoded.snapshot == board.snapshot)
+    }
+
+    @Test("Saved Analysis items update by identity and remain isolated")
+    func savesAnalysisItems() throws {
+        let board = BoardState()
+        var red = CustomPlan(name: "Prod 1", kind: .cards, player: .red)
+        let blue = CustomPlan(name: "Plan 1", kind: .constructions, player: .blue)
+        board.savePlan(red)
+        board.savePlan(blue)
+        red.name = "Updated"
+        red.systemImage = "target"
+        board.savePlan(red)
+
+        #expect(board.customPlans.count == 2)
+        #expect(board.customPlans.first { $0.id == red.id }?.name == "Updated")
+        #expect(board.customPlans.first { $0.id == red.id }?.systemImage == "target")
+        #expect(CustomPlan.belonging(to: .blue, in: board.customPlans) == [blue])
+        #expect(try BoardState.decode(board.encoded()).customPlans == board.customPlans)
+    }
+
+    @Test("Active game persistence restores a full snapshot and can clear it")
+    func activeGamePersistence() throws {
+        let suiteName = "CatanalystTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let persistence = ActiveGamePersistence(defaults: defaults)
+        let board = BoardState()
+        board.addCard(.ore, to: .green)
+        board.savePlan(CustomPlan(name: "Prod 1", kind: .cards, player: .green))
+
+        persistence.save(board.snapshot)
+        #expect(persistence.load() == board.snapshot)
+        persistence.clear()
+        #expect(persistence.load() == nil)
     }
 
     @Test("Hands add, remove, clear, and remain isolated by player")
@@ -151,6 +191,7 @@ struct BoardStateTests {
         let encoded = try board.encoded()
         var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
         object.removeValue(forKey: "hands")
+        object.removeValue(forKey: "customPlans")
 
         let decoded = try BoardState.decode(JSONSerialization.data(withJSONObject: object))
 
@@ -158,6 +199,7 @@ struct BoardStateTests {
         #expect(decoded.tiles == board.tiles)
         #expect(decoded.roads == board.roads)
         #expect(decoded.buildings == board.buildings)
+        #expect(decoded.customPlans.isEmpty)
     }
 
     @Test("Players cannot change pieces owned by another player")
@@ -254,5 +296,55 @@ struct BoardStateTests {
         #expect(PlayerColor.allCases.count == 6)
         let encoded = try JSONEncoder().encode(PlayerColor.allCases)
         #expect(try JSONDecoder().decode([PlayerColor].self, from: encoded) == PlayerColor.allCases)
+    }
+
+    @Test("Four quarter turns return to the original orientation without changing board geometry")
+    func boardRotationCycles() {
+        let board = BoardState()
+        let originalTiles = board.tiles
+
+        for _ in 0..<4 { board.rotateRight() }
+        #expect(board.orientation == .north)
+        #expect(board.tiles == originalTiles)
+
+        for _ in 0..<4 { board.rotateLeft() }
+        #expect(board.orientation == .north)
+        #expect(board.tiles == originalTiles)
+    }
+
+    @Test("Board orientation persists in snapshots")
+    func boardOrientationRoundTrip() throws {
+        let board = BoardState()
+        board.rotateRight()
+        let decoded = try BoardState.decode(board.encoded())
+
+        #expect(decoded.orientation == .east)
+    }
+
+    @Test("Presentation rotation preserves requested direction across normalized wrap points")
+    func directionalPresentationRotation() {
+        var left = BoardRotationPresentation(orientation: .north)
+        left.rotateLeft()
+        #expect(left.degrees == -90)
+
+        var right = BoardRotationPresentation(orientation: .west)
+        right.rotateRight()
+        #expect(right.degrees == 360)
+
+        for _ in 0..<3 { left.rotateLeft() }
+        #expect(left.degrees == -360)
+    }
+
+    @Test("Standard Board geometry is centred on its rendered origin")
+    func renderedBoardGeometricCenter() {
+        let origin = CGPoint(x: 137, y: 241)
+        let center = BoardGeometry.geometricCenter(
+            for: HexCoordinate.standardBoard,
+            hexSize: 20,
+            origin: origin
+        )
+
+        #expect(abs(center.x - origin.x) < 0.0001)
+        #expect(abs(center.y - origin.y) < 0.0001)
     }
 }

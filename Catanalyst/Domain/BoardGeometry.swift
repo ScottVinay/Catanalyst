@@ -54,4 +54,29 @@ nonisolated enum BoardGeometry {
     static func center(for coordinate: HexCoordinate, hexSize: CGFloat, origin: CGPoint) -> CGPoint {
         point(for: centerLattice(for: coordinate), hexSize: hexSize, origin: origin)
     }
+
+    static func geometricCenter(
+        for coordinates: [HexCoordinate],
+        hexSize: CGFloat,
+        origin: CGPoint
+    ) -> CGPoint {
+        let points = coordinates
+            .flatMap(vertices)
+            .map { point(for: $0, hexSize: hexSize, origin: origin) }
+        guard let first = points.first else { return origin }
+        let bounds = points.dropFirst().reduce(
+            (minX: first.x, maxX: first.x, minY: first.y, maxY: first.y)
+        ) { bounds, point in
+            (
+                min(bounds.minX, point.x),
+                max(bounds.maxX, point.x),
+                min(bounds.minY, point.y),
+                max(bounds.maxY, point.y)
+            )
+        }
+        return CGPoint(
+            x: (bounds.minX + bounds.maxX) / 2,
+            y: (bounds.minY + bounds.maxY) / 2
+        )
+    }
 }

@@ -19,7 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-001 through TASK-032 are implemented and marked `done`.
+- TASK-001 through TASK-044 are implemented and marked `done`.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
 - TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
@@ -28,6 +28,14 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Completed REQ-018's TASK-041 through TASK-044: restored the full-width Analysis tabs, moved Help beside player selection, removed Graph, added owner-triangle contrast, hid game/rotation controls while editing, and corrected the Board rotation pivot/direction/easing.
+- Board rotation now separates unbounded presentation turns from normalized persistence and derives its pivot from rendered Board geometry.
+- Completed REQ-017's TASK-033 through TASK-040: persisted Analysis items, progressive editor icon selection, compact Analysis header, All-player corner markers, Production-first expansion ordering, persistent Board rotation, Hand helper spacing, and New Game reset/navigation.
+- Added active-game snapshot persistence with backward-compatible custom-item/orientation decoding and deterministic UI-test launch isolation.
+- Added Board menu and quarter-turn controls, persisted four-state orientation, and compact single-line bottom actions.
+- Moved editor ownership into scroll content, fixed Clear/Cancel/Save, and made the 3×3 icon grid on demand.
+- Compacted the Analysis tab/actions header, replaced owner dots with All-only corner triangles, and reordered expanded detail groups.
+- Added accessible explanatory Hand copy above both card sections.
 - Completed TASK-032 with Production/Plans tabs, direct creation, `Prod N`/`Plan N` naming, per-item 3×3 icon selection, denser rows, and inset expansion hierarchy.
 - Extended TASK-031 hit-testing so a drag beyond the visible radial ring retains the segment selected by its angle; centre and inner-gap release still cancel.
 - Completed TASK-031 with a seven-wedge terrain ring, an eleven-wedge number/remove ring, shared annular hit-testing, and zoom-aware activation timing.
@@ -94,4 +102,4 @@ Use the area below the three dashes for your current notes:
 
 ## Recommended next action
 
-- On a functioning simulator/device, perform the remaining unchecked focused UI checks, with priority on Analysis direct creation/icon persistence, dense expansion alignment, beyond-ring radial selection, and long-press Board gesture arbitration.
+- On a functioning simulator/device, perform the remaining unchecked focused UI checks, including REQ-017 persistence/New Game and REQ-018 Analysis header, triangle contrast, edit-mode control visibility, directional Board animation, rapid taps, relaunch, and rotated gestures.

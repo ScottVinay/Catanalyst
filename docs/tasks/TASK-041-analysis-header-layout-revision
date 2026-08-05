@@ -1,0 +1,38 @@
+status: done
+started_datetime: 2026-08-05T19:20:00+01:00
+completed_datetime: 2026-08-05T19:41:00+01:00
+priority: P1
+requirement: REQ-018
+design: SCR-002-plans, ITEM-001-player-selector
+depends_on: TASK-035
+
+# Revise the Analysis header layout
+
+Remove the unfinished Graph action and restore a full-width Production/Plans selector, with Help aligned to the player selector below it.
+
+## Acceptance criteria
+
+- [x] The Graph button and its reserved layout space are removed from Analysis.
+- [x] No Graph accessibility element or inactive Graph action remains.
+- [x] The Production/Plans selector spans the available content width again.
+- [x] Production and Plans retain clear, accessible selected states and existing tab-switching behavior.
+- [x] The player selector remains directly beneath the Production/Plans selector.
+- [x] The Analysis Help button appears at the right side of the player-selector row and is vertically aligned with it.
+- [x] Help retains an independent, non-overlapping hit target and opens only the Analysis help content.
+- [x] The revised two-row header fits supported compact iPhone widths without clipping or wrapping.
+- [x] Existing player and All-player selection behavior remains unchanged.
+- [x] SCR-002 is updated to describe the revised header before implementation is completed.
+- [x] UI regression coverage compiles.
+- [ ] Focused layout and interaction checks pass on a functioning simulator or device.
+
+## Scope notes
+
+- This task supersedes TASK-035's compact selector and same-row Graph/Help layout.
+- Adding a replacement graph entry point is out of scope.
+
+## Evidence
+
+- Removed the Graph action and its accessibility/layout elements.
+- Restored the selector to the padded full content width and placed Help at the far right of the player row.
+- Updated SCR-002 and UI assertions for full-width layout, vertical alignment, and Graph absence.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.
