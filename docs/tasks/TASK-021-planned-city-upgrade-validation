@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-04T23:41:00+01:00
+completed_datetime: 2026-08-04T23:45:00+01:00
 priority: P0
 requirement: REQ-012, REQ-014
 design: SCR-004-edit
@@ -11,16 +11,24 @@ Require construction-plan cities to upgrade an owned settlement.
 
 ## Acceptance criteria
 
-- [ ] A planned city is valid on an existing settlement belonging to the selected player.
-- [ ] A planned city is valid on that player's settlement created by an earlier valid plan step.
-- [ ] A planned city is invalid on an empty vertex, an existing city, or another player's settlement.
-- [ ] An invalid city attempt does not append or mutate any plan step or real Board state.
-- [ ] Preview projection upgrades the settlement to a ghost city without retaining a duplicate settlement.
-- [ ] Board edit-mode building cycling remains unchanged unless separately required.
-- [ ] Invalid attempts use TASK-019's shared 1.5-second lower-screen feedback.
-- [ ] Analytical domain tests and UI regression coverage compile.
+- [x] A planned city is valid on an existing settlement belonging to the selected player.
+- [x] A planned city is valid on that player's settlement created by an earlier valid plan step.
+- [x] A planned city is invalid on an empty vertex, an existing city, or another player's settlement.
+- [x] An invalid city attempt does not append or mutate any plan step or real Board state.
+- [x] Preview projection upgrades the settlement to a ghost city without retaining a duplicate settlement.
+- [x] Board edit-mode building cycling remains unchanged unless separately required.
+- [x] Invalid attempts use TASK-019's shared 1.5-second lower-screen feedback.
+- [x] Analytical domain tests and UI regression coverage compile.
 - [ ] Focused UI checks pass on a functioning simulator.
 
 ## Scope notes
 
 - Ordered projection must validate against the Board plus all earlier accepted plan steps.
+
+## Evidence
+
+- Added `cityNeedsSettlement` domain validation with exact feedback for empty vertices, existing cities, and opponent settlements.
+- Kept Board cycling behavior unchanged: an empty Board vertex still begins as a settlement, while explicit plan-city placement must upgrade an owned settlement.
+- Added analytical tests for valid/invalid ownership cases and sequential projection of settlement then city into one city.
+- Added UI coverage confirming an invalid empty-vertex city produces feedback and appends no plan step.
+- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.

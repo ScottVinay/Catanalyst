@@ -1,0 +1,25 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-014, REQ-015
+design: SCR-002-plans
+
+# Independent Plan toolbar press states
+
+Eliminate the remaining shared enlargement/highlight animation between Graph and Help.
+
+## Acceptance criteria
+
+- [ ] Pressing Graph enlarges or highlights only Graph, never Help.
+- [ ] Pressing Help enlarges or highlights only Help, never Graph.
+- [ ] Releasing either control invokes only its own action.
+- [ ] Controls have separate visual/button identities outside any navigation container that couples their pressed animation.
+- [ ] Graph retains its current SCR-003 navigation availability and Help retains its contextual alert.
+- [ ] Both controls retain accessible labels and adequate independent hit regions.
+- [ ] Interaction regression coverage compiles for taps in both directions.
+- [ ] Focused pressed-state checks pass on a functioning simulator.
+
+## Scope notes
+
+- This supersedes TASK-018, whose separate `ToolbarItem` declarations did not fully isolate UIKit/SwiftUI enlargement feedback.

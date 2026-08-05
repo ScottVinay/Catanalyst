@@ -17,6 +17,13 @@ struct BoardStateTests {
         #expect(board.tiles.map(\.coordinate).filter { $0.r == 2 }.count == 3)
     }
 
+    @Test("Every terrain has a distinct repeated symbol mapping")
+    func terrainSymbols() {
+        #expect(Set(Terrain.allCases.map(\.systemImage)).count == Terrain.allCases.count)
+        #expect(Terrain.allCases.allSatisfy { !$0.systemImage.isEmpty })
+        #expect(Terrain.allCases.allSatisfy { $0.symbolCopies == 6 })
+    }
+
     @Test("Standard geometry shares vertices and edges between hexes")
     func standardBoardGeometry() {
         #expect(BoardGeometry.standardVertices.count == 54)
@@ -110,10 +117,47 @@ struct BoardStateTests {
         board.setNumber(.five, at: coordinate)
         board.cycleBuilding(at: vertex, for: .orange)
         board.toggleRoad(on: edge, for: .orange)
+        board.addCard(.ore, to: .orange)
+        board.addCard(.ore, to: .orange)
 
         let decoded = try BoardState.decode(board.encoded())
 
         #expect(decoded.snapshot == board.snapshot)
+    }
+
+    @Test("Hands add, remove, clear, and remain isolated by player")
+    func editsHands() {
+        let board = BoardState()
+
+        board.addCard(.brick, to: .red)
+        board.addCard(.brick, to: .red)
+        board.addCard(.ore, to: .blue)
+        #expect(board.hand(for: .red)[.brick] == 2)
+        #expect(board.hand(for: .blue)[.ore] == 1)
+
+        board.removeCard(.brick, from: .red)
+        #expect(board.hand(for: .red)[.brick] == 1)
+        board.removeCard(.brick, from: .red)
+        #expect(board.hand(for: .red)[.brick] == 0)
+        #expect(board.hand(for: .blue)[.ore] == 1)
+
+        board.clearHand(for: .blue)
+        #expect(board.hand(for: .blue).isEmpty)
+    }
+
+    @Test("Legacy Board JSON without hands decodes empty hands")
+    func decodesLegacyHands() throws {
+        let board = BoardState()
+        let encoded = try board.encoded()
+        var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        object.removeValue(forKey: "hands")
+
+        let decoded = try BoardState.decode(JSONSerialization.data(withJSONObject: object))
+
+        #expect(PlayerColor.allCases.allSatisfy { decoded.hand(for: $0).isEmpty })
+        #expect(decoded.tiles == board.tiles)
+        #expect(decoded.roads == board.roads)
+        #expect(decoded.buildings == board.buildings)
     }
 
     @Test("Players cannot change pieces owned by another player")
@@ -183,6 +227,26 @@ struct BoardStateTests {
             "Road must be adjacent to a road, settlement or city of the same colour.")
         #expect(PlacementError.buildingTooClose.message ==
             "Cannot place adjacent to a settlement or a city.")
+        #expect(PlacementError.cityNeedsSettlement.message ==
+            "City must upgrade a settlement of the same colour.")
+    }
+
+    @Test("Cities only upgrade a same-colour settlement")
+    func validatesCityUpgrade() throws {
+        let board = BoardState()
+        let edge = try #require(BoardGeometry.standardEdges.first)
+
+        #expect(board.placeBuilding(.city, at: edge.start, for: .red) == .cityNeedsSettlement)
+        #expect(board.buildings[edge.start] == nil)
+
+        #expect(board.placeBuilding(.settlement, at: edge.start, for: .blue) == nil)
+        #expect(board.placeBuilding(.city, at: edge.start, for: .red) == .cityNeedsSettlement)
+        #expect(board.buildings[edge.start] == .settlement)
+        #expect(board.owner(of: edge.start) == .blue)
+
+        #expect(board.placeBuilding(.city, at: edge.start, for: .blue) == nil)
+        #expect(board.buildings[edge.start] == .city)
+        #expect(board.placeBuilding(.city, at: edge.start, for: .blue) == .cityNeedsSettlement)
     }
 
     @Test("Six serializable player colours are available")

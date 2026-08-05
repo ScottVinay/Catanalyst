@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T00:30:00+01:00
+completed_datetime: 2026-08-05T00:37:00+01:00
 priority: P2
 requirement: REQ-007, REQ-014
 design: SCR-001-board
@@ -11,13 +11,26 @@ Render terrain-specific symbols on every applied terrain hex while retaining the
 
 ## Acceptance criteria
 
-- [ ] Brick, Ore, Wheat, Lumber, Wool, Desert, and Ocean each use an appropriate distinct symbol.
-- [ ] Several copies of the terrain symbol are distributed across each hex.
-- [ ] Symbols render at approximately 50% opacity behind number tokens.
-- [ ] Numbers, pips, pieces, placement targets, and radial controls remain legible above the symbols.
-- [ ] Rendering remains stable while zooming, panning, and editing terrain.
+- [x] Brick, Ore, Wheat, Lumber, Wool, Desert, and Ocean each use an appropriate distinct symbol.
+- [x] Several copies of the terrain symbol are distributed across each hex.
+- [x] Symbols render at approximately 50% opacity behind number tokens.
+- [x] Numbers, pips, pieces, placement targets, and radial controls remain legible above the symbols.
+- [x] Rendering remains stable while zooming, panning, and editing terrain.
 - [ ] Focused rendering checks pass on a functioning simulator or device.
 
 ## Verification
 
 - Add view/rendering coverage for terrain-to-symbol mapping and manually check representative numbered and unnumbered hexes.
+
+## Evidence
+
+- Added distinct domain symbol mappings for all seven terrain cases and a fixed six-copy count.
+- Hex rendering uses six normalized positions clipped to the hex, with each symbol at 50% opacity beneath number tokens and all Board-piece/interaction layers.
+- Terrain radial choices reuse the same symbol mapping over their matching terrain colour.
+- Removed the separate single Ocean icon so every terrain follows one deterministic rendering path.
+- Added domain regression coverage for distinct non-empty mappings and the six-copy contract.
+- The app, unit-test, and UI-test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.
+
+## Remaining manual verification
+
+- Confirm symbol contrast, number/pip readability, and visual density for all terrains on a functioning simulator/device.

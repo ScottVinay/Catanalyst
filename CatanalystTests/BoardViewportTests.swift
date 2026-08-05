@@ -12,7 +12,7 @@ struct BoardViewportTests {
 
         viewport.finishMagnification(1.2)
         #expect(viewport.zoom == .detail)
-        #expect(viewport.scale == 1.65)
+        #expect(viewport.scale == 1.85)
 
         viewport.finishMagnification(0.8)
         #expect(viewport.zoom == .overview)
@@ -44,8 +44,8 @@ struct BoardViewportTests {
 
         viewport.finishPan(CGSize(width: 500, height: -500), in: phoneSize)
 
-        #expect(viewport.offset.width == 180)
-        #expect(viewport.offset.height == -360)
+        #expect(viewport.offset.width == 220)
+        #expect(viewport.offset.height == -440)
     }
 
     @Test("A detail hex can be centred and overview resets the offset")
@@ -58,5 +58,16 @@ struct BoardViewportTests {
 
         viewport.finishMagnification(0.8)
         #expect(viewport.offset == .zero)
+    }
+
+    @Test("Overview is biased upward while Detail uses its pan offset")
+    func displayOffsets() {
+        var viewport = BoardViewport()
+
+        #expect(viewport.displayOffset(in: phoneSize) == CGSize(width: 0, height: -28))
+
+        viewport.finishMagnification(1.2)
+        viewport.finishPan(CGSize(width: 30, height: 40), in: phoneSize)
+        #expect(viewport.displayOffset(in: phoneSize) == CGSize(width: 30, height: 40))
     }
 }

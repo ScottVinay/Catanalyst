@@ -155,7 +155,17 @@ struct PlanEditorView: View {
             } else {
                 HStack(alignment: .top, spacing: 12) {
                     ForEach(ResourceCard.allCases.filter { draft.cardCounts[$0, default: 0] > 0 }) { resource in
-                        cardStack(resource, count: draft.cardCounts[resource, default: 0])
+                        Button {
+                            draft.removeCard(resource)
+                        } label: {
+                            ResourceCardStackView(
+                                resource: resource,
+                                count: draft.cardCounts[resource, default: 0],
+                                accessibilityIdentifier: "selectedCard-\(resource.rawValue)"
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Removes one card")
                     }
                 }
                 .frame(maxWidth: .infinity, minHeight: 120, alignment: .leading)
@@ -164,28 +174,13 @@ struct PlanEditorView: View {
         .accessibilityIdentifier("selectedCards")
     }
 
-    private func cardStack(_ resource: ResourceCard, count: Int) -> some View {
-        ZStack(alignment: .leading) {
-            ForEach(0..<count, id: \.self) { index in
-                ResourceCardView(resource: resource, showsWhiteOutline: true)
-                    .frame(width: 52)
-                    .offset(x: CGFloat(index) * 8)
-            }
-        }
-        .frame(width: 52 + CGFloat(max(0, count - 1)) * 8, height: 76, alignment: .leading)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(count) \(resource.displayName) cards")
-        .accessibilityValue("White outlined stack")
-        .accessibilityIdentifier("selectedCard-\(resource.rawValue)")
-    }
-
     private var cardPicker: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Add cards").font(.headline)
             HStack(spacing: 10) {
                 ForEach(ResourceCard.allCases) { resource in
                     Button {
-                        draft.cardCounts[resource, default: 0] += 1
+                        draft.addCard(resource)
                     } label: {
                         ResourceCardView(resource: resource, showsAddBadge: true)
                             .frame(maxWidth: .infinity)

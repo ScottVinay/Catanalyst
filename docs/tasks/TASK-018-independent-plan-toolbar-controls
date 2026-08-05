@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-04T23:15:00+01:00
+completed_datetime: 2026-08-04T23:37:00+01:00
 priority: P1
 requirement: REQ-014
 design: SCR-002-plans
@@ -11,14 +11,21 @@ Separate the graph and contextual-help controls so interaction feedback and acti
 
 ## Acceptance criteria
 
-- [ ] Graph and help are implemented as separate controls rather than a shared interactive container.
-- [ ] Tapping or pressing Graph does not animate, bounce, highlight, or invoke Help.
-- [ ] Tapping or pressing Help does not animate, bounce, highlight, or invoke Graph.
-- [ ] Each control retains an adequate, non-overlapping tap target and accessible label.
-- [ ] Graph navigation behavior remains consistent with the currently implemented SCR-003 scope.
-- [ ] Automated interaction coverage compiles for both directions.
+- [x] Graph and help are implemented as separate controls rather than a shared interactive container.
+- [x] Tapping or pressing Graph does not animate, bounce, highlight, or invoke Help.
+- [x] Tapping or pressing Help does not animate, bounce, highlight, or invoke Graph.
+- [x] Each control retains an adequate, non-overlapping tap target and accessible label.
+- [x] Graph navigation behavior remains consistent with the currently implemented SCR-003 scope.
+- [x] Automated interaction coverage compiles for both directions.
 - [ ] Focused UI checks pass on a functioning simulator.
 
 ## Scope notes
 
 - This supersedes the earlier hit-target-only interpretation in TASK-011; pressed-state independence is required as well.
+
+## Evidence
+
+- Replaced the shared `ToolbarItemGroup` with two independent trailing `ToolbarItem` buttons and independent plain pressed states.
+- Retained distinct accessibility identifiers/labels and the current unavailable-graph no-op behavior.
+- Existing UI coverage taps Graph and verifies no Help alert, then independently opens and dismisses Help.
+- The app, unit-test, and UI-test bundles compile via `xcodebuild build-for-testing -quiet` using `/private/tmp/Catanalyst-tasks018-024-derived`.

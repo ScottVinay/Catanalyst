@@ -19,7 +19,9 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- REQ-014 has been normalized into REQ-006, REQ-007, REQ-012, REQ-013 and SCR-001/SCR-002/SCR-004. Implementation is decomposed into expanded TASK-005 and new TASK-018 through TASK-022, all `not-started`.
+- REQ-015 is decomposed into TASK-025 through TASK-030, all `not-started`. TASK-029 owns expandable custom rows/ordered steps; TASK-030 depends on it for post-plan card-stat rows.
+- TASK-018 through TASK-024 are implemented and marked `done`; only their explicitly deferred focused simulator/device checks remain unchecked.
+- REQ-014 terrain-symbol work is implemented in TASK-005 and marked `done`; only its focused device/simulator rendering check remains.
 - REQ-013's TASK-013 through TASK-017 are implemented and marked `done`; only the user-owned focused simulator checks remain unchecked as requested.
 - TASK-012's completed SCR-004 construction workflow and REQ-012 legality rules are implemented and remain `in-progress` pending runtime UI checks.
 - TASK-011's centred controls and contextual help are implemented and remain `in-progress` pending runtime UI checks.
@@ -33,6 +35,15 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Added six faded, terrain-specific symbols to every hex and reused those mappings in the terrain radial picker.
+- Shortened valid construction ghost feedback to 0.65 seconds and placed all road layers behind all building layers.
+- Added separate graph/help toolbar items with independent pressed states.
+- Moved placement errors low on the Board with cancellable 1.5-second replacement timing.
+- Increased Detail zoom to 1.85, raised Overview slightly, and layered the movable Board behind fixed controls.
+- Restricted planned cities to same-player settlement upgrades, including projected earlier settlements.
+- Verified per-player/per-kind plan naming across unrelated names, cancellations, and player changes.
+- Reordered the Board bar to Edit–Hand–Plans and added persistent autosaving per-player resource hands.
+- Added shared tap-to-remove card stacks and propagated current hands into Plan Browser placeholder inputs.
 - Separated the Plans graph/help tap targets, stacked Cards above Constructions, and moved construction preview beside the top player selector.
 - Made custom-plan rows open on tap and corrected detail-to-editor dismissal so Close/Cancel returns to the Plan Browser.
 - Added Cards/Constructions Clear actions plus final-construction-step removal with draft-safe Cancel behavior.
@@ -45,7 +56,7 @@ Use the area below the three dashes for your current notes:
 - Added functional circular help controls to Board editing, plan editing, plan-type selection, and Plan Browser.
 - Added REQ-011's stationary 0.3-second radial hold, immediate Detail-mode pan arbitration, cancellation cleanup, and outward option animation.
 - Ordered Board controls as Terrain/Numbers then Player, and Plans controls as Default/Custom then Player.
-- Increased the fixed Detail zoom level from 1.5 to 1.65.
+- Increased the fixed Detail zoom level from 1.5 through 1.65 to the current 1.85.
 - Replaced the deprecated expanding player control with the current labelled six-colour row and selected-colour tick.
 - Reserved identical Board control space in viewing/editing modes so entering edit mode no longer shifts the Board.
 - Isolated custom plans by their owning player colour; switching players now swaps the visible custom-plan set.

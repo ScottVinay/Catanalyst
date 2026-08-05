@@ -87,7 +87,7 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
         self.name = name
         self.kind = kind
         self.player = player
-        self.cardCounts = cardCounts.filter { $0.value > 0 }
+        self.cardCounts = ResourceCardCounts.sanitized(cardCounts)
         self.constructionSteps = constructionSteps
     }
 
@@ -120,6 +120,16 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
         case .cards: cardCounts.removeAll()
         case .constructions: constructionSteps.removeAll()
         }
+    }
+
+    mutating func addCard(_ resource: ResourceCard) {
+        guard kind == .cards else { return }
+        ResourceCardCounts.add(resource, to: &cardCounts)
+    }
+
+    mutating func removeCard(_ resource: ResourceCard) {
+        guard kind == .cards else { return }
+        ResourceCardCounts.remove(resource, from: &cardCounts)
     }
 
     mutating func removeLastConstructionStep() {

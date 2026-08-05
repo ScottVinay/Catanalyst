@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-04T23:45:00+01:00
+completed_datetime: 2026-08-04T23:46:00+01:00
 priority: P1
 requirement: REQ-009, REQ-013, REQ-014
 design: SCR-004-edit
@@ -11,16 +11,23 @@ Regress automatic naming so only saved plans of the same kind and player advance
 
 ## Acceptance criteria
 
-- [ ] `Card plan 2` is proposed only when the selected player already has `Card plan 1`.
-- [ ] `Con plan 2` is proposed only when the selected player already has `Con plan 1`.
-- [ ] A Constructions plan never advances the Cards sequence, and a Cards plan never advances the Constructions sequence.
-- [ ] Plans belonging to another player never advance the selected player's sequence.
-- [ ] The first unused positive exact default name is selected within the relevant player/kind collection.
-- [ ] Unrelated custom names and cancelled unsaved drafts do not advance a sequence.
-- [ ] Existing user-entered names are never rewritten.
-- [ ] Unit and UI regression coverage compiles for both kinds and multiple players.
+- [x] `Card plan 2` is proposed only when the selected player already has `Card plan 1`.
+- [x] `Con plan 2` is proposed only when the selected player already has `Con plan 1`.
+- [x] A Constructions plan never advances the Cards sequence, and a Cards plan never advances the Constructions sequence.
+- [x] Plans belonging to another player never advance the selected player's sequence.
+- [x] The first unused positive exact default name is selected within the relevant player/kind collection.
+- [x] Unrelated custom names and cancelled unsaved drafts do not advance a sequence.
+- [x] Existing user-entered names are never rewritten.
+- [x] Unit and UI regression coverage compiles for both kinds and multiple players.
 - [ ] Focused UI checks pass on a functioning simulator.
 
 ## Scope notes
 
 - This clarifies and supersedes any ambiguous cross-kind reading of REQ-014 and verifies TASK-016's intended behavior.
+
+## Evidence
+
+- Audited the pure generator: it filters saved plans by exact player and kind before selecting the first unused positive exact default name.
+- Existing unit coverage verifies gaps, unrelated names, both kinds, and multiple players.
+- Expanded UI coverage verifies a renamed custom plan does not consume `Card plan 1`, Constructions do not advance Cards, cancelled drafts consume nothing, and Blue starts an independent sequence.
+- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.

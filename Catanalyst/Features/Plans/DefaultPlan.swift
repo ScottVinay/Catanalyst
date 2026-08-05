@@ -23,18 +23,30 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
         placeholder("Dev Card", systemImage: "rectangle.stack.fill", baseline: 5)
     ]
 
-    static func placeholders(for player: PlayerColor) -> [DefaultPlan] {
-        placeholders.map { adjusted($0, for: player) }
+    static func placeholders(
+        for player: PlayerColor,
+        hand: ResourceHand = ResourceHand()
+    ) -> [DefaultPlan] {
+        placeholders.map { adjusted($0, for: player, handCount: hand.totalCount) }
     }
 
-    static func placeholder(for customPlan: CustomPlan, player: PlayerColor) -> DefaultPlan {
+    static func placeholder(
+        for customPlan: CustomPlan,
+        player: PlayerColor,
+        hand: ResourceHand = ResourceHand()
+    ) -> DefaultPlan {
         let baseline = switch customPlan.kind {
-        case .cards: max(1, customPlan.cardCounts.values.reduce(0, +))
-        case .constructions: 5
+        case .cards:
+            max(1, ResourceCard.allCases.reduce(0) { partial, resource in
+                partial + max(0, customPlan.cardCounts[resource, default: 0] - hand[resource])
+            })
+        case .constructions:
+            max(1, 5 - min(4, hand.totalCount))
         }
         return adjusted(
             placeholder(customPlan.name, systemImage: customPlan.icon, baseline: baseline),
-            for: player
+            for: player,
+            handCount: 0
         )
     }
 
@@ -57,7 +69,11 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
         )
     }
 
-    private static func adjusted(_ plan: DefaultPlan, for player: PlayerColor) -> DefaultPlan {
+    private static func adjusted(
+        _ plan: DefaultPlan,
+        for player: PlayerColor,
+        handCount: Int
+    ) -> DefaultPlan {
         let adjustment: Double = switch player {
         case .red: 0
         case .blue: 0.8
@@ -66,13 +82,14 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
         case .green: -1.0
         case .brown: 2.0
         }
-        let midpoint = max(1, plan.median + adjustment)
+        let handAdjustment = min(plan.median - 1, Double(handCount) * 0.2)
+        let midpoint = max(1, plan.median + adjustment - handAdjustment)
         let median = midpoint.rounded()
 
         return DefaultPlan(
             name: plan.name,
             systemImage: plan.systemImage,
-            mean: max(1, plan.mean + adjustment),
+            mean: max(1, plan.mean + adjustment - handAdjustment),
             median: median,
             percentile25: max(1, (median - 1).rounded()),
             percentile75: max(median, (median + 2).rounded()),

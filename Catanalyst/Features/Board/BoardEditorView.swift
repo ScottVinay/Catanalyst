@@ -38,12 +38,11 @@ struct BoardEditorView: View {
                 availableSize.height / 9.0
             )
             let hexSize = baseSize * viewport.scale
-            let pan = viewport.zoom == .detail
-                ? CGSize(
-                    width: viewport.offset.width + transientPan.width,
-                    height: viewport.offset.height + transientPan.height
-                )
-                : .zero
+            let restingOffset = viewport.displayOffset(in: availableSize)
+            let pan = CGSize(
+                width: restingOffset.width + transientPan.width,
+                height: restingOffset.height + transientPan.height
+            )
             let origin = CGPoint(
                 x: (availableSize.width / 2) + pan.width,
                 y: (availableSize.height / 2) + pan.height
@@ -89,6 +88,8 @@ struct BoardEditorView: View {
                     )
                 }
 
+                ghostRoads(hexSize: hexSize, origin: origin)
+
                 ForEach(Array(board.buildings.keys), id: \.self) { vertex in
                     if let building = board.buildings[vertex] {
                         BuildingView(
@@ -104,7 +105,7 @@ struct BoardEditorView: View {
                     }
                 }
 
-                ghostConstructions(hexSize: hexSize, origin: origin)
+                ghostBuildings(hexSize: hexSize, origin: origin)
 
                 if placementMode != nil {
                     constructionPlacementTargets(hexSize: hexSize, origin: origin)
@@ -133,7 +134,7 @@ struct BoardEditorView: View {
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                         .shadow(radius: 8)
                         .frame(maxWidth: 300)
-                        .position(x: availableSize.width / 2, y: availableSize.height / 2)
+                        .position(x: availableSize.width / 2, y: availableSize.height - 96)
                         .zIndex(20)
                         .accessibilityIdentifier("placementErrorMessage")
                 }
@@ -310,10 +311,9 @@ struct BoardEditorView: View {
     }
 
     @ViewBuilder
-    private func ghostConstructions(hexSize: CGFloat, origin: CGPoint) -> some View {
+    private func ghostRoads(hexSize: CGFloat, origin: CGPoint) -> some View {
         ForEach(ghostSteps) { step in
-            switch step.location {
-            case let .edge(edge):
+            if case let .edge(edge) = step.location {
                 RoadView(
                     edge: edge,
                     hexSize: hexSize,
@@ -321,7 +321,14 @@ struct BoardEditorView: View {
                     color: selectedPlayer.color.opacity(0.38),
                     outlineColor: .white.opacity(0.65)
                 )
-            case let .vertex(vertex):
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func ghostBuildings(hexSize: CGFloat, origin: CGPoint) -> some View {
+        ForEach(ghostSteps) { step in
+            if case let .vertex(vertex) = step.location {
                 BuildingView(
                     building: step.kind == .city ? .city : .settlement,
                     hexSize: hexSize,
@@ -396,7 +403,7 @@ struct BoardEditorView: View {
         messageDismissalTask?.cancel()
         placementMessage = error.message
         messageDismissalTask = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(2))
+            try? await Task.sleep(for: .milliseconds(1_500))
             guard !Task.isCancelled else { return }
             placementMessage = nil
         }
@@ -476,6 +483,11 @@ struct BoardEditorView: View {
             let terrain = Terrain.allCases[index]
             Circle()
                 .fill(terrain.color)
+                .overlay {
+                    Image(systemName: terrain.systemImage)
+                        .font(.caption.bold())
+                        .foregroundStyle(terrain.symbolForegroundColor)
+                }
                 .overlay(Circle().stroke(.white, lineWidth: 2))
                 .accessibilityLabel(terrain.displayName)
         case .number:
@@ -510,18 +522,27 @@ private struct HexTileView: View {
     let hexSize: CGFloat
 
     var body: some View {
-        Hexagon()
-            .fill(tile.terrain.color)
-            .overlay(Hexagon().stroke(.white.opacity(0.85), lineWidth: max(1.5, hexSize * 0.04)))
-            .overlay {
-                if let number = tile.number {
-                    NumberTokenView(token: number, size: hexSize * 0.8)
-                } else if tile.terrain == .ocean {
-                    Image(systemName: "water.waves")
-                        .foregroundStyle(.white.opacity(0.75))
-                        .font(.system(size: hexSize * 0.34))
+        ZStack {
+            Hexagon()
+                .fill(tile.terrain.color)
+
+            GeometryReader { proxy in
+                ForEach(0..<tile.terrain.symbolCopies, id: \.self) { index in
+                    Image(systemName: tile.terrain.systemImage)
+                        .font(.system(size: hexSize * 0.23, weight: .semibold))
+                        .foregroundStyle(tile.terrain.symbolForegroundColor)
+                        .opacity(0.5)
+                        .position(symbolPosition(at: index, in: proxy.size))
                 }
             }
+            .clipShape(Hexagon())
+            .accessibilityHidden(true)
+
+            if let number = tile.number {
+                NumberTokenView(token: number, size: hexSize * 0.8)
+            }
+        }
+        .overlay(Hexagon().stroke(.white.opacity(0.85), lineWidth: max(1.5, hexSize * 0.04)))
             .frame(width: sqrt(3) * hexSize, height: 2 * hexSize)
             .contentShape(Hexagon())
             .accessibilityElement(children: .combine)
@@ -529,6 +550,20 @@ private struct HexTileView: View {
             .accessibilityValue(tile.terrain.displayName)
             .accessibilityIdentifier("hex-\(tile.coordinate.id)")
     }
+
+    private func symbolPosition(at index: Int, in size: CGSize) -> CGPoint {
+        let position = Self.symbolPositions[index % Self.symbolPositions.count]
+        return CGPoint(x: position.x * size.width, y: position.y * size.height)
+    }
+
+    private static let symbolPositions = [
+        CGPoint(x: 0.30, y: 0.22),
+        CGPoint(x: 0.70, y: 0.22),
+        CGPoint(x: 0.18, y: 0.50),
+        CGPoint(x: 0.82, y: 0.50),
+        CGPoint(x: 0.32, y: 0.78),
+        CGPoint(x: 0.68, y: 0.78)
+    ]
 
     private var tileAccessibilityLabel: String {
         if let number = tile.number {
@@ -626,6 +661,13 @@ private extension Terrain {
         case .wool: .wool
         case .desert: .desert
         case .ocean: .ocean
+        }
+    }
+
+    var symbolForegroundColor: Color {
+        switch self {
+        case .brick, .ore, .lumber, .ocean: .white
+        case .wheat, .wool, .desert: .black
         }
     }
 }

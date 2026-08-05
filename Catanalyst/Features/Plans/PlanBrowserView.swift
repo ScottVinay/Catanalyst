@@ -89,23 +89,26 @@ struct PlanBrowserView: View {
                     Button("Close") { dismiss() }
                         .accessibilityIdentifier("closePlanBrowserButton")
                 }
-                ToolbarItemGroup(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {} label: {
                         Image(systemName: "chart.bar.xaxis")
-                            .frame(width: 28, height: 28)
+                            .frame(width: 32, height: 32)
                             .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
                     .accessibilityLabel("Graphs")
                     .accessibilityHint("Graph navigation is not available yet")
                     .accessibilityIdentifier("planGraphsButton")
-
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         activeAlert = .browserHelp
                     } label: {
                         Image(systemName: "questionmark.circle.fill")
-                            .frame(width: 28, height: 28)
+                            .frame(width: 32, height: 32)
                             .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
                     .accessibilityLabel("Plan Browser help")
                     .accessibilityIdentifier("planBrowserHelpButton")
                 }
@@ -632,7 +635,10 @@ struct PlanBrowserView: View {
     private var tableRows: [PlanTableRow] {
         switch selectedTab {
         case .default:
-            DefaultPlan.placeholders(for: selectedPlayer).map { plan in
+            DefaultPlan.placeholders(
+                for: selectedPlayer,
+                hand: board.hand(for: selectedPlayer)
+            ).map { plan in
                 PlanTableRow(
                     id: "default-\(plan.id)",
                     name: plan.name,
@@ -648,7 +654,11 @@ struct PlanBrowserView: View {
                     id: "custom-\(plan.id.uuidString)",
                     name: plan.name,
                     systemImage: plan.icon,
-                    statistics: DefaultPlan.placeholder(for: plan, player: selectedPlayer),
+                    statistics: DefaultPlan.placeholder(
+                        for: plan,
+                        player: selectedPlayer,
+                        hand: board.hand(for: selectedPlayer)
+                    ),
                     customPlan: plan,
                     isNewPlan: false
                 )

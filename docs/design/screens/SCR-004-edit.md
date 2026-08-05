@@ -18,6 +18,8 @@ Under this there are, side by side, icons for Brick, Wood, Hay, Sheep, Ore, in t
 
 Copies of the same card in the selected cards section should be stacked, but staggered to the right so we can see how many copies there are.
 
+Tapping a selected card stack removes exactly one card of that resource. Removing the final card removes the stack. This modifies only the current editor draft until Save is selected, and Cancel restores the saved plan.
+
 At the bottom there are two buttons side by side: Cancel and Save
 
 # Constructions
@@ -36,6 +38,8 @@ Under this there is some helper text that says:
 - The construction UI is a series of rows, each representing a step.
 - The "new step" row consists of icons side by side for a road, a settlement, and a city. Tapping one of these shows the board, with the title "Placing road", "Placing settlement", or "Placing city".
 - Tapping somewhere places a road/settlement/city in that location, but ghostly so we know it is part of the plan only.
+- After a valid placement, keep the new ghost item visible for 0.65 seconds before returning to the plan editor.
+- Ghost roads always render behind both real and ghost settlements/cities wherever they overlap.
 - A planned city may only upgrade an existing settlement belonging to the selected player, including a settlement added by an earlier plan step.
 - This then goes back to the edit page, where we may select a new item to place, or click cancel/save as usual.
 - Note that the ghost items are only available on SCR-004 edit and SCR-005-view-plan, not on SCR-001-board

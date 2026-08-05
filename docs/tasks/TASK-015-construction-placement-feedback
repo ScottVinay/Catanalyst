@@ -11,20 +11,21 @@ Make ghost placement visible before returning to the editor and provide a read-o
 
 ## Acceptance criteria
 
-- [x] After a valid planned construction is placed, its ghost remains visible on the placement Board for 0.8 seconds.
+- [x] After a valid planned construction is placed, its ghost remains visible on the placement Board for 0.65 seconds.
 - [x] The placement screen returns to the construction editor only after that delay.
 - [x] Invalid placement remains on screen and continues to use REQ-012's two-second error feedback.
 - [x] The construction editor has a button whose icon resembles a group of hexagons.
 - [x] Tapping the preview button opens the Board with all current plan steps rendered as ghost pieces.
 - [x] Preview mode does not expose placement targets and cannot mutate the real Board or plan.
 - [x] Preview has an obvious Close/Back action that returns to the same editor draft.
+- [x] Real and ghost roads render behind real and ghost settlements/cities.
 - [x] App and test bundles compile with relevant timing and navigation coverage.
 - [ ] Focused UI checks pass on a functioning simulator.
 
 ## Scope notes
 
 - Depends on TASK-012's ordered construction steps, projected Board state, and ghost renderer.
-- Keep the 0.8-second delay cancellable so dismissing the placement screen cannot append twice or navigate later unexpectedly.
+- Keep the 0.65-second delay cancellable so dismissing the placement screen cannot append twice or navigate later unexpectedly.
 
 ## Verification
 
@@ -32,7 +33,9 @@ Make ghost placement visible before returning to the editor and provide a read-o
 
 ## Evidence
 
-- Valid placement immediately renders the selected ghost and confirmation, disables further targets, and uses a cancellable 800 ms task before appending once and dismissing.
+- Valid placement immediately renders the selected ghost and confirmation, disables further targets, and uses a cancellable 650 ms task before appending once and dismissing.
+- Board rendering uses explicit road layers before building layers, including separate ghost-road and ghost-building passes.
 - Added a hex-cluster preview button and a read-only full-screen Board preview with the draft's projected ghost pieces and an accessible Close action.
 - Extended UI coverage for the visible delay, preview navigation, absent placement targets, and return to the unchanged editor draft.
 - `xcodebuild build-for-testing` succeeded using `/private/tmp/Catanalyst-req013-derived`.
+- The revised 650 ms timing, explicit render layers, app, and complete test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.

@@ -46,3 +46,24 @@ struct ResourceCardView: View {
         }
     }
 }
+
+struct ResourceCardStackView: View {
+    let resource: ResourceCard
+    let count: Int
+    let accessibilityIdentifier: String
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            ForEach(0..<count, id: \.self) { index in
+                ResourceCardView(resource: resource, showsWhiteOutline: true)
+                    .frame(width: 52)
+                    .offset(x: CGFloat(index) * 8)
+            }
+        }
+        .frame(width: 52 + CGFloat(max(0, count - 1)) * 8, height: 76, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(count) \(resource.displayName) cards")
+        .accessibilityValue("White outlined stack")
+        .accessibilityIdentifier(accessibilityIdentifier)
+    }
+}

@@ -13,11 +13,20 @@ struct BoardScreen: View {
     @State private var isEditing = false
     @State private var editTool = BoardEditTool.terrain
     @State private var isShowingPlans = false
+    @State private var isShowingHand = false
     @State private var selectedPlayer = PlayerColor.red
     @State private var isShowingEditHelp = false
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            ZStack(alignment: .top) {
+                BoardEditorView(
+                    board: board,
+                    isEditing: isEditing,
+                    editTool: editTool,
+                    selectedPlayer: selectedPlayer
+                )
+                .accessibilityIdentifier("boardEditor")
+
                 VStack(spacing: 8) {
                     if isEditing {
                         ZStack {
@@ -43,8 +52,6 @@ struct BoardScreen: View {
                                 .accessibilityIdentifier("boardEditHelpButton")
                             }
                         }
-                    } else {
-                        Color.clear.frame(height: 32)
                     }
 
                     if isEditing {
@@ -52,20 +59,10 @@ struct BoardScreen: View {
                             PlayerSelector(selection: $selectedPlayer)
                             Spacer(minLength: 0)
                         }
-                    } else {
-                        Color.clear.frame(height: 42)
                     }
                 }
                 .padding(.horizontal)
                 .padding(.top, 8)
-
-                BoardEditorView(
-                    board: board,
-                    isEditing: isEditing,
-                    editTool: editTool,
-                    selectedPlayer: selectedPlayer
-                )
-                .accessibilityIdentifier("boardEditor")
             }
             .navigationTitle("Board")
             .navigationBarTitleDisplayMode(.inline)
@@ -74,11 +71,16 @@ struct BoardScreen: View {
             } message: {
                 Text("Choose Terrain or Numbers, then hold a hex to open its radial choices. Roads and buildings are edited by tapping their edges or vertices.")
             }
-            .safeAreaInset(edge: .bottom) {
+            .overlay(alignment: .bottom) {
                 bottomBar
             }
             .sheet(isPresented: $isShowingPlans) {
                 PlanBrowserView(board: board, selectedPlayer: $selectedPlayer)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $isShowingHand) {
+                HandView(selectedPlayer: $selectedPlayer, board: board)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
@@ -102,14 +104,15 @@ struct BoardScreen: View {
                 }
                 .accessibilityIdentifier("editBoardButton")
 
+                toolbarButton("Hand", systemImage: "rectangle.stack") {
+                    isShowingHand = true
+                }
+                .accessibilityIdentifier("handButton")
+
                 toolbarButton("Plans", systemImage: "list.bullet.rectangle") {
                     isShowingPlans = true
                 }
                 .accessibilityIdentifier("plansButton")
-
-                toolbarButton("Player", systemImage: "person.crop.circle") {}
-                    .disabled(true)
-                    .accessibilityHint("Player summaries are not available yet")
             }
         }
         .padding(.horizontal)

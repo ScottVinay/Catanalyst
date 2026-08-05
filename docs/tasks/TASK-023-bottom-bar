@@ -1,5 +1,33 @@
+status: done
+started_datetime: 2026-08-04T23:46:00+01:00
+completed_datetime: 2026-08-04T23:51:00+01:00
+priority: P1
+design: SCR-001-board, SCR-006-hand
+
+# Board bottom bar
+
 The bar at the bottom should have three icons, in this order:
 
 - Edit
 - Hand
 - Plans
+
+## Acceptance criteria
+
+- [x] View mode shows Edit, Hand, and Plans in that order.
+- [x] Hand opens SCR-006 as a large bottom sheet.
+- [x] Plans retains its existing Plan Browser presentation.
+- [x] Edit mode retains its contextual Done behavior.
+- [x] All controls have distinct accessible labels and identifiers.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- The Hand screen and its state are implemented by TASK-024.
+
+## Evidence
+
+- Replaced the unavailable Player action with the middle Hand action, retaining Edit first and Plans last.
+- Added a large-sheet `Cards in hand` navigation shell with Close and shared player selector for TASK-024 to populate.
+- Added UI coverage for horizontal action order, sheet entry/title, and Close dismissal.
+- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.

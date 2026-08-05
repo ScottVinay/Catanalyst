@@ -1,0 +1,26 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P1
+requirement: REQ-015
+design: SCR-004-edit
+
+# Construction editor overflow scrolling
+
+Ensure ordered construction plans remain fully editable when their rows exceed the available screen height.
+
+## Acceptance criteria
+
+- [ ] The construction editor scrolls vertically when ordered rows extend below the viewport.
+- [ ] Every construction row can be reached without being obscured permanently by the bottom action bar.
+- [ ] The final-step bin, Clear, preview, and New Step controls remain reachable and interactive.
+- [ ] The top player selector and preview placement remain consistent with SCR-004 while content scrolls beneath or below them as designed.
+- [ ] Cancel and Save remain fixed, visible, and interactive throughout scrolling.
+- [ ] Adding a step does not strand the new final row outside reachable scroll bounds.
+- [ ] Cards-plan scrolling and layout remain unchanged.
+- [ ] UI regression coverage compiles with enough mock steps to overflow a compact iPhone viewport.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- The editor already contains a ScrollView; this task owns layout, insets, and regression behavior required for real overflow rather than replacing the navigation model.

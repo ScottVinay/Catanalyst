@@ -1,5 +1,9 @@
 import SwiftUI
 
+nonisolated enum ConstructionPlacementTiming {
+    static let confirmationMilliseconds = 650
+}
+
 struct ConstructionPlacementView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var placedStep: PlannedConstructionStep?
@@ -24,7 +28,9 @@ struct ConstructionPlacementView: View {
                 guard placedStep == nil else { return }
                 placedStep = step
                 completionTask = Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(800))
+                    try? await Task.sleep(
+                        for: .milliseconds(ConstructionPlacementTiming.confirmationMilliseconds)
+                    )
                     guard !Task.isCancelled else { return }
                     onPlace(step)
                     dismiss()

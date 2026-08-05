@@ -79,6 +79,8 @@ If 6 or 8 are selected, then the number and the dots should be coloured red. Oth
 
 Tapping an edge toggles a road.
 
+Roads always render behind settlements and cities wherever their visuals overlap.
+
 If multiple players are enabled, a selector at the top of the screen determines which player we are editing for.
 
 ## Vertices

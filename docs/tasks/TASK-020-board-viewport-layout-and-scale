@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-04T23:39:00+01:00
+completed_datetime: 2026-08-04T23:41:00+01:00
 priority: P1
 requirement: REQ-006, REQ-014
 design: SCR-001-board
@@ -11,15 +11,24 @@ Refine both fixed zoom levels and allow Detail panning beneath persistent Board 
 
 ## Acceptance criteria
 
-- [ ] Detail uses a visibly higher fixed zoom level than the current implementation.
-- [ ] Detail panning can move board content behind Done, edit controls, help, and player selection.
-- [ ] Persistent controls remain fixed, visually above the board, fully legible, and interactive.
-- [ ] Pan bounds still prevent losing the board entirely and permit reaching every playable edge and vertex.
-- [ ] Overview shifts slightly upward and appears visually centred in the complete screen layout.
-- [ ] View and edit modes share consistent board geometry without jumping when mode changes.
-- [ ] Tap-to-focus, long-hold radial editing, and immediate Detail pan arbitration remain unchanged.
-- [ ] Deterministic viewport tests compile and focused gesture/layout checks pass on a functioning simulator.
+- [x] Detail uses a visibly higher fixed zoom level than the current implementation.
+- [x] Detail panning can move board content behind Done, edit controls, help, and player selection.
+- [x] Persistent controls remain fixed, visually above the board, fully legible, and interactive.
+- [x] Pan bounds still prevent losing the board entirely and permit reaching every playable edge and vertex.
+- [x] Overview shifts slightly upward and appears visually centred in the complete screen layout.
+- [x] View and edit modes share consistent board geometry without jumping when mode changes.
+- [x] Tap-to-focus, long-hold radial editing, and immediate Detail pan arbitration remain unchanged.
+- [x] Deterministic viewport and UI regression bundles compile.
+- [ ] Focused gesture/layout checks pass on a functioning simulator.
 
 ## Scope notes
 
 - Keep the two-level discrete pinch model; continuous zoom is not requested.
+
+## Evidence
+
+- Increased fixed Detail scale from 1.65 to 1.85 and expanded bounded pan travel from 45% to 55% of the viewport dimensions.
+- Added a deterministic Overview display offset of 3.5% upward while Detail uses its stored bounded pan offset.
+- Rebuilt `BoardScreen` as a full-area Board ZStack with fixed controls overlaid above it; edit/view mode no longer changes Board geometry.
+- Extended viewport tests for the new scale, bounds, Overview bias, and Detail display offset.
+- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.

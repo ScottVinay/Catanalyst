@@ -10,7 +10,16 @@ nonisolated struct BoardViewport: Equatable {
     private(set) var offset: CGSize = .zero
 
     var scale: CGFloat {
-        zoom == .detail ? 1.65 : 1
+        zoom == .detail ? 1.85 : 1
+    }
+
+    func displayOffset(in containerSize: CGSize) -> CGSize {
+        switch zoom {
+        case .overview:
+            CGSize(width: 0, height: -(containerSize.height * 0.035))
+        case .detail:
+            offset
+        }
     }
 
     mutating func finishMagnification(_ magnification: CGFloat) {
@@ -42,8 +51,8 @@ nonisolated struct BoardViewport: Equatable {
     }
 
     private func clamped(_ proposedOffset: CGSize, in containerSize: CGSize) -> CGSize {
-        let horizontalLimit = containerSize.width * 0.45
-        let verticalLimit = containerSize.height * 0.45
+        let horizontalLimit = containerSize.width * 0.55
+        let verticalLimit = containerSize.height * 0.55
         return CGSize(
             width: min(max(proposedOffset.width, -horizontalLimit), horizontalLimit),
             height: min(max(proposedOffset.height, -verticalLimit), verticalLimit)

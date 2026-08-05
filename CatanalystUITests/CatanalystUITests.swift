@@ -31,6 +31,40 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertTrue(standardBoard.waitForExistence(timeout: 3))
         standardBoard.tap()
 
+        XCTAssertLessThan(app.buttons["editBoardButton"].frame.midX, app.buttons["handButton"].frame.midX)
+        XCTAssertLessThan(app.buttons["handButton"].frame.midX, app.buttons["plansButton"].frame.midX)
+        app.buttons["handButton"].tap()
+        XCTAssertTrue(app.otherElements["handSheet"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.navigationBars["Cards in hand"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["emptyHandCards"].exists)
+        app.buttons["handAddCard-brick"].tap()
+        app.buttons["handAddCard-brick"].tap()
+        let redBrickStack = app.descendants(matching: .any)["handSelectedCard-brick"]
+        XCTAssertEqual(redBrickStack.label, "2 Brick cards")
+        redBrickStack.tap()
+        XCTAssertEqual(redBrickStack.label, "1 Brick cards")
+
+        app.buttons["selectPlayer-blue"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["emptyHandCards"].exists)
+        app.buttons["handAddCard-ore"].tap()
+        XCTAssertEqual(
+            app.descendants(matching: .any)["handSelectedCard-ore"].label,
+            "1 Ore cards"
+        )
+        app.buttons["selectPlayer-red"].tap()
+        XCTAssertEqual(redBrickStack.label, "1 Brick cards")
+        app.buttons["closeHandButton"].tap()
+        XCTAssertFalse(app.otherElements["handSheet"].exists)
+
+        app.buttons["handButton"].tap()
+        XCTAssertEqual(
+            app.descendants(matching: .any)["handSelectedCard-brick"].label,
+            "1 Brick cards"
+        )
+        app.buttons["clearHandButton"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["emptyHandCards"].exists)
+        app.buttons["closeHandButton"].tap()
+
         let editButton = app.buttons["editBoardButton"]
         XCTAssertTrue(editButton.waitForExistence(timeout: 3))
         editButton.tap()
@@ -250,9 +284,42 @@ final class CatanalystUITests: XCTestCase {
         app.buttons["editCustomPlanButton"].tap()
         XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
         XCTAssertFalse(app.otherElements["planDetail"].exists)
+        let savedBrickStack = app.descendants(matching: .any)["selectedCard-brick"]
+        XCTAssertEqual(savedBrickStack.label, "1 Brick cards")
+        savedBrickStack.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["emptySelectedCards"].exists)
         app.buttons["cancelPlanButton"].tap()
         XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 2))
         XCTAssertFalse(app.otherElements["planDetail"].exists)
+
+        plan.tap()
+        app.buttons["editCustomPlanButton"].tap()
+        XCTAssertEqual(
+            app.descendants(matching: .any)["selectedCard-brick"].label,
+            "1 Brick cards"
+        )
+        app.buttons["cancelPlanButton"].tap()
+
+        app.buttons["newPlanButton"].tap()
+        app.buttons["Cards"].tap()
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        app.buttons["cancelPlanButton"].tap()
+
+        app.buttons["newPlanButton"].tap()
+        app.buttons["Constructions"].tap()
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Con plan 1")
+        app.buttons["cancelPlanButton"].tap()
+
+        app.buttons["newPlanButton"].tap()
+        app.buttons["Cards"].tap()
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        app.buttons["cancelPlanButton"].tap()
+
+        app.buttons["selectPlayer-blue"].tap()
+        app.buttons["newPlanButton"].tap()
+        app.buttons["Cards"].tap()
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        app.buttons["cancelPlanButton"].tap()
     }
 
     @MainActor
@@ -293,6 +360,39 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any)["constructionStep-0"].exists)
         XCTAssertFalse(app.buttons["clearConstructionPlanButton"].isEnabled)
         XCTAssertTrue(app.buttons["savePlanButton"].isEnabled)
+    }
+
+    @MainActor
+    func testInvalidPlacementFeedbackAppearsLowAndDismisses() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["standardBoardButton"].tap()
+        app.buttons["plansButton"].tap()
+        app.buttons["customPlansTab"].tap()
+        app.buttons["newPlanButton"].tap()
+        app.buttons["Constructions"].tap()
+        app.buttons["addConstruction-road"].tap()
+
+        let board = app.otherElements["boardEditor"]
+        XCTAssertTrue(board.waitForExistence(timeout: 2))
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'plannedRoadTarget-'")
+        ).firstMatch.tap()
+
+        let message = app.staticTexts["placementErrorMessage"]
+        XCTAssertTrue(message.waitForExistence(timeout: 1))
+        XCTAssertGreaterThan(message.frame.midY, board.frame.midY)
+        XCTAssertTrue(message.waitForNonExistence(timeout: 2))
+        XCTAssertTrue(app.otherElements["constructionPlacement"].exists)
+
+        app.buttons["cancelConstructionPlacementButton"].tap()
+        app.buttons["addConstruction-city"].tap()
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'plannedBuildingTarget-'")
+        ).firstMatch.tap()
+        XCTAssertTrue(message.waitForExistence(timeout: 1))
+        XCTAssertEqual(message.label, "City must upgrade a settlement of the same colour.")
+        XCTAssertFalse(app.descendants(matching: .any)["constructionStep-0"].exists)
     }
 
     @MainActor

@@ -67,4 +67,21 @@ struct DefaultPlanTests {
         #expect(constructionPlaceholder.name == construction.name)
         #expect(constructionPlaceholder.systemImage == construction.icon)
     }
+
+    @Test("Placeholder inputs respond to the selected player's current hand")
+    func currentHandChangesPlaceholders() {
+        let empty = ResourceHand()
+        let stocked = ResourceHand(counts: [.ore: 3, .hay: 2])
+        let target = CustomPlan(
+            name: "City Hand",
+            kind: .cards,
+            player: .red,
+            cardCounts: [.ore: 3, .hay: 2]
+        )
+
+        #expect(DefaultPlan.placeholders(for: .red, hand: empty) !=
+            DefaultPlan.placeholders(for: .red, hand: stocked))
+        #expect(DefaultPlan.placeholder(for: target, player: .red, hand: stocked).mean <
+            DefaultPlan.placeholder(for: target, player: .red, hand: empty).mean)
+    }
 }

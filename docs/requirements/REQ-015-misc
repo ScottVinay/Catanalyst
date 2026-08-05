@@ -1,0 +1,9 @@
+- While the left and header bars remain fixed, dragging down on the values of the plans should show white space above them between them and the header bar, before snapping back, similar to when we drag up at the bottom.
+
+- In SCR-004-edit / Construction, we should be able to scroll if the rows go beyond the bottom of the screen.
+
+- In SCR-002-plans / Custom, add a new circle to the player colour selector, which is a circle with slices for the different player colours. Selecting this shows the custom plans for all players. Next to each plan name is a small coloured dot indicating which player it belongs to.
+
+- Both the graph and question mark still both enlarge when either is tapped. Please rectify this.
+
+- SCR-002-plans / Editing has been changed to discuss subrows of custom plans. This is a major change so read it carefully.

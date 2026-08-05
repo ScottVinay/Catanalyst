@@ -15,6 +15,20 @@ nonisolated enum Terrain: String, CaseIterable, Codable, Identifiable, Sendable 
     var displayName: String {
         rawValue.capitalized
     }
+
+    var systemImage: String {
+        switch self {
+        case .brick: "rectangle.split.3x1.fill"
+        case .ore: "mountain.2.fill"
+        case .wheat: "leaf.fill"
+        case .lumber: "tree.fill"
+        case .wool: "cloud.fill"
+        case .desert: "sun.max.fill"
+        case .ocean: "water.waves"
+        }
+    }
+
+    var symbolCopies: Int { 6 }
 }
 
 nonisolated enum NumberToken: Int, CaseIterable, Codable, Identifiable, Sendable {
@@ -100,6 +114,7 @@ nonisolated enum Building: String, Codable, Sendable {
 nonisolated enum PlacementError: Error, Equatable, Sendable {
     case roadNeedsConnection
     case buildingTooClose
+    case cityNeedsSettlement
 
     var message: String {
         switch self {
@@ -107,6 +122,8 @@ nonisolated enum PlacementError: Error, Equatable, Sendable {
             "Road must be adjacent to a road, settlement or city of the same colour."
         case .buildingTooClose:
             "Cannot place adjacent to a settlement or a city."
+        case .cityNeedsSettlement:
+            "City must upgrade a settlement of the same colour."
         }
     }
 }
@@ -117,25 +134,28 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
     var buildings: [BoardVertex: Building]
     var roadOwners: [BoardEdge: PlayerColor]
     var buildingOwners: [BoardVertex: PlayerColor]
+    var hands: [PlayerColor: ResourceHand]
 
     init(
         tiles: [HexTile],
         roads: Set<BoardEdge>,
         buildings: [BoardVertex: Building],
         roadOwners: [BoardEdge: PlayerColor] = [:],
-        buildingOwners: [BoardVertex: PlayerColor] = [:]
+        buildingOwners: [BoardVertex: PlayerColor] = [:],
+        hands: [PlayerColor: ResourceHand] = [:]
     ) {
         self.tiles = tiles
         self.roads = roads
         self.buildings = buildings
         self.roadOwners = roadOwners
         self.buildingOwners = buildingOwners
+        self.hands = hands
     }
 }
 
 extension BoardSnapshot: Codable {
     private enum CodingKeys: String, CodingKey {
-        case tiles, roads, buildings, roadOwners, buildingOwners
+        case tiles, roads, buildings, roadOwners, buildingOwners, hands
     }
 
     init(from decoder: Decoder) throws {
@@ -151,6 +171,10 @@ extension BoardSnapshot: Codable {
             [BoardVertex: PlayerColor].self,
             forKey: .buildingOwners
         ) ?? Dictionary(uniqueKeysWithValues: buildings.keys.map { ($0, .red) })
+        hands = try container.decodeIfPresent(
+            [PlayerColor: ResourceHand].self,
+            forKey: .hands
+        ) ?? [:]
     }
 
     func encode(to encoder: Encoder) throws {
@@ -160,6 +184,7 @@ extension BoardSnapshot: Codable {
         try container.encode(buildings, forKey: .buildings)
         try container.encode(roadOwners, forKey: .roadOwners)
         try container.encode(buildingOwners, forKey: .buildingOwners)
+        try container.encode(hands, forKey: .hands)
     }
 }
 
@@ -174,6 +199,26 @@ final class BoardState {
     var tiles: [HexTile] { snapshot.tiles }
     var roads: Set<BoardEdge> { snapshot.roads }
     var buildings: [BoardVertex: Building] { snapshot.buildings }
+
+    func hand(for player: PlayerColor) -> ResourceHand {
+        snapshot.hands[player] ?? ResourceHand()
+    }
+
+    func addCard(_ resource: ResourceCard, to player: PlayerColor) {
+        var hand = hand(for: player)
+        hand.add(resource)
+        snapshot.hands[player] = hand
+    }
+
+    func removeCard(_ resource: ResourceCard, from player: PlayerColor) {
+        var hand = hand(for: player)
+        hand.remove(resource)
+        snapshot.hands[player] = hand
+    }
+
+    func clearHand(for player: PlayerColor) {
+        snapshot.hands[player] = ResourceHand()
+    }
 
     func owner(of edge: BoardEdge) -> PlayerColor {
         snapshot.roadOwners[edge] ?? .red
@@ -257,13 +302,16 @@ final class BoardState {
         for player: PlayerColor
     ) -> PlacementError? {
         if let existing = snapshot.buildings[vertex] {
-            guard owner(of: vertex) == player else { return .buildingTooClose }
             if existing == .settlement, building == .city {
+                guard owner(of: vertex) == player else { return .cityNeedsSettlement }
                 snapshot.buildings[vertex] = .city
                 return nil
             }
+            if building == .city { return .cityNeedsSettlement }
             return .buildingTooClose
         }
+
+        if building == .city { return .cityNeedsSettlement }
 
         let hasAdjacentBuilding = BoardGeometry.adjacentVertices(to: vertex).contains {
             snapshot.buildings[$0] != nil
@@ -295,6 +343,7 @@ extension BoardSnapshot {
         roads: [],
         buildings: [:],
         roadOwners: [:],
-        buildingOwners: [:]
+        buildingOwners: [:],
+        hands: [:]
     )
 }

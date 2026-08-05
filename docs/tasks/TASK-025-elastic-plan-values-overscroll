@@ -1,0 +1,26 @@
+status: not-started
+started_datetime:
+completed_datetime:
+priority: P2
+requirement: REQ-008, REQ-015
+design: SCR-002-plans
+
+# Elastic Plan values overscroll
+
+Allow the scrolling values pane to reveal temporary white space beneath the fixed header when pulled down, then spring back into row alignment.
+
+## Acceptance criteria
+
+- [ ] Pulling downward on plan values moves the value rows below their normal top position and reveals white space between them and the fixed header.
+- [ ] Releasing the pull springs values smoothly back to their aligned resting position.
+- [ ] The fixed plan-name pane, fixed column headers, and meta-header do not move during the pull.
+- [ ] The effect works in Default and Custom tables, including expanded custom rows.
+- [ ] Normal vertical scrolling and bottom-edge upward overscroll remain unchanged.
+- [ ] Horizontal summary/probability navigation remains synchronized and unaffected.
+- [ ] Offset normalization cannot leave fixed and value rows permanently misaligned.
+- [ ] Automated scroll-state coverage compiles.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- This supersedes the earlier approach that counteracted all downward overscroll to keep values visually locked.

@@ -4,6 +4,11 @@ import Testing
 
 @Suite("Custom plans")
 struct CustomPlanTests {
+    @Test("Placed construction feedback uses the shortened delay")
+    func constructionPlacementDelay() {
+        #expect(ConstructionPlacementTiming.confirmationMilliseconds == 650)
+    }
+
     @Test("Plans retain their kind, player, and selected cards")
     func planContents() {
         let plan = CustomPlan(
@@ -119,6 +124,21 @@ struct CustomPlanTests {
         #expect(board.buildings.isEmpty)
     }
 
+    @Test("A later planned city upgrades an earlier planned settlement")
+    func projectsCityUpgrade() throws {
+        let board = BoardState()
+        let vertex = try #require(BoardGeometry.standardVertices.first)
+        let settlement = PlannedConstructionStep(kind: .settlement, location: .vertex(vertex))
+        let city = PlannedConstructionStep(kind: .city, location: .vertex(vertex))
+
+        let projected = board.projected(adding: [settlement, city], for: .red)
+
+        #expect(projected.buildings[vertex] == .city)
+        #expect(projected.owner(of: vertex) == .red)
+        #expect(projected.buildings.count == 1)
+        #expect(board.buildings.isEmpty)
+    }
+
     @Test("Clear resets only the active plan content")
     func clearContents() throws {
         let edge = try #require(BoardGeometry.standardEdges.first)
@@ -161,5 +181,22 @@ struct CustomPlanTests {
         plan.removeLastConstructionStep()
 
         #expect(plan.constructionSteps == [first])
+    }
+
+    @Test("Card mutations add and remove one copy without affecting construction plans")
+    func cardMutations() {
+        var cards = CustomPlan(name: "Cards", kind: .cards, player: .red)
+        var construction = CustomPlan(name: "Build", kind: .constructions, player: .red)
+
+        cards.addCard(.wood)
+        cards.addCard(.wood)
+        cards.removeCard(.wood)
+        construction.addCard(.ore)
+        construction.removeCard(.ore)
+
+        #expect(cards.cardCounts == [.wood: 1])
+        #expect(construction.cardCounts.isEmpty)
+        cards.removeCard(.wood)
+        #expect(cards.cardCounts.isEmpty)
     }
 }

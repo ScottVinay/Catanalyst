@@ -186,8 +186,34 @@ Selecting this row shall initiate creation of a new custom plan and go directly 
 
 ## Editing
 
-Holding on a row in custom brings up `SCR-005-view-plan.md`.
+Holding on a row in custom brings up `SCR-004-edit.md` directly.
 Holding on a row in default briefly shows a message saying "Default plans cannot be edited.".
+
+Tapping on a row in custom expands the row, giving two sets of subrows This means we create one or more sub rows beneath the plan's row.
+
+Tapping the main row again closes it.
+
+The sub rows should move smoothly out from the main row. Any other plan rows beneath this should move down smoothly too.
+
+Construction-step subrows, when present, shall appear first in their plan order. Card-stat subrows shall follow them.
+
+### Subrows: Intermediary steps in the plan
+
+Each sub-row corresponds to an action that is part of that plan, either building a road, settlement, or city. These are labelled with icons only. Use the same columns, we see the probabilities and number of turns required to reach these intermediatry levels in the plan.
+
+There is a label on the left, clearly showing all of these rows, that says "Steps"
+
+### Subrows: Cards
+
+Here, there are subrows, one for each of the card types. Again these are just labelled by the icons. These again use the same columns. The label on the left indicating all of these says "Card stats after plan completion".
+
+Every custom plan shall show the five card-stat rows when expanded. Construction plans additionally show their ordered intermediary-step rows before the card-stat section.
+
+## All players
+
+The Custom tab player selector shall include an additional sliced multicolour circle representing all players. Selecting it displays custom plans belonging to every player. Each custom plan row shows a small dot in its owner's colour beside the plan name.
+
+New Plan remains available while All players is selected. The new plan editor does not offer the All option: it starts with Red selected and allows any individual player colour to be chosen using the normal player selector.
 
 
 ---

@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-04T23:37:00+01:00
+completed_datetime: 2026-08-04T23:39:00+01:00
 priority: P1
 requirement: REQ-012, REQ-014
 design: SCR-001-board, SCR-004-edit
@@ -11,14 +11,21 @@ Move invalid-placement messages lower on the screen and shorten their display pe
 
 ## Acceptance criteria
 
-- [ ] Road and building validation messages appear towards the bottom of the Board without covering bottom controls.
-- [ ] Each message remains visible for 1.5 seconds, then dismisses automatically.
-- [ ] A later invalid attempt replaces and restarts the active message deterministically.
-- [ ] Board editing and construction-plan placement use the same presentation behavior.
-- [ ] Existing exact validation copy remains unchanged.
-- [ ] Timing logic is cancellable and cannot dismiss a newer message early.
+- [x] Road and building validation messages appear towards the bottom of the Board without covering bottom controls.
+- [x] Each message remains visible for 1.5 seconds, then dismisses automatically.
+- [x] A later invalid attempt replaces and restarts the active message deterministically.
+- [x] Board editing and construction-plan placement use the same presentation behavior.
+- [x] Existing exact validation copy remains unchanged.
+- [x] Timing logic is cancellable and cannot dismiss a newer message early.
 - [ ] Focused UI checks pass on a functioning simulator.
 
 ## Verification
 
 - Add deterministic state/timing coverage where possible and UI coverage for placement and automatic dismissal.
+
+## Evidence
+
+- Moved the shared Board placement message from the centre to 96 points above the viewport bottom so it remains low without overlapping the overlaid bottom bar.
+- Shortened the cancellable dismissal task to 1,500 ms; every new error cancels and replaces the prior task before scheduling its own dismissal.
+- Added UI regression coverage for lower-half positioning, automatic dismissal within two seconds, and remaining on the invalid placement screen.
+- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.

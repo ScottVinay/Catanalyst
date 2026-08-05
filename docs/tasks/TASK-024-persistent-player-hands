@@ -1,0 +1,59 @@
+status: done
+started_datetime: 2026-08-04T23:51:00+01:00
+completed_datetime: 2026-08-04T23:59:00+01:00
+priority: P0
+requirement: REQ-003, REQ-005
+design: SCR-004-edit, SCR-006-hand, ITEM-001-player-selector, ITEM-002-cards
+depends_on: TASK-023
+
+# Persistent per-player hands
+
+Add the Cards in Hand sheet, persistent per-player resource counts, and shared one-card stack removal behavior.
+
+## Acceptance criteria
+
+- [x] The middle Hand action from TASK-023 opens a large bottom sheet titled `Cards in hand`.
+- [x] The sheet has an obvious Close action and no Save or Cancel actions.
+- [x] The current shared player selector appears at the top and switches immediately between six independent hands.
+- [x] An unassigned player hand starts empty.
+- [x] Brick, Wood, Hay, Sheep, and Ore use the shared card visuals and appear in that order.
+- [x] Tapping a resource adds exactly one card to the selected player's hand and autosaves immediately.
+- [x] Duplicate resources render as the existing staggered, white-outlined stack.
+- [x] Tapping a selected stack removes exactly one card; removing the last copy removes the stack.
+- [x] Clear removes every card only from the selected player's hand and autosaves immediately.
+- [x] Closing and reopening the sheet preserves every player's hand.
+- [x] Per-player hands are value-based domain state independent of SwiftUI and serialize with the Board/game state.
+- [x] Decoding older Board data without hands produces six empty hands without losing tiles, pieces, or ownership.
+- [x] Hand mutations do not alter another player's hand, the Board layout, or custom-plan card targets.
+- [x] Plan Browser inputs refresh from the latest hand for the selected player; switching players uses that player's hand and does not retain stale values.
+- [x] Cards-plan selected stacks use the same tap-to-remove-one interaction, but remain draft-only until Save and revert on Cancel.
+- [x] Shared add/remove/clear behavior is factored so the Hand and Cards-plan editors cannot diverge unnecessarily.
+- [x] Domain tests cover add, remove, final removal, Clear, player isolation, serialization, and legacy decoding.
+- [x] UI regression coverage compiles for sheet entry, autosave/reopen, player switching, and plan-draft removal.
+- [ ] Focused UI checks pass on a functioning simulator.
+
+## Scope notes
+
+- Resource cards only are in scope; development cards and hidden-information policy are not specified.
+- Persist hands at the same boundary as the current Board/game state. Designing a separate account or cloud store is out of scope.
+- Plan simulation mathematics remain outside this task; the task must expose and propagate current-hand inputs so the existing or future statistics provider can recompute correctly.
+
+## Verification
+
+- Prefer a serializable `[PlayerColor: ResourceHand]`-style value model with mutation APIs that discard zero/negative counts.
+- Record the exact build/test commands, legacy fixture coverage, and remaining visual checks before review.
+
+## Evidence
+
+- Added serializable `ResourceHand` value state and shared sanitized add/remove helpers used by both hands and Cards-plan drafts.
+- Extended backward-compatible `BoardSnapshot` encoding with isolated per-player hands and immediate observable Board mutation APIs.
+- Implemented the complete autosaving Hand sheet with shared player selector, add stacks, tap-to-remove-one, Clear, Close, and no Save/Cancel state.
+- Extracted shared staggered `ResourceCardStackView` presentation and added Cards-plan draft removal with Cancel restoration coverage.
+- Fed the selected player's current hand into Default and Custom placeholder statistics, including resource-specific remaining-card targets.
+- Added domain coverage for hand mutations, isolation, round trips, legacy JSON, shared plan-card mutations, and hand-aware placeholder inputs.
+- Added UI coverage for bottom-sheet persistence, player switching, one-card removal, Clear, and plan-draft cancellation.
+- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-tasks018-024-derived CODE_SIGNING_ALLOWED=NO` succeeded for the app and both test bundles.
+
+## Remaining manual verification
+
+- On a functioning simulator/device, verify compact-screen card layout, autosave/reopen, player switching, Plan Browser refresh, and Cards-plan Cancel restoration.
