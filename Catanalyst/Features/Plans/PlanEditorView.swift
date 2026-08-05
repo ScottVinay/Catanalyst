@@ -7,44 +7,64 @@ struct PlanEditorView: View {
     @State private var isShowingHelp = false
     @State private var placementKind: PlannedConstructionKind?
     @State private var isPreviewingConstructionPlan = false
+    @State private var generatedDefaultName: String?
 
     let board: BoardState
+    let defaultNameProvider: ((CustomPlanKind, PlayerColor) -> String)?
     let onSave: (CustomPlan) -> Void
 
     init(
         board: BoardState,
         plan: CustomPlan,
         selectedPlayer: Binding<PlayerColor>,
+        generatedDefaultName: String? = nil,
+        defaultNameProvider: ((CustomPlanKind, PlayerColor) -> String)? = nil,
         onSave: @escaping (CustomPlan) -> Void
     ) {
         self.board = board
         _draft = State(initialValue: plan)
         _selectedPlayer = selectedPlayer
+        _generatedDefaultName = State(initialValue: generatedDefaultName)
+        self.defaultNameProvider = defaultNameProvider
         self.onSave = onSave
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    Color.clear.frame(height: 42)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        Color.clear.frame(height: 42)
 
-                    TextField("Plan name", text: $draft.name)
-                        .textFieldStyle(.roundedBorder)
-                        .accessibilityIdentifier("planNameField")
+                        TextField("Plan name", text: $draft.name)
+                            .textFieldStyle(.roundedBorder)
+                            .accessibilityIdentifier("planNameField")
 
-                    Text(helperText)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        Text(helperText)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
 
-                    if draft.kind == .cards {
-                        selectedCards
-                        cardPicker
-                    } else {
-                        constructionSteps
+                        if draft.kind == .cards {
+                            selectedCards
+                            cardPicker
+                        } else {
+                            constructionSteps
+                        }
+
+                        Color.clear
+                            .frame(height: 1)
+                            .id("planEditorBottom")
+                    }
+                    .padding()
+                    .padding(.bottom, 12)
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: draft.constructionSteps.count) { oldCount, newCount in
+                    guard draft.kind == .constructions, newCount > oldCount else { return }
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        proxy.scrollTo("planEditorBottom", anchor: .bottom)
                     }
                 }
-                .padding()
             }
             .overlay(alignment: .topLeading) {
                 HStack(spacing: 8) {
@@ -119,6 +139,14 @@ struct PlanEditorView: View {
                     player: selectedPlayer,
                     steps: draft.constructionSteps
                 )
+            }
+            .onChange(of: selectedPlayer) { _, player in
+                guard let generatedDefaultName,
+                      draft.name == generatedDefaultName,
+                      let defaultNameProvider else { return }
+                let replacement = defaultNameProvider(draft.kind, player)
+                draft.name = replacement
+                self.generatedDefaultName = replacement
             }
         }
         .accessibilityIdentifier("planEditor")

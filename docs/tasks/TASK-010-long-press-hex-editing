@@ -1,6 +1,6 @@
-status: in-progress
+status: done
 started_datetime: 2026-08-04T19:35:00+01:00
-completed_datetime:
+completed_datetime: 2026-08-05T02:29:00+01:00
 priority: P1
 requirement: REQ-002, REQ-010, REQ-011
 design: SCR-001-board

@@ -1,6 +1,6 @@
-status: in-progress
+status: done
 started_datetime: 2026-08-04T21:23:00+01:00
-completed_datetime:
+completed_datetime: 2026-08-05T02:29:00+01:00
 priority: P2
 design: SCR-001-board, SCR-002-plans, SCR-004-edit
 

@@ -26,6 +26,7 @@ Render terrain-specific symbols on every applied terrain hex while retaining the
 
 - Added distinct domain symbol mappings for all seven terrain cases and a fixed six-copy count.
 - Hex rendering uses six normalized positions clipped to the hex, with each symbol at 50% opacity beneath number tokens and all Board-piece/interaction layers.
+- Inset the normalized positions further from the hex boundary so faded symbols retain visible edge breathing room.
 - Terrain radial choices reuse the same symbol mapping over their matching terrain colour.
 - Removed the separate single Ocean icon so every terrain follows one deterministic rendering path.
 - Added domain regression coverage for distinct non-empty mappings and the six-copy contract.

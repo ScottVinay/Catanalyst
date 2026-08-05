@@ -99,6 +99,14 @@ nonisolated struct CustomPlan: Identifiable, Codable, Equatable, Sendable {
         plans.filter { $0.player == player }
     }
 
+    static func visible(
+        to player: PlayerColor,
+        includesAllPlayers: Bool,
+        in plans: [CustomPlan]
+    ) -> [CustomPlan] {
+        includesAllPlayers ? plans : belonging(to: player, in: plans)
+    }
+
     static func nextDefaultName(
         for kind: CustomPlanKind,
         player: PlayerColor,

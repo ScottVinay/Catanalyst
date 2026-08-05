@@ -118,11 +118,16 @@ final class CatanalystUITests: XCTestCase {
 
         XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["planBrowserHelpButton"].exists)
-        app.buttons["planGraphsButton"].tap()
+        let graphButton = app.buttons["planGraphsButton"]
+        let helpButton = app.buttons["planBrowserHelpButton"]
+        XCTAssertFalse(graphButton.frame.intersects(helpButton.frame))
+        graphButton.tap()
         XCTAssertFalse(app.alerts["Plan Browser"].exists)
-        app.buttons["planBrowserHelpButton"].tap()
+        helpButton.tap()
         XCTAssertTrue(app.alerts["Plan Browser"].waitForExistence(timeout: 1))
         app.alerts["Plan Browser"].buttons["OK"].tap()
+        graphButton.tap()
+        XCTAssertFalse(app.alerts["Plan Browser"].exists)
         XCTAssertTrue(app.otherElements["planBrowser"].exists)
         XCTAssertTrue(app.otherElements["defaultPlanTable"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)
@@ -273,27 +278,51 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertTrue(customValues.exists)
         XCTAssertEqual(plan.frame.midY, customValues.frame.midY, accuracy: 1.5)
 
+        plan.tap()
+        let cardRows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'customPlanCard-' AND NOT identifier CONTAINS 'Values' AND NOT identifier CONTAINS 'Probabilities'")
+        )
+        XCTAssertTrue(app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'customPlanCardStats-'")
+        ).firstMatch.waitForExistence(timeout: 2))
+        XCTAssertEqual(cardRows.count, 5)
+        let firstCard = cardRows.element(boundBy: 0)
+        let firstCardValues = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'customPlanCard-' AND identifier ENDSWITH 'Values'")
+        ).firstMatch
+        XCTAssertEqual(firstCard.frame.midY, firstCardValues.frame.midY, accuracy: 1.5)
+        plan.tap()
+        XCTAssertTrue(app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'customPlanCardStats-'")
+        ).firstMatch.waitForNonExistence(timeout: 2))
+
         app.buttons["selectPlayer-blue"].tap()
         XCTAssertFalse(plan.exists)
         XCTAssertTrue(app.buttons["newPlanButton"].exists)
 
+        app.buttons["selectAllPlayers"].tap()
+        XCTAssertTrue(plan.waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any)["planOwner-red"].exists)
+        app.buttons["newPlanButton"].tap()
+        app.buttons["Cards"].tap()
+        XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Red"))
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        app.buttons["selectPlayer-blue"].tap()
+        XCTAssertEqual(app.textFields["planNameField"].value as? String, "Card plan 1")
+        app.buttons["cancelPlanButton"].tap()
+
         app.buttons["selectPlayer-red"].tap()
         XCTAssertTrue(plan.waitForExistence(timeout: 2))
-        plan.tap()
-        XCTAssertTrue(app.otherElements["planDetail"].waitForExistence(timeout: 2))
-        app.buttons["editCustomPlanButton"].tap()
+        plan.press(forDuration: 0.7)
         XCTAssertTrue(app.otherElements["planEditor"].waitForExistence(timeout: 2))
-        XCTAssertFalse(app.otherElements["planDetail"].exists)
         let savedBrickStack = app.descendants(matching: .any)["selectedCard-brick"]
         XCTAssertEqual(savedBrickStack.label, "1 Brick cards")
         savedBrickStack.tap()
         XCTAssertTrue(app.descendants(matching: .any)["emptySelectedCards"].exists)
         app.buttons["cancelPlanButton"].tap()
         XCTAssertTrue(app.otherElements["planBrowser"].waitForExistence(timeout: 2))
-        XCTAssertFalse(app.otherElements["planDetail"].exists)
 
-        plan.tap()
-        app.buttons["editCustomPlanButton"].tap()
+        plan.press(forDuration: 0.7)
         XCTAssertEqual(
             app.descendants(matching: .any)["selectedCard-brick"].label,
             "1 Brick cards"

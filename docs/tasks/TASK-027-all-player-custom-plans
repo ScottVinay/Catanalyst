@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T01:16:00+01:00
+completed_datetime: 2026-08-05T01:37:00+01:00
 priority: P1
 requirement: REQ-009, REQ-015
 design: SCR-002-plans, SCR-004-edit, ITEM-001-player-selector
@@ -11,21 +11,29 @@ Add an All option to the Custom Plan selector and identify each visible plan by 
 
 ## Acceptance criteria
 
-- [ ] The Custom tab selector adds a circular All option divided into slices representing the six player colours.
-- [ ] Selecting All displays saved custom plans belonging to every player.
-- [ ] Each custom plan row shows a small ownership dot matching its `PlayerColor` beside the plan name.
-- [ ] Selecting an individual colour continues to show only that player's plans and statistics.
-- [ ] The Default tab retains individual-player behavior and does not offer All unless separately specified.
-- [ ] New Plan remains available in All mode.
-- [ ] Creating from All opens SCR-004 with Red selected by default.
-- [ ] The editor offers only the six individual colours; changing colour before Save assigns the plan to that player.
-- [ ] If the untouched generated default name changes owner, it is recomputed from that owner's same-kind plans; a user-edited name is preserved.
-- [ ] After Save, the All list shows the plan with the correct ownership dot and individual filtering shows it only for its owner.
-- [ ] Switching between All and individual colours preserves custom plans and table scroll integrity.
-- [ ] Domain/filtering and UI regression coverage compile for all six players.
+- [x] The Custom tab selector adds a circular All option divided into slices representing the six player colours.
+- [x] Selecting All displays saved custom plans belonging to every player.
+- [x] Each custom plan row shows a small ownership dot matching its `PlayerColor` beside the plan name.
+- [x] Selecting an individual colour continues to show only that player's plans and statistics.
+- [x] The Default tab retains individual-player behavior and does not offer All unless separately specified.
+- [x] New Plan remains available in All mode.
+- [x] Creating from All opens SCR-004 with Red selected by default.
+- [x] The editor offers only the six individual colours; changing colour before Save assigns the plan to that player.
+- [x] If the untouched generated default name changes owner, it is recomputed from that owner's same-kind plans; a user-edited name is preserved.
+- [x] After Save, the All list shows the plan with the correct ownership dot and individual filtering shows it only for its owner.
+- [x] Switching between All and individual colours preserves custom plans and table scroll integrity.
+- [x] Domain/filtering and UI regression coverage compile for all six players.
 - [ ] Focused UI checks pass on a functioning simulator.
 
 ## Scope notes
 
 - The All choice is Plan Browser presentation state, not a seventh `PlayerColor`, and must not be serialized as an owner.
 - Default naming is calculated from Red when creation begins in All mode and follows the per-owner rules in TASK-022 if the owner changes before the generated name is edited.
+
+## Evidence
+
+- Added a six-slice All control that is presentation-only and leaves `PlayerColor` unchanged.
+- Custom rows use owner-aware statistics, display colour ownership dots, and filter through a domain helper covered for all six players.
+- New plans created from All start as Red; untouched generated names follow owner changes while edited names remain intact.
+- Extended the custom-plan UI regression flow to cover All visibility, ownership, Red-default creation, and editor colour changes.
+- `xcodebuild build-for-testing` compiled the app, unit tests, and UI tests using `/private/tmp/Catanalyst-tasks025-030-derived`; live simulator execution remains for manual verification.

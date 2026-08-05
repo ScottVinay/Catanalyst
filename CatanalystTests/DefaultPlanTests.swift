@@ -1,8 +1,69 @@
+import CoreGraphics
 import Testing
 @testable import Catanalyst
 
 @Suite("Default plan placeholders")
 struct DefaultPlanTests {
+    @Test("Plan table synchronization ignores elastic negative offsets")
+    func elasticScrollNormalization() {
+        #expect(
+            PlanTableScrollState.synchronizedOffset(from: CGPoint(x: -14, y: -36))
+                == .zero
+        )
+        #expect(
+            PlanTableScrollState.synchronizedOffset(from: CGPoint(x: 18, y: 92))
+                == CGPoint(x: 18, y: 92)
+        )
+        #expect(
+            PlanTableScrollState.synchronizedOffset(from: CGPoint(x: 18, y: -22))
+                == CGPoint(x: 18, y: 0)
+        )
+    }
+
+    @Test("Construction step placeholders preserve exact order and are deterministic")
+    func constructionStepPlaceholders() throws {
+        let edges = Array(BoardGeometry.standardEdges.prefix(3))
+        let plan = CustomPlan(
+            name: "Opening",
+            kind: .constructions,
+            player: .green,
+            constructionSteps: [
+                PlannedConstructionStep(kind: .road, location: .edge(edges[0])),
+                PlannedConstructionStep(kind: .settlement, location: .vertex(edges[1].start)),
+                PlannedConstructionStep(kind: .city, location: .vertex(edges[2].start))
+            ]
+        )
+
+        let first = DefaultPlan.placeholders(forConstructionStepsIn: plan, player: .green)
+        let second = DefaultPlan.placeholders(forConstructionStepsIn: plan, player: .green)
+
+        #expect(first == second)
+        #expect(first.map(\.systemImage) == ["road.lanes", "house.fill", "building.2.fill"])
+        #expect(first.map(\.name) == ["Step 1", "Step 2", "Step 3"])
+    }
+
+    @Test("Post-completion card rows are ordered, deterministic, player-aware, and hand-aware")
+    func postCompletionCardPlaceholders() {
+        let plan = CustomPlan(
+            name: "City hand",
+            kind: .cards,
+            player: .red,
+            cardCounts: [.ore: 3, .hay: 2]
+        )
+        let empty = ResourceHand()
+        let stocked = ResourceHand(counts: [.brick: 2])
+        let red = DefaultPlan.placeholders(forCardStatsAfter: plan, player: .red, hand: empty)
+        let redAgain = DefaultPlan.placeholders(forCardStatsAfter: plan, player: .red, hand: empty)
+        let blue = DefaultPlan.placeholders(forCardStatsAfter: plan, player: .blue, hand: empty)
+        let stockedRed = DefaultPlan.placeholders(forCardStatsAfter: plan, player: .red, hand: stocked)
+
+        #expect(red == redAgain)
+        #expect(red.map(\.name) == ["Brick", "Wood", "Hay", "Sheep", "Ore"])
+        #expect(red.map(\.systemImage) == ResourceCard.allCases.map(\.systemImage))
+        #expect(red != blue)
+        #expect(stockedRed[0].mean < red[0].mean)
+    }
+
     @Test("Default plans match the fixed design order")
     func fixedPlans() {
         #expect(DefaultPlan.placeholders.map(\.name) == [

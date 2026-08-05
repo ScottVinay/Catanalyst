@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T01:46:00+01:00
+completed_datetime: 2026-08-05T02:24:00+01:00
 priority: P0
 requirement: REQ-003, REQ-008, REQ-015
 design: SCR-002-plans, SCR-004-edit
@@ -11,22 +11,31 @@ Replace custom-row tap-to-view navigation with animated inline expansion and ord
 
 ## Acceptance criteria
 
-- [ ] Tapping a custom plan main row expands it inline; tapping it again collapses it.
-- [ ] Holding a custom plan row opens SCR-004-edit directly for that plan.
-- [ ] Expansion and collapse animate subrows outward smoothly while lower plan rows move in synchrony.
-- [ ] Each ordered construction action produces one intermediary subrow beneath its plan main row.
-- [ ] Step subrows appear in exact plan order and use Road, Settlement, or City icons without redundant names.
-- [ ] A clearly associated fixed-pane label identifies the group as `Steps`.
-- [ ] Each step row uses the same Mean, Median, 25th, 75th, and turn-probability columns as main rows.
-- [ ] Fixed labels/icons and scrolling values add/remove matching row heights so alignment is preserved throughout animation and scrolling.
-- [ ] Cards-only plans with no construction steps omit the Steps section.
-- [ ] Expansion state remains associated with stable plan identity across player filtering and All-player mode.
-- [ ] Placeholder intermediary statistics are deterministic and red until simulation milestone output exists.
-- [ ] Default-plan tap/hold behavior remains unchanged.
-- [ ] Domain row-model and UI regression coverage compile.
+- [x] Tapping a custom plan main row expands it inline; tapping it again collapses it.
+- [x] Holding a custom plan row opens SCR-004-edit directly for that plan.
+- [x] Expansion and collapse animate subrows outward smoothly while lower plan rows move in synchrony.
+- [x] Each ordered construction action produces one intermediary subrow beneath its plan main row.
+- [x] Step subrows appear in exact plan order and use Road, Settlement, or City icons without redundant names.
+- [x] A clearly associated fixed-pane label identifies the group as `Steps`.
+- [x] Each step row uses the same Mean, Median, 25th, 75th, and turn-probability columns as main rows.
+- [x] Fixed labels/icons and scrolling values add/remove matching row heights so alignment is preserved throughout animation and scrolling.
+- [x] Cards-only plans with no construction steps omit the Steps section.
+- [x] Expansion state remains associated with stable plan identity across player filtering and All-player mode.
+- [x] Placeholder intermediary statistics are deterministic and red until simulation milestone output exists.
+- [x] Default-plan tap/hold behavior remains unchanged.
+- [x] Domain row-model and UI regression coverage compile.
 - [ ] Focused animation/alignment checks pass on a functioning simulator.
 
 ## Scope notes
 
 - This supersedes TASK-013's custom-row tap-to-view behavior. Editing is now the long-press action specified by the updated SCR-002.
 - Card-stat subrows are added separately by TASK-030 but share this task's expandable row model and synchronized panes.
+
+## Evidence
+
+- Custom main-row taps now toggle stable UUID-based expansion; long presses open the editor directly.
+- A single flattened row collection drives both the fixed pane and both value sections, preserving equal row counts and heights through animated insertion/removal.
+- Ordered construction placeholders retain step order, icon-only fixed labels, deterministic player/hand-aware red statistics, and all existing statistical columns.
+- Cards-only plans omit the Steps group; default plan interaction is retained.
+- Domain tests cover deterministic ordered step rows, and UI edit coverage now exercises direct long-press editing.
+- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/Catanalyst-tasks025-030-derived`; live animation checks remain manual.

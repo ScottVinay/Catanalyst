@@ -1,6 +1,6 @@
-status: in-progress
+status: done
 started_datetime: 2026-07-23T00:09:00+01:00
-completed_datetime:
+completed_datetime: 2026-08-05T02:29:00+01:00
 written: 2026-07-23 00:09
 priority: P1
 requirement: REQ-006
@@ -20,7 +20,7 @@ requirement: REQ-006
 
 - `BoardViewport` owns discrete zoom, pan clamping, and centring transitions.
 - SwiftUI gesture closures only translate input into viewport operations.
-- Detail scale is fixed at 1.65; magnification is used only to choose a level.
+- Detail scale is fixed at 1.85; magnification is used only to choose a level.
 
 ## Evidence
 

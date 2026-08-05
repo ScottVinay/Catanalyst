@@ -2,6 +2,12 @@ import SwiftUI
 
 struct PlayerSelector: View {
     @Binding var selection: PlayerColor
+    private let allSelection: Binding<Bool>?
+
+    init(selection: Binding<PlayerColor>, allSelection: Binding<Bool>? = nil) {
+        _selection = selection
+        self.allSelection = allSelection
+    }
 
     var body: some View {
         HStack(spacing: 7) {
@@ -10,8 +16,45 @@ struct PlayerSelector: View {
 
             ForEach(PlayerColor.allCases) { player in
                 playerButton(player) {
+                    allSelection?.wrappedValue = false
                     selection = player
                 }
+            }
+
+            if let allSelection {
+                Button {
+                    allSelection.wrappedValue = true
+                } label: {
+                    Circle()
+                        .fill(
+                            AngularGradient(
+                                gradient: Gradient(stops: PlayerColor.allCases.enumerated().flatMap { index, player in
+                                    let start = Double(index) / Double(PlayerColor.allCases.count)
+                                    let end = Double(index + 1) / Double(PlayerColor.allCases.count)
+                                    return [
+                                        Gradient.Stop(color: player.color, location: start),
+                                        Gradient.Stop(color: player.color, location: end)
+                                    ]
+                                }),
+                                center: .center
+                            )
+                        )
+                        .overlay(Circle().stroke(.primary.opacity(0.35), lineWidth: 0.75))
+                        .overlay {
+                            if allSelection.wrappedValue {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .shadow(radius: 1)
+                            }
+                        }
+                        .frame(width: 30, height: 30)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(allSelection.wrappedValue ? "All players selected" : "Show all players")
+                .accessibilityValue(allSelection.wrappedValue ? "Selected" : "")
+                .accessibilityAddTraits(allSelection.wrappedValue ? .isSelected : [])
+                .accessibilityIdentifier("selectAllPlayers")
             }
         }
         .padding(6)
@@ -29,7 +72,7 @@ struct PlayerSelector: View {
                 .fill(player.color)
                 .overlay(Circle().stroke(.primary.opacity(0.35), lineWidth: player == .white ? 1.5 : 0.5))
                 .overlay {
-                    if player == selection {
+                    if player == selection && allSelection?.wrappedValue != true {
                         Image(systemName: "checkmark")
                             .font(.system(size: 12, weight: .bold))
                             .foregroundStyle(player == .white ? .black : .white)
@@ -38,13 +81,15 @@ struct PlayerSelector: View {
                 .frame(width: 30, height: 30)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(player == selection
+        .accessibilityLabel(player == selection && allSelection?.wrappedValue != true
             ? "Selected player, \(player.displayName)"
             : "Select \(player.displayName) player")
-        .accessibilityValue(player == selection ? "Selected" : "")
-        .accessibilityAddTraits(player == selection ? .isSelected : [])
+        .accessibilityValue(player == selection && allSelection?.wrappedValue != true ? "Selected" : "")
+        .accessibilityAddTraits(player == selection && allSelection?.wrappedValue != true ? .isSelected : [])
         .accessibilityIdentifier(
-            player == selection ? "selectedPlayerButton" : "selectPlayer-\(player.rawValue)"
+            player == selection && allSelection?.wrappedValue != true
+                ? "selectedPlayerButton"
+                : "selectPlayer-\(player.rawValue)"
         )
     }
 }

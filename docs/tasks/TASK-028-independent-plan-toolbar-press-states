@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T01:37:00+01:00
+completed_datetime: 2026-08-05T01:46:00+01:00
 priority: P1
 requirement: REQ-014, REQ-015
 design: SCR-002-plans
@@ -11,15 +11,22 @@ Eliminate the remaining shared enlargement/highlight animation between Graph and
 
 ## Acceptance criteria
 
-- [ ] Pressing Graph enlarges or highlights only Graph, never Help.
-- [ ] Pressing Help enlarges or highlights only Help, never Graph.
-- [ ] Releasing either control invokes only its own action.
-- [ ] Controls have separate visual/button identities outside any navigation container that couples their pressed animation.
-- [ ] Graph retains its current SCR-003 navigation availability and Help retains its contextual alert.
-- [ ] Both controls retain accessible labels and adequate independent hit regions.
-- [ ] Interaction regression coverage compiles for taps in both directions.
+- [x] Pressing Graph enlarges or highlights only Graph, never Help.
+- [x] Pressing Help enlarges or highlights only Help, never Graph.
+- [x] Releasing either control invokes only its own action.
+- [x] Controls have separate visual/button identities outside any navigation container that couples their pressed animation.
+- [x] Graph retains its current SCR-003 navigation availability and Help retains its contextual alert.
+- [x] Both controls retain accessible labels and adequate independent hit regions.
+- [x] Interaction regression coverage compiles for taps in both directions.
 - [ ] Focused pressed-state checks pass on a functioning simulator.
 
 ## Scope notes
 
 - This supersedes TASK-018, whose separate `ToolbarItem` declarations did not fully isolate UIKit/SwiftUI enlargement feedback.
+
+## Evidence
+
+- Moved Graph and Help from navigation toolbar items into independent 44-point header buttons.
+- Each control owns its own pressed background, scale animation, hit region, accessibility identity, and action.
+- UI regression coverage asserts non-overlapping frames and taps Graph, Help, then Graph to detect cross-activation.
+- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/Catanalyst-tasks025-030-derived`; live pressed-state verification remains manual.

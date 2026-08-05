@@ -19,23 +19,21 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- REQ-015 is decomposed into TASK-025 through TASK-030, all `not-started`. TASK-029 owns expandable custom rows/ordered steps; TASK-030 depends on it for post-plan card-stat rows.
-- TASK-018 through TASK-024 are implemented and marked `done`; only their explicitly deferred focused simulator/device checks remain unchecked.
-- REQ-014 terrain-symbol work is implemented in TASK-005 and marked `done`; only its focused device/simulator rendering check remains.
-- REQ-013's TASK-013 through TASK-017 are implemented and marked `done`; only the user-owned focused simulator checks remain unchecked as requested.
-- TASK-012's completed SCR-004 construction workflow and REQ-012 legality rules are implemented and remain `in-progress` pending runtime UI checks.
-- TASK-011's centred controls and contextual help are implemented and remain `in-progress` pending runtime UI checks.
-- TASK-010's revised hold-and-drag hex editor is implemented and remains `in-progress` pending its runtime gesture check.
-- TASK-009's shared Default/Custom table is implemented and remains `in-progress` pending its runtime UI check.
-- TASK-008's initial custom-plan edit/detail screens are implemented and remain `in-progress` pending two runtime UI checks.
-- TASK-007's shared player selector and piece ownership are implemented and remain `in-progress` pending runtime checks.
-- TASK-006's Default Plan Browser is implemented and remains `in-progress` pending runtime checks.
-- TASK-002 remains `in-progress` pending its required manual gesture checks; TASK-004 is done but its tap-picker behavior is superseded by TASK-010.
-- TASK-003 number removal is preserved in the hold-and-drag number picker.
+- TASK-001 through TASK-030 are implemented and marked `done`.
+- Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
+- TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
+- TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
 
 ## Completed in this branch
 
+- Completed REQ-015's TASK-025 through TASK-030: elastic values overscroll, construction-editor overflow, All-player custom browsing, independent Plan header buttons, expandable ordered step rows, and five post-completion card-stat rows.
+- Added six-slice All-player selection, owner dots, owner-aware filtering/statistics, Red-default creation, and generated-name migration when an untouched new plan changes owner.
+- Moved Graph and Help outside the coupled navigation toolbar into distinct 44-point controls with independent press feedback and actions.
+- Custom plan taps now animate a shared fixed/value row hierarchy; construction steps precede Brick, Wood, Hay, Sheep, and Ore card-stat rows, while long press edits directly.
+- Added deterministic player/hand-aware placeholder models and domain/UI regression coverage for expanded rows and scroll normalization.
+- Construction editors now scroll overflowing ordered steps and automatically reveal newly appended rows above the fixed action bar.
 - Added six faded, terrain-specific symbols to every hex and reused those mappings in the terrain radial picker.
+- Inset the repeated terrain symbols slightly so they no longer touch hex boundaries.
 - Shortened valid construction ghost feedback to 0.65 seconds and placed all road layers behind all building layers.
 - Added separate graph/help toolbar items with independent pressed states.
 - Moved placement errors low on the Board with cancellable 1.5-second replacement timing.
@@ -77,7 +75,7 @@ Use the area below the three dashes for your current notes:
 - Matched fixed/value row metrics, normalized scroll insets, compacted the four summary columns, and slightly strengthened separators.
 - Anchored short values content to the top-leading viewport edge so results align with plan rows when the table does not fill the screen.
 - Split horizontal navigation into a full-width summary section and a continuously scrollable probability section with animated swipe/chevron transitions.
-- Fixed the active meta-header and embedded its direction arrow; counteracted downward overscroll to keep figures locked to plan rows.
+- Fixed the active meta-header and embedded its direction arrow; downward values overscroll is now elastic while fixed panes remain normalized.
 - Changed placeholder probabilities to monotonic cumulative distributions.
 - Added unit and UI coverage for default plan data and sheet presentation.
 - Replaced the zoom segmented control with discrete pinch zoom.
@@ -87,8 +85,8 @@ Use the area below the three dashes for your current notes:
 
 ## Known blocker
 
-- CoreSimulator now lists an iPhone 17, and TASK-008's three unit tests passed. UI launches remain blocked: the parallel run reported `DebuggerVersionStore.StoreError`, while a serial retry failed before testing because `launchd_sim` crashed and could not bind to the simulator session.
+- CoreSimulator remains unreliable. The latest app, unit-test, and UI-test bundles compile successfully, but live focused UI execution is deferred to the user as requested.
 
 ## Recommended next action
 
-- Repair the Xcode debugger/simulator service, then run TASK-008 through TASK-010's focused UI tests followed by the outstanding TASK-002, TASK-006, and TASK-007 runtime checks. If they pass, check the final acceptance criteria, set completion timestamps, and mark the tasks `done`.
+- On a functioning simulator/device, perform the remaining unchecked focused UI checks, with priority on elastic Plans scrolling, expansion alignment/animation, independent Graph/Help press feedback, and long-press Board gesture arbitration.

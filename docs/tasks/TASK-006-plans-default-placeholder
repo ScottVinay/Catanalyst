@@ -1,6 +1,6 @@
-status: in-progress
+status: done
 started_datetime: 2026-08-03T17:16:24+01:00
-completed_datetime:
+completed_datetime: 2026-08-05T02:29:00+01:00
 priority: P1
 requirement: REQ-003
 design: SCR-002-plans
@@ -32,7 +32,7 @@ Implement SCR-002-plans. Do not do any simulation or calculation backend yet, ju
 - A directional swipe or faint chevron changes the table between summary and probability sections with a single push transition.
 - The probability section starts at T1 and supports continuous horizontal scrolling; returning left is available at its leading edge.
 - The chevron is embedded in the fixed meta-header, which shows only the active section title while the probability column labels scroll beneath it.
-- Negative vertical overscroll is counteracted in the values content so pulling down cannot detach figures from their plan rows.
+- Downward values overscroll is elastic per TASK-025 while synchronized fixed-pane offsets remain normalized.
 - Table separators use a slightly stronger secondary tint for clearer grouping.
 - Super-column headers group turn summaries and cumulative completion probabilities.
 - Placeholder probabilities use a monotonic cumulative distribution so each later-turn probability is at least the preceding value.

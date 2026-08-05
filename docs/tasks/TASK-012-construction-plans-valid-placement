@@ -1,6 +1,6 @@
-status: in-progress
+status: done
 started_datetime: 2026-08-04T21:38:00+01:00
-completed_datetime:
+completed_datetime: 2026-08-05T02:29:00+01:00
 priority: P0
 requirement: REQ-003, REQ-012
 design: SCR-004-edit

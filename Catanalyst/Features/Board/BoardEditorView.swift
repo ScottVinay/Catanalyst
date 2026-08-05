@@ -557,12 +557,12 @@ private struct HexTileView: View {
     }
 
     private static let symbolPositions = [
-        CGPoint(x: 0.30, y: 0.22),
-        CGPoint(x: 0.70, y: 0.22),
-        CGPoint(x: 0.18, y: 0.50),
-        CGPoint(x: 0.82, y: 0.50),
-        CGPoint(x: 0.32, y: 0.78),
-        CGPoint(x: 0.68, y: 0.78)
+        CGPoint(x: 0.33, y: 0.27),
+        CGPoint(x: 0.67, y: 0.27),
+        CGPoint(x: 0.24, y: 0.50),
+        CGPoint(x: 0.76, y: 0.50),
+        CGPoint(x: 0.34, y: 0.73),
+        CGPoint(x: 0.66, y: 0.73)
     ]
 
     private var tileAccessibilityLabel: String {

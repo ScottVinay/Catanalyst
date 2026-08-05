@@ -64,6 +64,20 @@ struct CustomPlanTests {
         #expect(CustomPlan.belonging(to: .green, in: plans).isEmpty)
     }
 
+    @Test("All-player visibility preserves every owner and individual visibility filters")
+    func allPlayerVisibility() {
+        let plans = PlayerColor.allCases.enumerated().map { index, player in
+            CustomPlan(name: "Plan \(index)", kind: .cards, player: player)
+        }
+
+        #expect(CustomPlan.visible(to: .red, includesAllPlayers: true, in: plans) == plans)
+        for player in PlayerColor.allCases {
+            let visible = CustomPlan.visible(to: player, includesAllPlayers: false, in: plans)
+            #expect(visible.count == 1)
+            #expect(visible.first?.player == player)
+        }
+    }
+
     @Test("Default names are numbered independently by kind and player")
     func defaultNames() {
         let plans = [
@@ -198,5 +212,26 @@ struct CustomPlanTests {
         #expect(construction.cardCounts.isEmpty)
         cards.removeCard(.wood)
         #expect(cards.cardCounts.isEmpty)
+    }
+
+    @Test("Construction plans retain an overflowing ordered row fixture")
+    func overflowingConstructionRows() throws {
+        let edges = Array(BoardGeometry.standardEdges.prefix(12))
+        #expect(edges.count == 12)
+        let steps = edges.enumerated().map { index, edge in
+            PlannedConstructionStep(
+                kind: index.isMultiple(of: 3) ? .settlement : .road,
+                location: index.isMultiple(of: 3) ? .vertex(edge.start) : .edge(edge)
+            )
+        }
+        let plan = CustomPlan(
+            name: "Long route",
+            kind: .constructions,
+            player: .red,
+            constructionSteps: steps
+        )
+
+        #expect(plan.constructionSteps.count == 12)
+        #expect(plan.constructionSteps.map(\.id).count == Set(plan.constructionSteps.map(\.id)).count)
     }
 }

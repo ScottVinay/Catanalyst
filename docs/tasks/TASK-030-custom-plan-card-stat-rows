@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T02:24:00+01:00
+completed_datetime: 2026-08-05T02:27:00+01:00
 priority: P1
 requirement: REQ-003, REQ-008, REQ-015
 design: SCR-002-plans
@@ -12,19 +12,28 @@ Add five resource-stat rows after any ordered construction-step rows in every ex
 
 ## Acceptance criteria
 
-- [ ] Every expanded custom plan shows exactly five post-completion card-stat rows.
-- [ ] Rows appear in Brick, Wood, Hay, Sheep, Ore order and use the shared resource icons without redundant names.
-- [ ] A clearly associated fixed-pane label identifies the group as `Card stats after plan completion`.
-- [ ] For Construction plans, the complete ordered Steps section appears before the card-stat section.
-- [ ] Cards-only plans omit Steps and begin directly with card-stat rows.
-- [ ] Each resource row uses the same summary and probability columns as plan/step rows.
-- [ ] Fixed resource rows and scrolling values remain vertically aligned while expanding, collapsing, scrolling, and switching table sections.
-- [ ] Placeholder card statistics are deterministic, player-aware, hand-aware where applicable, and red until simulation output exists.
-- [ ] Ownership dots and All-player filtering from TASK-027 remain correct for expanded plans.
-- [ ] Stable row identities prevent animation collisions between resources or different plans.
-- [ ] Domain row-model and UI regression coverage compile.
+- [x] Every expanded custom plan shows exactly five post-completion card-stat rows.
+- [x] Rows appear in Brick, Wood, Hay, Sheep, Ore order and use the shared resource icons without redundant names.
+- [x] A clearly associated fixed-pane label identifies the group as `Card stats after plan completion`.
+- [x] For Construction plans, the complete ordered Steps section appears before the card-stat section.
+- [x] Cards-only plans omit Steps and begin directly with card-stat rows.
+- [x] Each resource row uses the same summary and probability columns as plan/step rows.
+- [x] Fixed resource rows and scrolling values remain vertically aligned while expanding, collapsing, scrolling, and switching table sections.
+- [x] Placeholder card statistics are deterministic, player-aware, hand-aware where applicable, and red until simulation output exists.
+- [x] Ownership dots and All-player filtering from TASK-027 remain correct for expanded plans.
+- [x] Stable row identities prevent animation collisions between resources or different plans.
+- [x] Domain row-model and UI regression coverage compile.
 - [ ] Focused animation/alignment checks pass on a functioning simulator.
 
 ## Scope notes
 
 - This task consumes TASK-029's expandable hierarchy and must not create a second independent expansion implementation.
+
+## Evidence
+
+- Extended TASK-029's shared hierarchy with one card-stat group and five stable resource rows for every expanded custom plan.
+- Construction plans insert ordered Steps first; cards-only plans begin directly with card statistics.
+- Resource placeholders are deterministic and vary with owner, plan contents, and the applicable resource hand.
+- Fixed icon rows and scrolling summary/probability rows use the same flattened identities and 44-point heights.
+- Domain tests assert exact resource order and placeholder inputs; UI coverage asserts five rows, vertical alignment, and collapse.
+- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/Catanalyst-tasks025-030-derived`; live animation checks remain manual.

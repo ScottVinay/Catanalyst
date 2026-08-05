@@ -1,4 +1,5 @@
 status: done
+started_datetime: 2026-07-22T00:00:00+01:00
+completed_datetime: 2026-07-23T00:00:00+01:00
 
 Create the board screen (SCR-001-board), fitting relevant requirements from the requirements folder. Do not build any of the planning or statistics yet.
-

@@ -50,6 +50,52 @@ nonisolated struct DefaultPlan: Equatable, Identifiable, Sendable {
         )
     }
 
+    static func placeholders(
+        forConstructionStepsIn plan: CustomPlan,
+        player: PlayerColor,
+        hand: ResourceHand = ResourceHand()
+    ) -> [DefaultPlan] {
+        plan.constructionSteps.enumerated().map { index, step in
+            let completedSteps = index + 1
+            let baseline = max(1, completedSteps * 2 - min(completedSteps, hand.totalCount))
+            return adjusted(
+                placeholder(
+                    "Step \(completedSteps)",
+                    systemImage: step.kind.systemImage,
+                    baseline: baseline
+                ),
+                for: player,
+                handCount: 0
+            )
+        }
+    }
+
+    static func placeholders(
+        forCardStatsAfter plan: CustomPlan,
+        player: PlayerColor,
+        hand: ResourceHand = ResourceHand()
+    ) -> [DefaultPlan] {
+        let completionWeight = switch plan.kind {
+        case .cards: plan.cardCounts.values.reduce(0, +)
+        case .constructions: plan.constructionSteps.count * 2
+        }
+        return ResourceCard.allCases.enumerated().map { index, resource in
+            let baseline = max(
+                1,
+                2 + index + completionWeight / 3 - min(3, hand[resource])
+            )
+            return adjusted(
+                placeholder(
+                    resource.displayName,
+                    systemImage: resource.systemImage,
+                    baseline: baseline
+                ),
+                for: player,
+                handCount: 0
+            )
+        }
+    }
+
     private static func placeholder(
         _ name: String,
         systemImage: String,

@@ -1,6 +1,6 @@
-status: not-started
-started_datetime:
-completed_datetime:
+status: done
+started_datetime: 2026-08-05T02:27:00+01:00
+completed_datetime: 2026-08-05T02:29:00+01:00
 priority: P2
 requirement: REQ-008, REQ-015
 design: SCR-002-plans
@@ -11,16 +11,23 @@ Allow the scrolling values pane to reveal temporary white space beneath the fixe
 
 ## Acceptance criteria
 
-- [ ] Pulling downward on plan values moves the value rows below their normal top position and reveals white space between them and the fixed header.
-- [ ] Releasing the pull springs values smoothly back to their aligned resting position.
-- [ ] The fixed plan-name pane, fixed column headers, and meta-header do not move during the pull.
-- [ ] The effect works in Default and Custom tables, including expanded custom rows.
-- [ ] Normal vertical scrolling and bottom-edge upward overscroll remain unchanged.
-- [ ] Horizontal summary/probability navigation remains synchronized and unaffected.
-- [ ] Offset normalization cannot leave fixed and value rows permanently misaligned.
-- [ ] Automated scroll-state coverage compiles.
+- [x] Pulling downward on plan values moves the value rows below their normal top position and reveals white space between them and the fixed header.
+- [x] Releasing the pull springs values smoothly back to their aligned resting position.
+- [x] The fixed plan-name pane, fixed column headers, and meta-header do not move during the pull.
+- [x] The effect works in Default and Custom tables, including expanded custom rows.
+- [x] Normal vertical scrolling and bottom-edge upward overscroll remain unchanged.
+- [x] Horizontal summary/probability navigation remains synchronized and unaffected.
+- [x] Offset normalization cannot leave fixed and value rows permanently misaligned.
+- [x] Automated scroll-state coverage compiles.
 - [ ] Focused UI checks pass on a functioning simulator.
 
 ## Scope notes
 
 - This supersedes the earlier approach that counteracted all downward overscroll to keep values visually locked.
+
+## Evidence
+
+- Removed the values-pane counter-offset so native downward elasticity reveals the table background and springs back naturally.
+- Negative elastic offsets normalize to zero before driving fixed-pane/header synchronization; positive vertical and horizontal scrolling remain unchanged.
+- Added scroll-state coverage for downward elasticity, ordinary two-axis scrolling, and horizontal scrolling during a vertical pull.
+- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/Catanalyst-tasks025-030-derived`; live elastic-motion verification remains manual.
