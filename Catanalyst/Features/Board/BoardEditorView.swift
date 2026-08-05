@@ -202,7 +202,10 @@ struct BoardEditorView: View {
         center: CGPoint,
         hexSize: CGFloat
     ) -> some Gesture {
-        LongPressGesture(minimumDuration: 0.3, maximumDistance: 8)
+        LongPressGesture(
+            minimumDuration: BoardHexEditGestureTiming.holdDuration(for: viewport.zoom),
+            maximumDistance: 8
+        )
             .sequenced(before: DragGesture(
                 minimumDistance: 0,
                 coordinateSpace: .named("boardEditingSpace")
@@ -453,67 +456,109 @@ struct BoardEditorView: View {
         around center: CGPoint,
         hexSize: CGFloat
     ) -> some View {
-        let radius = hexSize * 1.55
-        ForEach(0..<optionCount, id: \.self) { index in
-            let angle = (-Double.pi / 2) + (2 * Double.pi * Double(index) / Double(optionCount))
-            pickerOption(at: index)
-                .frame(width: hexSize * 0.62, height: hexSize * 0.62)
-                .scaleEffect(highlightedPickerIndex == index ? 1.18 : 1)
-                .overlay {
-                    if highlightedPickerIndex == index {
-                        Circle().stroke(.yellow, lineWidth: 3)
+        let outerRadius = hexSize * RadialPickerGeometry.outerRadiusScale
+        let iconRadius = hexSize * (
+            RadialPickerGeometry.innerRadiusScale + RadialPickerGeometry.outerRadiusScale
+        ) / 2
+
+        ZStack {
+            ForEach(0..<optionCount, id: \.self) { index in
+                RingSegment(index: index, count: optionCount)
+                    .fill(pickerOptionColor(at: index))
+                    .overlay {
+                        RingSegment(index: index, count: optionCount)
+                            .stroke(
+                                highlightedPickerIndex == index ? Color.yellow : .white.opacity(0.85),
+                                lineWidth: highlightedPickerIndex == index ? 4 : 1.5
+                            )
                     }
-                }
-                .position(
-                    x: center.x + CGFloat(cos(angle)) * radius * pickerExpansion,
-                    y: center.y + CGFloat(sin(angle)) * radius * pickerExpansion
-                )
-                .opacity(pickerExpansion)
-                .scaleEffect(0.35 + (0.65 * pickerExpansion))
-                .shadow(radius: 2)
-                .animation(.easeOut(duration: 0.1), value: highlightedPickerIndex)
-                .accessibilityIdentifier("hexPickerOption-\(index)")
+                    .shadow(
+                        color: highlightedPickerIndex == index ? .yellow.opacity(0.45) : .black.opacity(0.2),
+                        radius: highlightedPickerIndex == index ? 5 : 2
+                    )
+                    .accessibilityLabel(pickerOptionAccessibilityLabel(at: index))
+                    .accessibilityIdentifier("hexPickerOption-\(index)")
+
+                let angle = (-Double.pi / 2) + (2 * Double.pi * Double(index) / Double(optionCount))
+                pickerOptionSymbol(at: index)
+                    .position(
+                        x: outerRadius + CGFloat(cos(angle)) * iconRadius,
+                        y: outerRadius + CGFloat(sin(angle)) * iconRadius
+                    )
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
         }
+        .frame(width: outerRadius * 2, height: outerRadius * 2)
+        .scaleEffect(0.58 + (0.42 * pickerExpansion))
+        .opacity(pickerExpansion)
+        .position(center)
+        .animation(.easeOut(duration: 0.1), value: highlightedPickerIndex)
     }
 
     @ViewBuilder
-    private func pickerOption(at index: Int) -> some View {
+    private func pickerOptionSymbol(at index: Int) -> some View {
         switch editTool {
         case .terrain:
             let terrain = Terrain.allCases[index]
-            Circle()
-                .fill(terrain.color)
-                .overlay {
-                    Image(systemName: terrain.systemImage)
-                        .font(.caption.bold())
-                        .foregroundStyle(terrain.symbolForegroundColor)
-                }
-                .overlay(Circle().stroke(.white, lineWidth: 2))
-                .accessibilityLabel(terrain.displayName)
+            Image(systemName: terrain.systemImage)
+                .font(.caption.bold())
+                .foregroundStyle(terrain.symbolForegroundColor)
         case .number:
             switch NumberPickerOption.all[index] {
             case let .token(token):
-                Circle()
-                    .fill(Color.tokenBackground)
-                    .overlay {
-                        Text("\(token.rawValue)")
-                            .font(.caption.bold())
-                            .foregroundStyle(token.isHighProbability ? .red : .primary)
-                    }
-                    .overlay(Circle().stroke(.white, lineWidth: 2))
-                    .accessibilityLabel("Number \(token.rawValue)")
+                Text("\(token.rawValue)")
+                    .font(.caption.bold())
+                    .foregroundStyle(token.isHighProbability ? .red : .primary)
             case .remove:
-                Circle()
-                    .fill(Color.tokenBackground)
-                    .overlay {
-                        Image(systemName: "xmark")
-                            .font(.caption.bold())
-                            .foregroundStyle(.primary)
-                    }
-                    .overlay(Circle().stroke(.white, lineWidth: 2))
-                    .accessibilityLabel("Remove number")
+                Image(systemName: "xmark")
+                    .font(.caption.bold())
+                    .foregroundStyle(.primary)
             }
         }
+    }
+
+    private func pickerOptionColor(at index: Int) -> Color {
+        switch editTool {
+        case .terrain: Terrain.allCases[index].color
+        case .number: .tokenBackground
+        }
+    }
+
+    private func pickerOptionAccessibilityLabel(at index: Int) -> String {
+        switch editTool {
+        case .terrain:
+            Terrain.allCases[index].displayName
+        case .number:
+            switch NumberPickerOption.all[index] {
+            case let .token(token): "Number \(token.rawValue)"
+            case .remove: "Remove number"
+            }
+        }
+    }
+}
+
+private struct RingSegment: Shape {
+    let index: Int
+    let count: Int
+
+    func path(in rect: CGRect) -> Path {
+        guard count > 0 else { return Path() }
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let outerRadius = min(rect.width, rect.height) / 2
+        let innerRadius = outerRadius
+            * RadialPickerGeometry.innerRadiusScale
+            / RadialPickerGeometry.outerRadiusScale
+        let step = 2 * Double.pi / Double(count)
+        let middle = (-Double.pi / 2) + (Double(index) * step)
+        let start = Angle(radians: middle - (step / 2))
+        let end = Angle(radians: middle + (step / 2))
+
+        var path = Path()
+        path.addArc(center: center, radius: outerRadius, startAngle: start, endAngle: end, clockwise: false)
+        path.addArc(center: center, radius: innerRadius, startAngle: end, endAngle: start, clockwise: true)
+        path.closeSubpath()
+        return path
     }
 }
 

@@ -1,0 +1,7 @@
+At the moment we have Plans which are composed into Default and Construction.
+
+I want to change the name of this functionality to "Analysis". The panel now known as Defaults shall be called "Production". We will add a "New production check" button at the bottom. This will lead to the interface previously known as "New plan / Cards".
+
+The panel previously called "Custom" will now be called "Plans". Pressing "New plan" goes straight to the new construction plan UI.
+
+Each UI will have a default symbol to be shown in the plan viewer, but has an element in the UI to change this.

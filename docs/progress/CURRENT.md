@@ -19,13 +19,15 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-001 through TASK-030 are implemented and marked `done`.
+- TASK-001 through TASK-031 are implemented and marked `done`.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
 - TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
+- TASK-031 supersedes circular hex-picker options with a segmented ring and makes activation immediate in Overview while retaining Detail-mode pan arbitration.
 
 ## Completed in this branch
 
+- Completed TASK-031 with a seven-wedge terrain ring, an eleven-wedge number/remove ring, shared annular hit-testing, and zoom-aware activation timing.
 - Completed REQ-015's TASK-025 through TASK-030: elastic values overscroll, construction-editor overflow, All-player custom browsing, independent Plan header buttons, expandable ordered step rows, and five post-completion card-stat rows.
 - Added six-slice All-player selection, owner dots, owner-aware filtering/statistics, Red-default creation, and generated-name migration when an untouched new plan changes owner.
 - Moved Graph and Help outside the coupled navigation toolbar into distinct 44-point controls with independent press feedback and actions.

@@ -1,0 +1,39 @@
+status: done
+started_datetime: 2026-08-05T14:05:00+01:00
+completed_datetime: 2026-08-05T14:12:00+01:00
+priority: P1
+requirement: REQ-016
+design: SCR-001-board
+
+# Zoom-aware segmented hex radial
+
+When holding on a hex to bring up the radial in edit mode, there is currently a slight delay, since drag moves the screen.'
+However, screen moving is only the case in zoomed in mode. In zoomed out mode, the radial should appear immediately from the first moment of holding.
+Also, instead of circles, make the radial a ring surrounding the hex split into 7 even sections, each with the appropriate colour and symbol.
+
+## Acceptance criteria
+
+- [x] Overview edit mode opens the radial immediately on touch-down.
+- [x] Detail edit mode retains the approximately 0.3-second stationary hold so an immediate drag pans.
+- [x] Terrain selection is a contiguous ring around the hex with seven equal segments.
+- [x] Every terrain segment uses its corresponding colour and symbol.
+- [x] Number selection uses the same ring treatment with one equal segment per existing number/remove choice.
+- [x] Dragging highlights the segment under the held touch and release applies only that segment.
+- [x] Releasing over the centre hex or outside the ring cancels without applying.
+- [x] Ring geometry and zoom-dependent timing regression coverage compile.
+- [ ] Focused gesture and rendering checks pass on a functioning simulator or device.
+
+## Implementation notes
+
+- `BoardHexEditGestureTiming` selects a zero-duration Overview hold and the existing 0.3-second Detail hold.
+- `RingSegment` draws contiguous annular wedges centred on the existing top-first option ordering.
+- Terrain uses seven wedges; Number uses the same presentation with its ten tokens plus Remove.
+- Shared inner/outer radii drive drawing and domain hit-testing so the centre hex and exterior remain cancellation zones.
+
+## Evidence
+
+- Added exact centre-index coverage for all seven terrain wedges and all eleven number/remove wedges.
+- Added timing coverage for Overview and Detail, plus centre, inner-gap, and exterior cancellation coverage.
+- Existing UI regression coverage continues to exercise centre release and drag-to-Brick application against the new ring radius.
+- `xcodebuild build-for-testing` compiled the app, unit tests, and UI tests using `/private/tmp/Catanalyst-task031-derived`.
+- Live visual and gesture verification remains intentionally deferred.
