@@ -1,6 +1,6 @@
-status: in-progress
-started_datetime: 2026-08-10T00:00:00+01:00
-completed_datetime:
+status: done
+started_datetime: 2026-08-10T17:58:00+01:00
+completed_datetime: 2026-08-10T19:01:00+01:00
 priority: P1
 requirement: REQ-019
 design: SCR-002-plans
@@ -12,21 +12,22 @@ Complete SCR-002's Production section with detailed distributions, a production-
 
 ## Acceptance criteria
 
-- [ ] Production is composed of distinct, vertically scrollable analysis elements.
-- [ ] Detailed production has `Cards per round` and `Rounds per card` modes with the specified help text.
-- [ ] All, Brick, Lumber, Ore, Grain, and Wool rows expand independently to aligned probability subrows.
-- [ ] Cards-per-round subrows show 0, 1, 2, 3, and 4+ card probabilities.
-- [ ] Rounds-per-card subrows show first production in 1, 2, 3, and 4+ rounds using the geometric distribution derived from `p0`.
-- [ ] Production contribution records include player, building ID/type, hex ID, resource, and dice number.
-- [ ] Settlements count once, cities twice, and per-round distributions support one through six active players.
-- [ ] All-resource means agree with summed resource means, while All distributions preserve same-roll resource correlations.
-- [ ] Production balance plots Brick, Lumber, Ore, Grain, and Wool clockwise and supports any subset of active players.
-- [ ] Production balance normalises every polygon against the maximum active-player/resource mean.
-- [ ] Dice reliance selects exactly one active player and toggles raw versus probability-weighted production.
-- [ ] Dice reliance displays dice results 2–12 excluding 7.
-- [ ] Production scrolling clamps at its limits and fixed/value table rows remain aligned.
-- [ ] Domain and UI regression coverage is added for changed behaviour.
-- [ ] Relevant automated checks pass.
+- [x] Production is composed of distinct, vertically scrollable analysis elements.
+- [x] Detailed production has `Cards per round` and `Rounds per card` modes with the specified help text.
+- [x] All, Brick, Lumber, Ore, Grain, and Wool rows expand independently to aligned probability subrows.
+- [x] Cards-per-round subrows show 0, 1, 2, 3, and 4+ card probabilities.
+- [x] Rounds-per-card subrows show first production in 1, 2, 3, and 4+ rounds using the geometric distribution derived from `p0`.
+- [x] Production contribution records include player, building ID/type, hex ID, resource, and dice number.
+- [x] Settlements count once, cities twice, and per-round distributions support one through six active players.
+- [x] All-resource means agree with summed resource means, while All distributions preserve same-roll resource correlations.
+- [x] Production balance plots Brick, Lumber, Ore, Grain, and Wool clockwise and supports any subset of active players.
+- [x] Production balance normalises every polygon against the maximum active-player/resource mean.
+- [x] Dice reliance selects exactly one active player and toggles raw versus probability-weighted production.
+- [x] Dice reliance displays dice results 2–12 excluding 7.
+- [x] Production scrolling clamps at its limits and fixed/value table rows remain aligned.
+- [x] Domain and UI regression coverage is added for changed behaviour.
+- [x] App, unit-test, and UI-test bundles compile.
+- [ ] Live focused checks pass on a functioning simulator or device.
 
 ## Implementation plan
 
@@ -44,4 +45,15 @@ Complete SCR-002's Production section with detailed distributions, a production-
 
 ## Evidence
 
-Pending implementation.
+- Added a canonical contribution table retaining player, building, and hex identity, then derived raw dice production, expected dice contribution, correlated per-roll distributions, one-through-six-roll round distributions, means, probability buckets, and geometric waits.
+- Added independent agreement coverage for All dice totals and means, plus regression tests for correlations, cities, hex identity, distribution normalisation/tails, one through six players, zero production, and dice result weighting.
+- Rebuilt Production as three vertically scrollable elements: an expandable fixed-column matrix, a multi-player normalised radar plot, and a single-player raw/expected dice bar chart.
+- Updated focused UI coverage for metric selection, expansion, lower-element scrolling, chart presence, and omission of dice result 7.
+- `git diff --check` passed.
+- `xcodebuild build-for-testing -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` passed.
+- Focused unit execution compiled successfully but CoreSimulator workers failed to materialise; the run was cancelled after Xcode reported the existing simulator-service blocker.
+
+## Remaining manual checks
+
+- On a functioning simulator/device, expand several resource rows in both modes and confirm fixed/value alignment while scrolling horizontally and vertically.
+- Confirm player selection and polygon scaling in Production balance, and both Dice reliance modes for multiple players.

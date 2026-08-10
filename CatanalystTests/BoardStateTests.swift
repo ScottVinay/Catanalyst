@@ -420,13 +420,161 @@ struct BoardStateTests {
             resource: .brick, player: .red, snapshot: board.snapshot
         )
         #expect(abs(settlement - 20.0 / 36.0) < 0.0001)
-        #expect(abs(ProductionMetrics.roundsUntilOne(meanPerRound: settlement)! - 1 / settlement) < 0.0001)
+        let rounds = try #require(ProductionMetrics.roundsUntilOne(
+            resource: .brick, player: .red, snapshot: board.snapshot
+        ))
+        let perRoundSuccess = 1 - pow(31.0 / 36.0, 4)
+        #expect(abs(rounds - 1 / perRoundSuccess) < 0.0001)
 
         #expect(board.placeBuilding(.city, at: vertex, for: .red) == nil)
         let city = ProductionMetrics.meanPerRound(
             resource: .all, player: .red, snapshot: board.snapshot
         )
         #expect(abs(city - 40.0 / 36.0) < 0.0001)
-        #expect(ProductionMetrics.roundsUntilOne(meanPerRound: 0) == nil)
+        let emptySnapshot = BoardSnapshot.standard(activePlayers: [.red])
+        #expect(ProductionMetrics.roundsUntilOne(
+            resource: .all, player: .red, snapshot: emptySnapshot
+        ) == nil)
     }
+
+    @Test("Production contributions retain building and hex identity")
+    func productionContributionIdentity() throws {
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+        let snapshot = BoardSnapshot(
+            tiles: [HexTile(coordinate: coordinate, terrain: .ore, number: .eight)],
+            roads: [],
+            buildings: [vertex: .city],
+            buildingOwners: [vertex: .blue],
+            activePlayers: [.red, .blue]
+        )
+
+        let contribution = try #require(ProductionMetrics.contributions(snapshot: snapshot).only)
+        #expect(contribution.player == .blue)
+        #expect(contribution.buildingID == vertex)
+        #expect(contribution.buildingType == .city)
+        #expect(contribution.hexID == coordinate)
+        #expect(contribution.resource == .ore)
+        #expect(contribution.diceResult == 8)
+        #expect(contribution.cardsProduced == 2)
+    }
+
+    @Test("All production preserves correlated resources and agrees on its mean")
+    func allProductionCorrelation() throws {
+        let brickHex = HexCoordinate(q: 0, r: 0)
+        let lumberHex = HexCoordinate(q: 1, r: 0)
+        let sharedVertex = try #require(
+            Set(BoardGeometry.vertices(for: brickHex))
+                .intersection(BoardGeometry.vertices(for: lumberHex))
+                .first
+        )
+        let snapshot = BoardSnapshot(
+            tiles: [
+                HexTile(coordinate: brickHex, terrain: .brick, number: .six),
+                HexTile(coordinate: lumberHex, terrain: .lumber, number: .six)
+            ],
+            roads: [],
+            buildings: [sharedVertex: .settlement],
+            buildingOwners: [sharedVertex: .red],
+            activePlayers: [.red]
+        )
+
+        let allRoll = ProductionMetrics.perRollDistribution(
+            resource: .all, player: .red, snapshot: snapshot
+        )
+        let directDiceTotals = ProductionMetrics.cardsProducedByDiceResult(
+            resource: .all, player: .red, snapshot: snapshot
+        )
+        let summedDiceTotals = ProductionResource.individual.reduce(into: [Int: Int]()) { totals, resource in
+            for (result, count) in ProductionMetrics.cardsProducedByDiceResult(
+                resource: resource, player: .red, snapshot: snapshot
+            ) {
+                totals[result, default: 0] += count
+            }
+        }
+        #expect(directDiceTotals == summedDiceTotals)
+        #expect(abs(allRoll.probability(of: 2) - 5.0 / 36.0) < 0.0001)
+        #expect(allRoll.probability(of: 1) == 0)
+
+        let allMean = ProductionMetrics.meanPerRound(
+            resource: .all, player: .red, snapshot: snapshot
+        )
+        let summedMean = ProductionResource.individual.reduce(0) {
+            $0 + ProductionMetrics.meanPerRound(resource: $1, player: .red, snapshot: snapshot)
+        }
+        #expect(abs(allMean - summedMean) < 0.0001)
+        #expect(abs(allMean - allRoll.mean) < 0.0001)
+    }
+
+    @Test("Round distributions are precomputed for one through six rolls")
+    func productionRoundDistributions() throws {
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+        let snapshot = BoardSnapshot(
+            tiles: [HexTile(coordinate: coordinate, terrain: .wheat, number: .six)],
+            roads: [],
+            buildings: [vertex: .settlement],
+            buildingOwners: [vertex: .red],
+            activePlayers: [.red]
+        )
+        let distributions = ProductionMetrics.roundDistributions(
+            resource: .wheat, player: .red, snapshot: snapshot
+        )
+
+        #expect(distributions.count == 6)
+        for (index, distribution) in distributions.enumerated() {
+            let rolls = index + 1
+            #expect(abs(distribution.probabilities.values.reduce(0, +) - 1) < 0.0001)
+            #expect(abs(distribution.mean - Double(rolls) * 5.0 / 36.0) < 0.0001)
+            #expect(abs(distribution.probability(of: 0) - pow(31.0 / 36.0, Double(rolls))) < 0.0001)
+        }
+    }
+
+    @Test("Production buckets include tails and geometric waiting probabilities")
+    func productionBuckets() throws {
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+        let snapshot = BoardSnapshot(
+            tiles: [HexTile(coordinate: coordinate, terrain: .wool, number: .six)],
+            roads: [],
+            buildings: [vertex: .settlement],
+            buildingOwners: [vertex: .red],
+            activePlayers: PlayerColor.allCases
+        )
+
+        let cards = ProductionMetrics.cardsPerRoundBuckets(
+            resource: .sheep, player: .red, snapshot: snapshot
+        )
+        let waits = ProductionMetrics.roundsPerCardBuckets(
+            resource: .sheep, player: .red, snapshot: snapshot
+        )
+        #expect(cards.count == 5)
+        #expect(waits.count == 4)
+        #expect(abs(cards.reduce(0, +) - 1) < 0.0001)
+        #expect(abs(waits.reduce(0, +) - 1) < 0.0001)
+        #expect(cards[4] > 0)
+    }
+
+    @Test("Dice reliance excludes seven and weights displayed results")
+    func diceReliance() throws {
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+        let snapshot = BoardSnapshot(
+            tiles: [HexTile(coordinate: coordinate, terrain: .brick, number: .six)],
+            roads: [],
+            buildings: [vertex: .city],
+            buildingOwners: [vertex: .red]
+        )
+        let raw = ProductionMetrics.cardsProducedByDiceResult(player: .red, snapshot: snapshot)
+        let expected = ProductionMetrics.expectedCardsByDiceResult(player: .red, snapshot: snapshot)
+
+        #expect(!ProductionMetrics.displayedDiceResults.contains(7))
+        #expect(raw[6] == 2)
+        #expect(abs(expected[6, default: 0] - 10.0 / 36.0) < 0.0001)
+        #expect(expected[7] == nil)
+    }
+}
+
+private extension Collection {
+    var only: Element? { count == 1 ? first : nil }
 }

@@ -19,7 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-001 through TASK-049 are implemented and marked `done`.
+- TASK-001 through TASK-049 and TASK-051 are implemented and marked `done`; TASK-050 remains documented as in progress pending its own review closeout.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
 - TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
@@ -28,6 +28,8 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Completed TASK-051's advanced Production analysis with expandable per-round/waiting distributions, hex-addressable contribution records, one-through-six-player convolution, a multi-player production-balance radar plot, and raw/expected dice-reliance bars.
+- Production now scrolls vertically across its three distinct elements, retains fixed resource/player-value alignment, uses the clarified `Rounds per card` geometric calculation, and omits dice result 7 from the chart.
 - Completed REQ-021's TASK-049 with a display-only Vertex values toggle, adjoining pip totals at all 54 Board vertices, and one/two owner-colour rings for settlements/cities.
 - Completed REQ-019 and REQ-020's TASK-045 through TASK-048: selectable persisted active players, destructive removed-player cleanup, active-only selectors, and the per-player Production matrix.
 - New games default to Red, Blue, White, and Orange; Board Change players supports all six colours and confirms before deleting associated hands, plans, roads, settlements, or cities.
@@ -102,8 +104,8 @@ Use the area below the three dashes for your current notes:
 
 ## Known blocker
 
-- CoreSimulator remains unreliable. The latest app, unit-test, and UI-test bundles compile successfully, but workers failed to materialize for the focused REQ-019/020 run; live focused UI execution is deferred to the user as requested.
+- CoreSimulator remains unreliable. The latest app, unit-test, and UI-test bundles compile successfully, but workers failed to materialize for the focused TASK-051 run; live focused execution remains deferred.
 
 ## Recommended next action
 
-- On a functioning simulator/device, perform the remaining unchecked focused UI checks, including REQ-019 Production values/navigation and REQ-020 player creation/change/removal/persistence alongside the prior REQ-017/018 checks.
+- On a functioning simulator/device, perform TASK-051's detailed-table expansion/alignment, balance-player selection/scaling, and dice-toggle checks alongside the remaining REQ-019/020 and prior REQ-017/018 checks.

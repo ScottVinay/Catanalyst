@@ -219,9 +219,18 @@ final class CatanalystUITests: XCTestCase {
         let resourceFrame = app.descendants(matching: .any)["productionResourceColumn"].frame
         let metaFrame = app.descendants(matching: .any)["productionMetaHeader"].frame
         XCTAssertGreaterThanOrEqual(metaFrame.minX, resourceFrame.maxX)
-        app.buttons["productionSectionArrow"].tap()
-        XCTAssertTrue(app.staticTexts["Avg rounds until one produced"].exists)
+        XCTAssertTrue(app.segmentedControls["productionMetricPicker"].exists)
+        app.segmentedControls["productionMetricPicker"].buttons["Rounds per card"].tap()
+        XCTAssertTrue(app.staticTexts["Rounds per card"].exists)
+        app.buttons["productionRow-Brick"].tap()
+        XCTAssertTrue(app.staticTexts["1 round"].exists)
         XCTAssertEqual(tabSelector.frame, selectorFrame)
+        app.otherElements["productionMatrix"].swipeUp()
+        XCTAssertTrue(app.otherElements["productionBalance"].waitForExistence(timeout: 1))
+        app.otherElements["productionMatrix"].swipeUp()
+        XCTAssertTrue(app.otherElements["diceReliance"].waitForExistence(timeout: 1))
+        XCTAssertTrue(app.otherElements["diceRelianceChart"].exists)
+        XCTAssertFalse(app.staticTexts["Dice result 7"].exists)
 #if false // Superseded by REQ-019's Production matrix.
         XCTAssertTrue(app.otherElements["productionTable"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)

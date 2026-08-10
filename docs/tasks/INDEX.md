@@ -50,3 +50,4 @@
 - [TASK-048: Production by Active Player](TASK-048-production-by-active-player)
 - [TASK-049: Toggle Board Vertex Values](TASK-049-toggle-vertex-values)
 - [TASK-050: Native Production Table Layout](TASK-050-native-production-table-layout)
+- [TASK-051: Advanced Production Analysis](TASK-051-advanced-production)
