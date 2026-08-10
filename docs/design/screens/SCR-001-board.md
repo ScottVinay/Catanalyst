@@ -8,8 +8,10 @@ There is an edit button, which changes the toolbars, and takes us into edit mode
 
 - Board centred on screen
 - In view mode, place the burger menu, rotate-left, and rotate-right controls side by side at the upper-left.
-- The burger menu initially contains only **New game**, which opens SCR-000-new-game.
+- The burger menu contains **New game**, which opens SCR-000-new-game, and **Change players**, which opens SCR-007-change-players.
 - In edit mode, hide the burger menu and both rotation controls. They return when editing ends.
+- A top-right toggle labelled **Vertex values** is available in view and edit modes. It is a temporary display preference and does not alter the saved game.
+- When Vertex values is enabled, hide settlement and city symbols and show every Board vertex as a black circle with its adjoining numbered-hex pip total in white. Unnumbered hexes contribute zero. A settlement adds one thin owner-colour ring around its value; a city adds two.
 - In Overview zoom, bias the board slightly upward so it is visually centred within the complete screen layout.
 - Toolbar on bottom:
     - Button: Edit

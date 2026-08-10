@@ -11,6 +11,8 @@ nonisolated enum PlayerColor: String, CaseIterable, Codable, Identifiable, Senda
     var id: Self { self }
     var displayName: String { rawValue.capitalized }
 
+    static let defaultActive: [Self] = [.red, .blue, .white, .orange]
+
     var placeholderIndex: Int {
         Self.allCases.firstIndex(of: self) ?? 0
     }

@@ -16,6 +16,7 @@ struct BoardEditorView: View {
     let isEditing: Bool
     let editTool: BoardEditTool
     let selectedPlayer: PlayerColor
+    var showsVertexValues = false
     var presentationRotationDegrees: Double? = nil
     var placementMode: PlannedConstructionKind? = nil
     var ghostSteps: [PlannedConstructionStep] = []
@@ -100,18 +101,22 @@ struct BoardEditorView: View {
 
                 ghostRoads(hexSize: hexSize, origin: origin)
 
-                ForEach(Array(board.buildings.keys), id: \.self) { vertex in
-                    if let building = board.buildings[vertex] {
-                        BuildingView(
-                            building: building,
-                            hexSize: hexSize,
-                            color: board.owner(of: vertex).color
-                        )
-                            .position(BoardGeometry.point(
-                                for: vertex,
+                if showsVertexValues {
+                    vertexValues(hexSize: hexSize, origin: origin)
+                } else {
+                    ForEach(Array(board.buildings.keys), id: \.self) { vertex in
+                        if let building = board.buildings[vertex] {
+                            BuildingView(
+                                building: building,
                                 hexSize: hexSize,
-                                origin: origin
-                            ))
+                                color: board.owner(of: vertex).color
+                            )
+                                .position(BoardGeometry.point(
+                                    for: vertex,
+                                    hexSize: hexSize,
+                                    origin: origin
+                                ))
+                        }
                     }
                 }
 
@@ -171,6 +176,19 @@ struct BoardEditorView: View {
             }
         }
         .padding(8)
+    }
+
+    private func vertexValues(hexSize: CGFloat, origin: CGPoint) -> some View {
+        ForEach(BoardGeometry.standardVertices) { vertex in
+            VertexValueView(
+                value: BoardGeometry.pipValue(at: vertex, tiles: board.tiles),
+                building: board.buildings[vertex],
+                ownerColor: board.buildings[vertex] == nil ? nil : board.owner(of: vertex).color,
+                hexSize: hexSize
+            )
+            .position(BoardGeometry.point(for: vertex, hexSize: hexSize, origin: origin))
+            .accessibilityIdentifier("vertexValue-\(vertex.id)")
+        }
     }
 
     private var magnificationGesture: some Gesture {
@@ -689,6 +707,50 @@ private struct BuildingView: View {
             .padding(2)
             .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 3))
             .accessibilityHidden(true)
+    }
+}
+
+private struct VertexValueView: View {
+    let value: Int
+    let building: Building?
+    let ownerColor: Color?
+    let hexSize: CGFloat
+
+    var body: some View {
+        let diameter = max(18, hexSize * 0.34)
+
+        ZStack {
+            if let ownerColor, building == .city {
+                Circle()
+                    .stroke(ownerColor, lineWidth: max(1, hexSize * 0.025))
+                    .frame(width: diameter + 8, height: diameter + 8)
+            }
+
+            if let ownerColor {
+                Circle()
+                    .stroke(ownerColor, lineWidth: max(1, hexSize * 0.025))
+                    .frame(width: diameter + 3, height: diameter + 3)
+            }
+
+            Circle()
+                .fill(.black)
+                .frame(width: diameter, height: diameter)
+
+            Text("\(value)")
+                .font(.system(size: diameter * 0.55, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .minimumScaleFactor(0.7)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var accessibilityLabel: String {
+        switch building {
+        case .settlement: "Vertex value \(value), settlement"
+        case .city: "Vertex value \(value), city"
+        case nil: "Vertex value \(value)"
+        }
     }
 }
 

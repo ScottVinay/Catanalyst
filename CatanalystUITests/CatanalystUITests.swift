@@ -54,10 +54,21 @@ final class CatanalystUITests: XCTestCase {
 
         let standardBoard = app.buttons["standardBoardButton"]
         XCTAssertTrue(standardBoard.waitForExistence(timeout: 3))
+        XCTAssertEqual(app.buttons["toggleGamePlayer-red"].value as? String, "Selected")
+        XCTAssertEqual(app.buttons["toggleGamePlayer-blue"].value as? String, "Selected")
+        XCTAssertEqual(app.buttons["toggleGamePlayer-white"].value as? String, "Selected")
+        XCTAssertEqual(app.buttons["toggleGamePlayer-orange"].value as? String, "Selected")
+        XCTAssertEqual(app.buttons["toggleGamePlayer-green"].value as? String, "Not selected")
         standardBoard.tap()
 
         XCTAssertLessThan(app.buttons["gameMenuButton"].frame.midX, app.buttons["rotateBoardLeftButton"].frame.midX)
         XCTAssertLessThan(app.buttons["rotateBoardLeftButton"].frame.midX, app.buttons["rotateBoardRightButton"].frame.midX)
+        app.buttons["gameMenuButton"].tap()
+        app.buttons["changePlayersButton"].tap()
+        XCTAssertTrue(app.otherElements["changePlayersScreen"].waitForExistence(timeout: 2))
+        app.buttons["toggleGamePlayer-green"].tap()
+        XCTAssertEqual(app.buttons["toggleGamePlayer-green"].value as? String, "Selected")
+        app.buttons["closeChangePlayersButton"].tap()
 
         XCTAssertLessThan(app.buttons["editBoardButton"].frame.midX, app.buttons["handButton"].frame.midX)
         XCTAssertLessThan(app.buttons["handButton"].frame.midX, app.buttons["analysisButton"].frame.midX)
@@ -114,6 +125,41 @@ final class CatanalystUITests: XCTestCase {
     }
 
     @MainActor
+    func testTogglesVertexValuesAndPreservesBuildingOwnership() throws {
+        let app = makeApp()
+        app.launch()
+        app.buttons["standardBoardButton"].tap()
+
+        let toggle = app.switches["vertexValuesToggle"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(toggle.value as? String, "0")
+        toggle.tap()
+        XCTAssertEqual(toggle.value as? String, "1")
+        XCTAssertEqual(
+            app.descendants(matching: .any).matching(
+                NSPredicate(format: "identifier BEGINSWITH 'vertexValue-'")
+            ).count,
+            54
+        )
+
+        app.buttons["editBoardButton"].tap()
+        XCTAssertTrue(app.switches["vertexValuesToggle"].exists)
+        toggle.tap()
+        let settlementTarget = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH 'Add Red settlement'")
+        ).firstMatch
+        XCTAssertTrue(settlementTarget.waitForExistence(timeout: 2))
+        settlementTarget.tap()
+        toggle.tap()
+
+        XCTAssertTrue(
+            app.descendants(matching: .any).matching(
+                NSPredicate(format: "label CONTAINS 'settlement'")
+            ).firstMatch.waitForExistence(timeout: 2)
+        )
+    }
+
+    @MainActor
     func testLongPressDragEditsTerrainAndCentreReleaseCancels() throws {
         let app = makeApp()
         app.launch()
@@ -163,6 +209,20 @@ final class CatanalystUITests: XCTestCase {
         XCTAssertTrue(app.alerts["Analysis"].waitForExistence(timeout: 1))
         app.alerts["Analysis"].buttons["OK"].tap()
         XCTAssertTrue(app.otherElements["analysisBrowser"].exists)
+        XCTAssertTrue(app.otherElements["productionMatrix"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["productionResourceColumn"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["productionValuesViewport"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["productionRow-All"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["productionRow-Brick"].exists)
+        XCTAssertFalse(app.buttons["newProductionCheckButton"].exists)
+        let selectorFrame = tabSelector.frame
+        let resourceFrame = app.descendants(matching: .any)["productionResourceColumn"].frame
+        let metaFrame = app.descendants(matching: .any)["productionMetaHeader"].frame
+        XCTAssertGreaterThanOrEqual(metaFrame.minX, resourceFrame.maxX)
+        app.buttons["productionSectionArrow"].tap()
+        XCTAssertTrue(app.staticTexts["Avg rounds until one produced"].exists)
+        XCTAssertEqual(tabSelector.frame, selectorFrame)
+#if false // Superseded by REQ-019's Production matrix.
         XCTAssertTrue(app.otherElements["productionTable"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Ore"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["defaultPlan-Dev Card"].exists)
@@ -212,6 +272,7 @@ final class CatanalystUITests: XCTestCase {
 
         app.buttons["closeAnalysisButton"].tap()
         XCTAssertFalse(app.otherElements["analysisBrowser"].exists)
+#endif
     }
 
     @MainActor
@@ -248,20 +309,23 @@ final class CatanalystUITests: XCTestCase {
 
         app.buttons["analysisButton"].tap()
         XCTAssertTrue(app.otherElements["analysisBrowser"].waitForExistence(timeout: 3))
+        app.buttons["plansAnalysisTab"].tap()
         XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Blue"))
         XCTAssertLessThan(
             app.descendants(matching: .any)["planTabSelector"].frame.maxY,
             app.descendants(matching: .any)["playerSelector"].frame.minY
         )
 
-        let tableFrame = app.otherElements["productionTable"].frame
+        let tableFrame = app.otherElements["plansTable"].frame
         app.buttons["selectPlayer-red"].tap()
-        XCTAssertEqual(app.otherElements["productionTable"].frame, tableFrame)
+        XCTAssertEqual(app.otherElements["plansTable"].frame, tableFrame)
         XCTAssertTrue(app.buttons["selectedPlayerButton"].label.contains("Red"))
     }
 
     @MainActor
     func testCreatesAndEditsACustomCardsPlan() throws {
+        throw XCTSkip("REQ-019 removes custom Production checks")
+#if false // Retained as history for the removed custom Production workflow.
         let app = makeApp()
         app.launch()
         app.buttons["standardBoardButton"].tap()
@@ -379,6 +443,7 @@ final class CatanalystUITests: XCTestCase {
         app.buttons["newPlanButton"].tap()
         XCTAssertEqual(app.textFields["planNameField"].value as? String, "Plan 1")
         app.buttons["cancelPlanButton"].tap()
+#endif
     }
 
     @MainActor

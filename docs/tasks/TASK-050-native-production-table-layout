@@ -1,0 +1,25 @@
+status: in-progress
+started_datetime: 2026-08-06T18:06:00+01:00
+completed_datetime:
+priority: P1
+requirement: REQ-019
+design: SCR-002-plans
+depends_on: TASK-049
+
+# Match Production to the native Plans table layout
+
+Refine the Production matrix so it shares the Plans table's fixed header, icon column, typography, density, and scrolling behavior.
+
+## Acceptance criteria
+
+- [ ] The Production/Plans picker stays fixed at the top when changing sections or scrolling Production.
+- [ ] The Production matrix fills the remaining content area without vertically repositioning the Analysis header.
+- [ ] The resource column is fixed while only player-value columns scroll horizontally.
+- [ ] `Avg production per round` and `Avg rounds until one produced` span only the values viewport.
+- [ ] All, Brick, Ore, Wheat, Sheep, and Wood restore their resource icons.
+- [ ] Production typography, row height, separators, backgrounds, and padding match Plans.
+- [ ] The White player column heading uses grey text; other headings retain their player colour.
+- [ ] Section arrow and horizontal swipe continue to toggle the Production metric.
+- [ ] UI regression coverage compiles.
+- [ ] Focused checks pass on a functioning simulator or device.
+

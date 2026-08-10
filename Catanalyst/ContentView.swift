@@ -26,8 +26,8 @@ struct ContentView: View {
                     self.board = nil
                 }
             } else {
-                BoardSelectionScreen {
-                    let newBoard = BoardState()
+                BoardSelectionScreen { activePlayers in
+                    let newBoard = BoardState(snapshot: .standard(activePlayers: activePlayers))
                     persistence.save(newBoard.snapshot)
                     board = newBoard
                 }
@@ -40,7 +40,8 @@ struct ContentView: View {
 }
 
 private struct BoardSelectionScreen: View {
-    let createStandardBoard: () -> Void
+    @State private var selectedPlayers = Set(PlayerColor.defaultActive)
+    let createStandardBoard: ([PlayerColor]) -> Void
 
     var body: some View {
         NavigationStack {
@@ -57,7 +58,11 @@ private struct BoardSelectionScreen: View {
                 }
 
                 VStack(spacing: 12) {
-                    Button(action: createStandardBoard) {
+                    PlayerMultiSelector(selection: $selectedPlayers)
+
+                    Button {
+                        createStandardBoard(PlayerColor.allCases.filter(selectedPlayers.contains))
+                    } label: {
                         BoardChoiceLabel(
                             title: "Standard board",
                             detail: "19 hexes · rows of 3, 4, 5, 4, 3"

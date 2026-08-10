@@ -15,8 +15,10 @@ struct BoardScreen: View {
     @State private var editTool = BoardEditTool.terrain
     @State private var isShowingAnalysis = false
     @State private var isShowingHand = false
+    @State private var isShowingChangePlayers = false
     @State private var selectedPlayer = PlayerColor.red
     @State private var isShowingEditHelp = false
+    @State private var showsVertexValues = false
     @State private var rotationPresentation: BoardRotationPresentation
 
     init(board: BoardState, onNewGame: @escaping () -> Void) {
@@ -35,12 +37,18 @@ struct BoardScreen: View {
                     isEditing: isEditing,
                     editTool: editTool,
                     selectedPlayer: selectedPlayer,
+                    showsVertexValues: showsVertexValues,
                     presentationRotationDegrees: rotationPresentation.degrees
                 )
                 .accessibilityIdentifier("boardEditor")
 
                 VStack(spacing: 8) {
                     if isEditing {
+                        HStack {
+                            Spacer()
+                            vertexValuesToggle
+                        }
+
                         ZStack {
                             Picker("Hex editing mode", selection: $editTool) {
                                 ForEach(BoardEditTool.allCases) { tool in
@@ -64,12 +72,11 @@ struct BoardScreen: View {
                                 .accessibilityIdentifier("boardEditHelpButton")
                             }
                         }
-
                     }
 
                     if isEditing {
                         HStack {
-                            PlayerSelector(selection: $selectedPlayer)
+                            PlayerSelector(selection: $selectedPlayer, players: board.activePlayers)
                             Spacer(minLength: 0)
                         }
                     }
@@ -83,6 +90,7 @@ struct BoardScreen: View {
                         rotateLeftButton
                         rotateRightButton
                         Spacer()
+                        vertexValuesToggle
                     }
                     .padding(.horizontal)
                     .padding(.top, 8)
@@ -108,11 +116,30 @@ struct BoardScreen: View {
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
+            .sheet(isPresented: $isShowingChangePlayers) {
+                ChangePlayersView(board: board)
+            }
+            .onChange(of: board.activePlayers) { _, players in
+                if !players.contains(selectedPlayer), let first = players.first {
+                    selectedPlayer = first
+                }
+            }
         }
+    }
+
+    private var vertexValuesToggle: some View {
+        Toggle("Vertex values", isOn: $showsVertexValues)
+            .font(.caption.weight(.medium))
+            .fixedSize()
+            .accessibilityIdentifier("vertexValuesToggle")
     }
 
     private var gameMenu: some View {
         Menu {
+            Button("Change players", systemImage: "person.2") {
+                isShowingChangePlayers = true
+            }
+            .accessibilityIdentifier("changePlayersButton")
             Button("New game", systemImage: "plus.square", action: onNewGame)
                 .accessibilityIdentifier("newGameButton")
         } label: {

@@ -36,7 +36,7 @@ struct PlanEditorView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         HStack(spacing: 8) {
-                            PlayerSelector(selection: $selectedPlayer)
+                            PlayerSelector(selection: $selectedPlayer, players: board.activePlayers)
                             if draft.kind == .constructions {
                                 Button {
                                     isPreviewingConstructionPlan = true

@@ -19,7 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-001 through TASK-044 are implemented and marked `done`.
+- TASK-001 through TASK-049 are implemented and marked `done`.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
 - TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
@@ -28,6 +28,10 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Completed REQ-021's TASK-049 with a display-only Vertex values toggle, adjoining pip totals at all 54 Board vertices, and one/two owner-colour rings for settlements/cities.
+- Completed REQ-019 and REQ-020's TASK-045 through TASK-048: selectable persisted active players, destructive removed-player cleanup, active-only selectors, and the per-player Production matrix.
+- New games default to Red, Blue, White, and Orange; Board Change players supports all six colours and confirms before deleting associated hands, plans, roads, settlements, or cities.
+- Production now reports All/Brick/Ore/Wheat/Sheep/Wood per active player, scales expected dice production to one roll per active player per round, and toggles to inverse rounds-until-produced values.
 - Completed REQ-018's TASK-041 through TASK-044: restored the full-width Analysis tabs, moved Help beside player selection, removed Graph, added owner-triangle contrast, hid game/rotation controls while editing, and corrected the Board rotation pivot/direction/easing.
 - Board rotation now separates unbounded presentation turns from normalized persistence and derives its pivot from rendered Board geometry.
 - Completed REQ-017's TASK-033 through TASK-040: persisted Analysis items, progressive editor icon selection, compact Analysis header, All-player corner markers, Production-first expansion ordering, persistent Board rotation, Hand helper spacing, and New Game reset/navigation.
@@ -98,8 +102,8 @@ Use the area below the three dashes for your current notes:
 
 ## Known blocker
 
-- CoreSimulator remains unreliable. The latest app, unit-test, and UI-test bundles compile successfully, but live focused UI execution is deferred to the user as requested.
+- CoreSimulator remains unreliable. The latest app, unit-test, and UI-test bundles compile successfully, but workers failed to materialize for the focused REQ-019/020 run; live focused UI execution is deferred to the user as requested.
 
 ## Recommended next action
 
-- On a functioning simulator/device, perform the remaining unchecked focused UI checks, including REQ-017 persistence/New Game and REQ-018 Analysis header, triangle contrast, edit-mode control visibility, directional Board animation, rapid taps, relaunch, and rotated gestures.
+- On a functioning simulator/device, perform the remaining unchecked focused UI checks, including REQ-019 Production values/navigation and REQ-020 player creation/change/removal/persistence alongside the prior REQ-017/018 checks.

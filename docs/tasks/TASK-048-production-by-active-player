@@ -1,0 +1,32 @@
+status: done
+started_datetime: 2026-08-06T16:59:00+01:00
+completed_datetime: 2026-08-06T17:10:00+01:00
+priority: P0
+requirement: REQ-019, REQ-020
+design: SCR-002-plans
+depends_on: TASK-047
+
+# Show Production by active player
+
+Replace the Production tab's plan-style checks with resource production metrics for every active player.
+
+## Acceptance criteria
+
+- [x] Production has exactly All, Brick, Ore, Wheat, Sheep, and Wood rows in that order.
+- [x] Custom Production rows and New production check are not shown or creatable; existing stored data remains intact for compatibility.
+- [x] Each section has one column per active player in stable colour order.
+- [x] The first section meta-header is `Avg production per round`.
+- [x] Production accounts for owned settlements once and cities twice on adjacent producing hexes.
+- [x] Expected production per roll uses dice probability and is multiplied by active-player count to obtain per-round production.
+- [x] All is the sum of the five resource values.
+- [x] Swiping right or using the arrow shows `Avg rounds until one produced` with each positive value equal to the inverse of mean production per round; zero production is represented clearly without division by zero.
+- [x] Plans tab layout, rows, expansion, creation, and statistics remain otherwise unchanged.
+- [x] Production math and UI regression coverage compile.
+- [ ] Focused checks pass on a functioning simulator or device.
+
+## Evidence
+
+- Added pure production metrics for active-player settlements/cities, dice probabilities, round scaling, resource totals, inverse values, and zero handling.
+- Replaced only the Production tab body with the active-player matrix and retained stored custom Production data for decoding compatibility.
+- Added domain regression coverage and focused Production UI assertions; app, unit-test, and UI-test bundles compile for the iPhone 17 simulator.
+- Live execution was blocked while CoreSimulator workers failed to materialize; manual focused verification remains intentionally unchecked.

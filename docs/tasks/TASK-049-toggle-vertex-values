@@ -1,0 +1,32 @@
+status: done
+started_datetime: 2026-08-06T17:16:00+01:00
+completed_datetime: 2026-08-06T17:56:00+01:00
+priority: P1
+requirement: REQ-021
+design: SCR-001-board
+depends_on: TASK-048
+
+# Toggle Board vertex values
+
+Add a Board display mode that replaces settlements and cities with pip totals at every vertex while retaining ownership through coloured rings.
+
+## Acceptance criteria
+
+- [x] SCR-001 has a top-right toggle labelled `Vertex values` in view and edit modes.
+- [x] Enabling the toggle hides settlement and city symbols and shows a black circle with a white pip total on every Board vertex.
+- [x] A vertex without a building has no coloured ring.
+- [x] A settlement vertex has one thin ring in its owner colour.
+- [x] A city vertex has two thin rings in its owner colour.
+- [x] Each value is the sum of pip counts on numbered adjoining hexes; unnumbered, desert, and ocean hexes contribute zero.
+- [x] Roads, Board rotation, zoom, panning, and edit hit targets continue to work.
+- [x] The toggle is display-only and does not alter or persist Board state.
+- [x] Domain and UI regression coverage compile.
+- [ ] Focused checks pass on a functioning simulator or device.
+
+## Evidence
+
+- Added a pure BoardGeometry pip-total calculation with producing, non-producing, unnumbered, and non-adjoining coverage.
+- Added the display-only toggle in view/edit layouts and rendered all 54 values inside the Board transform while leaving structural editing targets above them.
+- Replaced building symbols with accessible value markers using zero, one, or two owner-colour rings according to occupancy.
+- Added focused UI coverage for toggle availability, all vertex markers, and settlement ownership representation.
+- `xcodebuild build-for-testing -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator'` succeeded.

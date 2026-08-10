@@ -3,9 +3,15 @@ import SwiftUI
 struct PlayerSelector: View {
     @Binding var selection: PlayerColor
     private let allSelection: Binding<Bool>?
+    private let players: [PlayerColor]
 
-    init(selection: Binding<PlayerColor>, allSelection: Binding<Bool>? = nil) {
+    init(
+        selection: Binding<PlayerColor>,
+        players: [PlayerColor] = PlayerColor.allCases,
+        allSelection: Binding<Bool>? = nil
+    ) {
         _selection = selection
+        self.players = players
         self.allSelection = allSelection
     }
 
@@ -14,7 +20,7 @@ struct PlayerSelector: View {
             Text("Player:")
                 .font(.subheadline.weight(.semibold))
 
-            ForEach(PlayerColor.allCases) { player in
+            ForEach(players) { player in
                 playerButton(player) {
                     allSelection?.wrappedValue = false
                     selection = player
@@ -28,9 +34,9 @@ struct PlayerSelector: View {
                     Circle()
                         .fill(
                             AngularGradient(
-                                gradient: Gradient(stops: PlayerColor.allCases.enumerated().flatMap { index, player in
-                                    let start = Double(index) / Double(PlayerColor.allCases.count)
-                                    let end = Double(index + 1) / Double(PlayerColor.allCases.count)
+                                gradient: Gradient(stops: players.enumerated().flatMap { index, player in
+                                    let start = Double(index) / Double(players.count)
+                                    let end = Double(index + 1) / Double(players.count)
                                     return [
                                         Gradient.Stop(color: player.color, location: start),
                                         Gradient.Stop(color: player.color, location: end)

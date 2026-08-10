@@ -172,6 +172,7 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
     var hands: [PlayerColor: ResourceHand]
     var customPlans: [CustomPlan]
     var orientation: BoardOrientation
+    var activePlayers: [PlayerColor]
 
     init(
         tiles: [HexTile],
@@ -181,7 +182,8 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
         buildingOwners: [BoardVertex: PlayerColor] = [:],
         hands: [PlayerColor: ResourceHand] = [:],
         customPlans: [CustomPlan] = [],
-        orientation: BoardOrientation = .north
+        orientation: BoardOrientation = .north,
+        activePlayers: [PlayerColor] = PlayerColor.defaultActive
     ) {
         self.tiles = tiles
         self.roads = roads
@@ -191,12 +193,13 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
         self.hands = hands
         self.customPlans = customPlans
         self.orientation = orientation
+        self.activePlayers = Self.orderedPlayers(activePlayers)
     }
 }
 
 extension BoardSnapshot: Codable {
     private enum CodingKeys: String, CodingKey {
-        case tiles, roads, buildings, roadOwners, buildingOwners, hands, customPlans, orientation
+        case tiles, roads, buildings, roadOwners, buildingOwners, hands, customPlans, orientation, activePlayers
     }
 
     init(from decoder: Decoder) throws {
@@ -224,6 +227,10 @@ extension BoardSnapshot: Codable {
             BoardOrientation.self,
             forKey: .orientation
         ) ?? .north
+        activePlayers = Self.orderedPlayers(
+            try container.decodeIfPresent([PlayerColor].self, forKey: .activePlayers)
+                ?? PlayerColor.allCases
+        )
     }
 
     func encode(to encoder: Encoder) throws {
@@ -236,6 +243,13 @@ extension BoardSnapshot: Codable {
         try container.encode(hands, forKey: .hands)
         try container.encode(customPlans, forKey: .customPlans)
         try container.encode(orientation, forKey: .orientation)
+        try container.encode(activePlayers, forKey: .activePlayers)
+    }
+
+    nonisolated static func orderedPlayers(_ players: some Sequence<PlayerColor>) -> [PlayerColor] {
+        let selected = Set(players)
+        let ordered = PlayerColor.allCases.filter(selected.contains)
+        return ordered.isEmpty ? PlayerColor.defaultActive : ordered
     }
 }
 
@@ -252,6 +266,32 @@ final class BoardState {
     var buildings: [BoardVertex: Building] { snapshot.buildings }
     var customPlans: [CustomPlan] { snapshot.customPlans }
     var orientation: BoardOrientation { snapshot.orientation }
+    var activePlayers: [PlayerColor] { snapshot.activePlayers }
+
+    func hasStoredState(for player: PlayerColor) -> Bool {
+        !(snapshot.hands[player] ?? ResourceHand()).isEmpty ||
+            snapshot.customPlans.contains { $0.player == player } ||
+            snapshot.roadOwners.values.contains(player) ||
+            snapshot.buildingOwners.values.contains(player)
+    }
+
+    func addPlayer(_ player: PlayerColor) {
+        snapshot.activePlayers = BoardSnapshot.orderedPlayers(snapshot.activePlayers + [player])
+    }
+
+    func removePlayer(_ player: PlayerColor) {
+        guard snapshot.activePlayers.count > 1,
+              snapshot.activePlayers.contains(player) else { return }
+        let removedRoads = Set(snapshot.roadOwners.compactMap { $0.value == player ? $0.key : nil })
+        let removedBuildings = Set(snapshot.buildingOwners.compactMap { $0.value == player ? $0.key : nil })
+        snapshot.roads.subtract(removedRoads)
+        snapshot.buildings = snapshot.buildings.filter { !removedBuildings.contains($0.key) }
+        snapshot.roadOwners = snapshot.roadOwners.filter { $0.value != player }
+        snapshot.buildingOwners = snapshot.buildingOwners.filter { $0.value != player }
+        snapshot.hands.removeValue(forKey: player)
+        snapshot.customPlans.removeAll { $0.player == player }
+        snapshot.activePlayers.removeAll { $0 == player }
+    }
 
     func rotateLeft() {
         snapshot.orientation = snapshot.orientation.rotatedLeft()
@@ -415,6 +455,13 @@ extension BoardSnapshot {
         buildingOwners: [:],
         hands: [:],
         customPlans: [],
-        orientation: .north
+        orientation: .north,
+        activePlayers: PlayerColor.defaultActive
     )
+
+    static func standard(activePlayers: [PlayerColor]) -> BoardSnapshot {
+        var snapshot = standard
+        snapshot.activePlayers = orderedPlayers(activePlayers)
+        return snapshot
+    }
 }

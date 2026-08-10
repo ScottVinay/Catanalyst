@@ -44,6 +44,16 @@ nonisolated enum BoardGeometry {
         })
     }
 
+    static func pipValue(at vertex: BoardVertex, tiles: [HexTile]) -> Int {
+        tiles.reduce(into: 0) { total, tile in
+            guard vertices(for: tile.coordinate).contains(vertex),
+                  tile.terrain != .desert,
+                  tile.terrain != .ocean,
+                  let number = tile.number else { return }
+            total += number.pipCount
+        }
+    }
+
     static func point(for vertex: BoardVertex, hexSize: CGFloat, origin: CGPoint) -> CGPoint {
         CGPoint(
             x: origin.x + CGFloat(vertex.x) * sqrt(3) * hexSize / 2,

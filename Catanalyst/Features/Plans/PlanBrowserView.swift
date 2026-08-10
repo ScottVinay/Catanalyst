@@ -115,10 +115,13 @@ struct PlanBrowserView: View {
                 tabSelector
                     .padding(.horizontal)
                 HStack {
-                    PlayerSelector(
-                        selection: $selectedPlayer,
-                        allSelection: $isShowingAllPlayers
-                    )
+                    if selectedTab == .plans {
+                        PlayerSelector(
+                            selection: $selectedPlayer,
+                            players: board.activePlayers,
+                            allSelection: $isShowingAllPlayers
+                        )
+                    }
                     Spacer(minLength: 0)
                     Button {
                         activeAlert = .browserHelp
@@ -134,8 +137,14 @@ struct PlanBrowserView: View {
                 .frame(height: 44)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("analysisPlayerRow")
-                planTable
+                if selectedTab == .production {
+                    ProductionMatrixView(board: board)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                } else {
+                    planTable
+                }
             }
+            .frame(maxHeight: .infinity, alignment: .top)
             .padding(.top, 8)
             .navigationTitle("Analysis")
             .navigationBarTitleDisplayMode(.inline)
@@ -813,7 +822,7 @@ struct PlanBrowserView: View {
     }
 
     private func beginNewPlan(kind: CustomPlanKind) {
-        let owner: PlayerColor = isShowingAllPlayers ? .red : selectedPlayer
+        let owner = isShowingAllPlayers ? (board.activePlayers.first ?? .red) : selectedPlayer
         selectedPlayer = owner
         editingPlan = CustomPlan(
             name: CustomPlan.nextDefaultName(

@@ -1,0 +1,2 @@
+I want to change the production page of analysis. No longer allow custom, and only allow one row for each of the resource types. Also add a new row at the top for all.
+The meta-header says "Avg production per round". There is one column for each player in the game (see REQ-020). When we swipe right or use the arrow, instead of showing probability per turn, show the same as the left page, but "Avg rounds until one produced" which is the inverse of the "Mean production per round".

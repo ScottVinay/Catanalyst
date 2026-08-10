@@ -1,0 +1,29 @@
+status: done
+started_datetime: 2026-08-06T16:50:00+01:00
+completed_datetime: 2026-08-06T16:52:00+01:00
+priority: P0
+requirement: REQ-020
+design: SCR-000-new-game, ITEM-001-player-selector
+depends_on: TASK-040
+
+# Select and persist active players for a new game
+
+Add a six-colour multi-select bar to SCR-000 and persist the chosen active-player set as part of the game.
+
+## Acceptance criteria
+
+- [x] Red, Blue, White, and Orange are selected by default; Green and Brown are not.
+- [x] Tapping a colour toggles its tick immediately and at least one colour must remain selected.
+- [x] The control appears above board-size choices and is accessible.
+- [x] Starting Standard board stores exactly the selected colours in stable colour order.
+- [x] Active players persist across termination; legacy snapshots decode without losing existing players.
+- [x] Starting another new game resets the draft selection to the four defaults.
+- [x] Domain and UI regression coverage compile.
+- [ ] Focused checks pass on a functioning simulator or device.
+
+## Evidence
+
+- Added a reusable six-colour multi-selector and four-player default on SCR-000.
+- Persisted ordered active colours in `BoardSnapshot`, with all-six legacy fallback to preserve existing data.
+- Added active-player serialization and default UI coverage.
+- Arm64 simulator-target `xcodebuild build-for-testing` succeeded.

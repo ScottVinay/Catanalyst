@@ -9,7 +9,7 @@ struct HandView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    PlayerSelector(selection: $selectedPlayer)
+                    PlayerSelector(selection: $selectedPlayer, players: board.activePlayers)
 
                     Text("These are the selected player's current cards. They affect the values shown in Analysis.")
                         .font(.subheadline)

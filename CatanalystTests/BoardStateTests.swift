@@ -34,6 +34,37 @@ struct BoardStateTests {
         #expect(firstEdges.intersection(neighbourEdges).count == 1)
     }
 
+    @Test("Vertex values sum pips from adjoining producing hexes")
+    func vertexPipValues() throws {
+        let vertex = try #require(BoardGeometry.vertices(for: HexCoordinate(q: 0, r: 0)).first)
+        let adjoining = HexCoordinate.standardBoard.filter {
+            BoardGeometry.vertices(for: $0).contains(vertex)
+        }
+        #expect(adjoining.count == 3)
+
+        let tiles = [
+            HexTile(coordinate: adjoining[0], terrain: .brick, number: .six),
+            HexTile(coordinate: adjoining[1], terrain: .wheat, number: .nine),
+            HexTile(coordinate: adjoining[2], terrain: .ore, number: .three),
+        ]
+
+        #expect(BoardGeometry.pipValue(at: vertex, tiles: tiles) == 11)
+        #expect(BoardGeometry.pipValue(at: BoardVertex(x: 100, y: 100), tiles: tiles) == 0)
+    }
+
+    @Test("Unnumbered and non-producing hexes add no vertex pips")
+    func nonProducingVertexPipValues() throws {
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+        let tiles = [
+            HexTile(coordinate: coordinate, terrain: .desert, number: .six),
+            HexTile(coordinate: HexCoordinate(q: 0, r: -1), terrain: .ocean, number: .eight),
+            HexTile(coordinate: HexCoordinate(q: 1, r: -1), terrain: .brick, number: nil),
+        ]
+
+        #expect(BoardGeometry.pipValue(at: vertex, tiles: tiles) == 0)
+    }
+
     @Test("Terrain and number tokens can be changed")
     func editsHex() throws {
         let board = BoardState()
@@ -346,5 +377,56 @@ struct BoardStateTests {
 
         #expect(abs(center.x - origin.x) < 0.0001)
         #expect(abs(center.y - origin.y) < 0.0001)
+    }
+
+    @Test("Active players use the four-player default and persist in stable colour order")
+    func activePlayersPersist() throws {
+        #expect(BoardState().activePlayers == PlayerColor.defaultActive)
+        let board = BoardState(snapshot: .standard(activePlayers: [.green, .red]))
+        #expect(board.activePlayers == [.red, .green])
+        #expect(try BoardState.decode(board.encoded()).activePlayers == [.red, .green])
+    }
+
+    @Test("Removing a player clears all state they own")
+    func removingPlayerClearsOwnedState() throws {
+        let board = BoardState()
+        let edge = try #require(BoardGeometry.standardEdges.first)
+        board.addCard(.brick, to: .blue)
+        board.savePlan(CustomPlan(name: "Blue plan", kind: .cards, player: .blue))
+        #expect(board.placeBuilding(.settlement, at: edge.start, for: .blue) == nil)
+        #expect(board.placeRoad(on: edge, for: .blue) == nil)
+        #expect(board.hasStoredState(for: .blue))
+
+        board.removePlayer(.blue)
+
+        #expect(!board.activePlayers.contains(.blue))
+        #expect(board.hand(for: .blue).isEmpty)
+        #expect(!board.customPlans.contains { $0.player == .blue })
+        #expect(board.roads.isEmpty)
+        #expect(board.buildings.isEmpty)
+        #expect(!board.hasStoredState(for: .blue))
+    }
+
+    @Test("Production uses dice probability, building multiplier, and rolls per round")
+    func productionPerRound() throws {
+        let board = BoardState()
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+        board.setTerrain(.brick, at: coordinate)
+        board.setNumber(.six, at: coordinate)
+        #expect(board.placeBuilding(.settlement, at: vertex, for: .red) == nil)
+
+        let settlement = ProductionMetrics.meanPerRound(
+            resource: .brick, player: .red, snapshot: board.snapshot
+        )
+        #expect(abs(settlement - 20.0 / 36.0) < 0.0001)
+        #expect(abs(ProductionMetrics.roundsUntilOne(meanPerRound: settlement)! - 1 / settlement) < 0.0001)
+
+        #expect(board.placeBuilding(.city, at: vertex, for: .red) == nil)
+        let city = ProductionMetrics.meanPerRound(
+            resource: .all, player: .red, snapshot: board.snapshot
+        )
+        #expect(abs(city - 40.0 / 36.0) < 0.0001)
+        #expect(ProductionMetrics.roundsUntilOne(meanPerRound: 0) == nil)
     }
 }

@@ -1,0 +1,47 @@
+status: in-progress
+started_datetime: 2026-08-10T00:00:00+01:00
+completed_datetime:
+priority: P1
+requirement: REQ-019
+design: SCR-002-plans
+depends_on: TASK-050
+
+# Advanced production analysis
+
+Complete SCR-002's Production section with detailed distributions, a production-balance plot, and dice-reliance analysis.
+
+## Acceptance criteria
+
+- [ ] Production is composed of distinct, vertically scrollable analysis elements.
+- [ ] Detailed production has `Cards per round` and `Rounds per card` modes with the specified help text.
+- [ ] All, Brick, Lumber, Ore, Grain, and Wool rows expand independently to aligned probability subrows.
+- [ ] Cards-per-round subrows show 0, 1, 2, 3, and 4+ card probabilities.
+- [ ] Rounds-per-card subrows show first production in 1, 2, 3, and 4+ rounds using the geometric distribution derived from `p0`.
+- [ ] Production contribution records include player, building ID/type, hex ID, resource, and dice number.
+- [ ] Settlements count once, cities twice, and per-round distributions support one through six active players.
+- [ ] All-resource means agree with summed resource means, while All distributions preserve same-roll resource correlations.
+- [ ] Production balance plots Brick, Lumber, Ore, Grain, and Wool clockwise and supports any subset of active players.
+- [ ] Production balance normalises every polygon against the maximum active-player/resource mean.
+- [ ] Dice reliance selects exactly one active player and toggles raw versus probability-weighted production.
+- [ ] Dice reliance displays dice results 2–12 excluding 7.
+- [ ] Production scrolling clamps at its limits and fixed/value table rows remain aligned.
+- [ ] Domain and UI regression coverage is added for changed behaviour.
+- [ ] Relevant automated checks pass.
+
+## Implementation plan
+
+1. Model production contributions and deterministic distributions.
+2. Build the detailed expandable production table and help.
+3. Add the radial production-balance plot and player multi-selection.
+4. Add the dice-reliance selector, toggle, help, and chart.
+5. Add tests, review the diff, and record verification evidence and remaining manual checks.
+
+## Risks and clarifications
+
+- Robber blocking is out of scope, but contribution records retain hex identity for future filtering.
+- The All distribution is calculated from total production per dice outcome to retain correlations.
+- The tab may scroll vertically to expose lower analysis elements.
+
+## Evidence
+
+Pending implementation.

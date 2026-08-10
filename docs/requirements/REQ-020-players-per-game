@@ -1,0 +1,3 @@
+There should be the option on SCR-000-new-game to select the number of players in the game. This is a player selector bar above the board size selector with all 6 colours. Tapping one of these puts a tick in it. After choosing the board and going to SCR-001, from this point onwards, the player selector will only have the colours selected at new game.
+
+In the burger menu there should be an option to change players. This takes us to SCR-007-change-players (make this page if it doesn't exist) which allows ticking more colours.
