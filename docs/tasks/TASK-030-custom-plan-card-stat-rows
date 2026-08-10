@@ -36,4 +36,4 @@ Add five resource-stat rows after any ordered construction-step rows in every ex
 - Resource placeholders are deterministic and vary with owner, plan contents, and the applicable resource hand.
 - Fixed icon rows and scrolling summary/probability rows use the same flattened identities and 44-point heights.
 - Domain tests assert exact resource order and placeholder inputs; UI coverage asserts five rows, vertical alignment, and collapse.
-- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/Catanalyst-tasks025-030-derived`; live animation checks remain manual.
+- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/HexIQ-tasks025-030-derived`; live animation checks remain manual.

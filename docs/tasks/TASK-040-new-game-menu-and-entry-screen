@@ -33,4 +33,4 @@ Add Board navigation for leaving the persisted active game and starting a fresh 
 - New Game clears the active snapshot and returns to the existing size chooser; Standard creates and immediately persists a fresh `BoardState`.
 - Large and Custom choices remain visible and disabled.
 - Added UI regression coverage for the menu-to-entry-to-clean-Board flow and isolated other UI tests from persisted launch state.
-- `xcodebuild build-for-testing -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` succeeded.
+- `xcodebuild build-for-testing -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` succeeded.

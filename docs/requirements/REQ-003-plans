@@ -1,4 +1,4 @@
-The key feature of Catanalyst is the ability to compare plans. A plan is created when the board is in a given state. A plan consists of at least one of:
+The key feature of HexIQ is the ability to compare plans. A plan is created when the board is in a given state. A plan consists of at least one of:
 
 - A sequence of intended moves, e.g. build a road at a given location, then a settlement, then upgrade the settlement to a city.
 - A set of desired cards in hand.

@@ -41,8 +41,8 @@ Implement SCR-001's revised hold-and-drag radial editing behavior, superseding T
 
 - Added geometry tests for the top option, centre cancellation, and outside cancellation.
 - Replaced the tap-picker UI scenario with centre-release cancellation and hold-drag selection coverage.
-- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-player-longpress-derived` succeeded for the app and both test bundles.
-- UI coverage compares the Board frame before and after entering edit mode; the final app/test-bundle compile succeeded using `/private/tmp/Catanalyst-selector-position-derived`.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/HexIQ-player-longpress-derived` succeeded for the app and both test bundles.
+- UI coverage compares the Board frame before and after entering edit mode; the final app/test-bundle compile succeeded using `/private/tmp/HexIQ-selector-position-derived`.
 - Repeated-tap coverage verifies an ordinary tap cannot leave a radial option visible.
 - REQ-011 was recorded before implementation as requested.
 

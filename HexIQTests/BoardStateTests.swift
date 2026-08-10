@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Catanalyst
+@testable import HexIQ
 
 @Suite("Board state")
 struct BoardStateTests {
@@ -182,7 +182,7 @@ struct BoardStateTests {
 
     @Test("Active game persistence restores a full snapshot and can clear it")
     func activeGamePersistence() throws {
-        let suiteName = "CatanalystTests.\(UUID().uuidString)"
+        let suiteName = "HexIQTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defer { defaults.removePersistentDomain(forName: suiteName) }
         let persistence = ActiveGamePersistence(defaults: defaults)

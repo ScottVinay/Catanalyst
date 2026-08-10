@@ -1,6 +1,6 @@
 import CoreGraphics
 import Testing
-@testable import Catanalyst
+@testable import HexIQ
 
 @Suite("Default plan placeholders")
 struct DefaultPlanTests {

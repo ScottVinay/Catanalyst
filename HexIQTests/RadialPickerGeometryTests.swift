@@ -1,6 +1,6 @@
 import CoreGraphics
 import Testing
-@testable import Catanalyst
+@testable import HexIQ
 
 @Suite("Radial picker geometry")
 struct RadialPickerGeometryTests {

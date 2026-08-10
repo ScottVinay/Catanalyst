@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Catanalyst
+@testable import HexIQ
 
 @Suite("Custom plans")
 struct CustomPlanTests {

@@ -28,4 +28,4 @@ Separate the graph and contextual-help controls so interaction feedback and acti
 - Replaced the shared `ToolbarItemGroup` with two independent trailing `ToolbarItem` buttons and independent plain pressed states.
 - Retained distinct accessibility identifiers/labels and the current unavailable-graph no-op behavior.
 - Existing UI coverage taps Graph and verifies no Help alert, then independently opens and dismisses Help.
-- The app, unit-test, and UI-test bundles compile via `xcodebuild build-for-testing -quiet` using `/private/tmp/Catanalyst-tasks018-024-derived`.
+- The app, unit-test, and UI-test bundles compile via `xcodebuild build-for-testing -quiet` using `/private/tmp/HexIQ-tasks018-024-derived`.

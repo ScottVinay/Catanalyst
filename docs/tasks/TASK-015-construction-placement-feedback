@@ -37,5 +37,5 @@ Make ghost placement visible before returning to the editor and provide a read-o
 - Board rendering uses explicit road layers before building layers, including separate ghost-road and ghost-building passes.
 - Added a hex-cluster preview button and a read-only full-screen Board preview with the draft's projected ghost pieces and an accessible Close action.
 - Extended UI coverage for the visible delay, preview navigation, absent placement targets, and return to the unchanged editor draft.
-- `xcodebuild build-for-testing` succeeded using `/private/tmp/Catanalyst-req013-derived`.
-- The revised 650 ms timing, explicit render layers, app, and complete test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.
+- `xcodebuild build-for-testing` succeeded using `/private/tmp/HexIQ-req013-derived`.
+- The revised 650 ms timing, explicit render layers, app, and complete test bundles compile using `/private/tmp/HexIQ-tasks018-024-derived`.

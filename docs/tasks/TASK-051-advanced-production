@@ -50,7 +50,7 @@ Complete SCR-002's Production section with detailed distributions, a production-
 - Rebuilt Production as three vertically scrollable elements: an expandable fixed-column matrix, a multi-player normalised radar plot, and a single-player raw/expected dice bar chart.
 - Updated focused UI coverage for metric selection, expansion, lower-element scrolling, chart presence, and omission of dice result 7.
 - `git diff --check` passed.
-- `xcodebuild build-for-testing -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` passed.
+- `xcodebuild build-for-testing -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` passed.
 - Focused unit execution compiled successfully but CoreSimulator workers failed to materialise; the run was cancelled after Xcode reported the existing simulator-service blocker.
 
 ## Remaining manual checks

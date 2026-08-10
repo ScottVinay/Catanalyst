@@ -31,4 +31,4 @@ Generate numbered default names for newly created Cards and Constructions plans.
 - Added a pure default-name generator derived from saved plans of the selected player and kind, choosing the first unused positive number.
 - Exact generated-name matching leaves unrelated user-entered names alone; names remain freely editable and are only generated when creation begins.
 - Added unit coverage for numbering gaps, plan kinds, player colours, and unrelated names, plus UI assertions for both initial defaults.
-- `xcodebuild build-for-testing -quiet` succeeded using `/private/tmp/Catanalyst-req013-derived`.
+- `xcodebuild build-for-testing -quiet` succeeded using `/private/tmp/HexIQ-req013-derived`.

@@ -30,4 +30,4 @@ The bar at the bottom should have three icons, in this order:
 - Replaced the unavailable Player action with the middle Hand action, retaining Edit first and Plans last.
 - Added a large-sheet `Cards in hand` navigation shell with Close and shared player selector for TASK-024 to populate.
 - Added UI coverage for horizontal action order, sheet entry/title, and Close dismissal.
-- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.
+- The complete app and test bundles compile using `/private/tmp/HexIQ-tasks018-024-derived`.

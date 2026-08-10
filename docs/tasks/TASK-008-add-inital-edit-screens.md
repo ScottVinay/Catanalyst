@@ -40,7 +40,7 @@ Add `SCR-004-edit` and `SCR-005-view-plan` to the extent specified by their curr
 - Added `CustomPlanTests` for content, serialization round trips, and invalid-count normalization.
 - Added UI scenarios for creating/editing a cards plan and adding a placed construction step.
 - The cards-plan UI scenario verifies that a selected stack exposes its outlined presentation state.
-- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-task008-derived` succeeded for the app and both test bundles.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/HexIQ-task008-derived` succeeded for the app and both test bundles.
 - All three `CustomPlanTests` passed on the iPhone 17 simulator. The combined run's UI-test launcher then stalled with Xcode's debugger service error and was terminated; the construction UI test was reported failed by the interrupted launcher rather than an assertion.
 - A serial `test-without-building` retry avoided simulator clones but failed before either UI test launched because `launchd_sim` crashed and could not bind to the simulator session. No UI assertion failure was reported.
 

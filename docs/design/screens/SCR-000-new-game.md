@@ -12,7 +12,7 @@ This is screen 0: the entry screen for starting a game. It reuses the existing b
 
 ## Layout
 
-- Retain the existing Catanalyst title, hexagon symbol, **Create a board** heading, and board-size helper text.
+- Retain the existing HexIQ title, hexagon symbol, **Create a board** heading, and board-size helper text.
 - Show the existing three board-size choices.
 - Above board sizes, show all six player colours as a multi-select bar. Red, Blue, White, and Orange are selected by default; at least one colour must remain selected.
 - **Standard board** is enabled and creates a fresh standard game.

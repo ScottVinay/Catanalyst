@@ -1,13 +1,13 @@
 //
-//  CatanalystUITestsLaunchTests.swift
-//  CatanalystUITests
+//  HexIQUITestsLaunchTests.swift
+//  HexIQUITests
 //
 //  Created by Scott Vinay on 20/07/2026.
 //
 
 import XCTest
 
-final class CatanalystUITestsLaunchTests: XCTestCase {
+final class HexIQUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

@@ -1,6 +1,6 @@
-# Catanalyst
+# HexIQ
 
-Catanalyst is an iOS application for modelling and analysing Catan games.
+HexIQ is an iOS application for modelling and analysing Catan games.
 
 # TODO
 

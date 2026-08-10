@@ -88,7 +88,7 @@ private struct BoardSelectionScreen: View {
                 .frame(maxWidth: 360)
             }
             .padding(24)
-            .navigationTitle("Catanalyst")
+            .navigationTitle("HexIQ")
         }
     }
 }
@@ -113,6 +113,6 @@ private struct BoardChoiceLabel: View {
 
 #Preview {
     ContentView(persistence: ActiveGamePersistence(
-        defaults: UserDefaults(suiteName: "CatanalystPreview") ?? .standard
+        defaults: UserDefaults(suiteName: "HexIQPreview") ?? .standard
     ))
 }

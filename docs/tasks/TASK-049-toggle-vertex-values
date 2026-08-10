@@ -29,4 +29,4 @@ Add a Board display mode that replaces settlements and cities with pip totals at
 - Added the display-only toggle in view/edit layouts and rendered all 54 values inside the Board transform while leaving structural editing targets above them.
 - Replaced building symbols with accessible value markers using zero, one, or two owner-colour rings according to occupancy.
 - Added focused UI coverage for toggle availability, all vertex markers, and settlement ownership representation.
-- `xcodebuild build-for-testing -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator'` succeeded.
+- `xcodebuild build-for-testing -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator'` succeeded.

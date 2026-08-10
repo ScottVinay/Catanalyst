@@ -37,9 +37,9 @@ Implement `ITEM-001-player-selector` in all relevant screens.
 - Added domain tests for six-player serialization, ownership, isolation, and snapshot round trips.
 - Added plan tests confirming all six profiles have distinct means, ordered percentiles, and monotonic probability curves without changing plan definitions.
 - Added UI coverage confirming all choices share one row, the selected tick state, stable surrounding frames, edit-only Board visibility, and shared state in Plans.
-- The latest selector and stable Board layout compile in the app and both test bundles using `/private/tmp/Catanalyst-selector-position-derived`.
+- The latest selector and stable Board layout compile in the app and both test bundles using `/private/tmp/HexIQ-selector-position-derived`.
 - UI coverage compares selector/control frames to verify the required vertical ordering.
-- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-task007-derived` succeeded for the app and both test bundles after the horizontal overlay and profile changes.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/HexIQ-task007-derived` succeeded for the app and both test bundles after the horizontal overlay and profile changes.
 
 ## Remaining risks and manual checks
 

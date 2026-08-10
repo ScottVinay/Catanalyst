@@ -1,8 +1,8 @@
-# Catanalyst
+# HexIQ
 
 ## Product summary
 
-Catanalyst is an iPhone application that allows players to enter or
+HexIQ is an iPhone application that allows players to enter or
 photograph a Catan board and analyse the current game state.
 
 Its standout feature is a multi-stage planning simulator. A player can

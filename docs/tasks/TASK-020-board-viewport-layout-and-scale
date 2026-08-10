@@ -31,4 +31,4 @@ Refine both fixed zoom levels and allow Detail panning beneath persistent Board 
 - Added a deterministic Overview display offset of 3.5% upward while Detail uses its stored bounded pan offset.
 - Rebuilt `BoardScreen` as a full-area Board ZStack with fixed controls overlaid above it; edit/view mode no longer changes Board geometry.
 - Extended viewport tests for the new scale, bounds, Overview bias, and Detail display offset.
-- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.
+- The complete app and test bundles compile using `/private/tmp/HexIQ-tasks018-024-derived`.

@@ -52,7 +52,7 @@ Add the Cards in Hand sheet, persistent per-player resource counts, and shared o
 - Fed the selected player's current hand into Default and Custom placeholder statistics, including resource-specific remaining-card targets.
 - Added domain coverage for hand mutations, isolation, round trips, legacy JSON, shared plan-card mutations, and hand-aware placeholder inputs.
 - Added UI coverage for bottom-sheet persistence, player switching, one-card removal, Clear, and plan-draft cancellation.
-- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-tasks018-024-derived CODE_SIGNING_ALLOWED=NO` succeeded for the app and both test bundles.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/HexIQ-tasks018-024-derived CODE_SIGNING_ALLOWED=NO` succeeded for the app and both test bundles.
 
 ## Remaining manual verification
 

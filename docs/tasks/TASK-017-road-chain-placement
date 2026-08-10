@@ -36,4 +36,4 @@ Update valid road placement so a new road may connect to an owned road as well a
 - Revised the shared domain validator to accept an owned building at either endpoint or an owned road sharing either endpoint.
 - Board editing and construction-plan projection already call the same validator, so earlier planned roads participate sequentially without UI-specific rule duplication.
 - Updated the exact error text and added analytical coverage for same-colour chains, opponent-only contact, disconnection, and planned-road projection.
-- The complete app, unit-test, and UI-test bundles compile via `xcodebuild build-for-testing -quiet` using `/private/tmp/Catanalyst-req013-derived`.
+- The complete app, unit-test, and UI-test bundles compile via `xcodebuild build-for-testing -quiet` using `/private/tmp/HexIQ-req013-derived`.

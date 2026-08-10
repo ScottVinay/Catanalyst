@@ -38,4 +38,4 @@ Replace custom-row tap-to-view navigation with animated inline expansion and ord
 - Ordered construction placeholders retain step order, icon-only fixed labels, deterministic player/hand-aware red statistics, and all existing statistical columns.
 - Cards-only plans omit the Steps group; default plan interaction is retained.
 - Domain tests cover deterministic ordered step rows, and UI edit coverage now exercises direct long-press editing.
-- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/Catanalyst-tasks025-030-derived`; live animation checks remain manual.
+- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/HexIQ-tasks025-030-derived`; live animation checks remain manual.

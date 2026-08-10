@@ -35,4 +35,4 @@ Add destructive controls for removing the final custom-plan step and resetting e
 - Added `CustomPlan` mutations for kind-specific clearing and final-step removal, with focused unit coverage.
 - Added accessible Clear buttons to both editors and a trash action rendered only on the final construction row.
 - Extended UI coverage for Cards Clear and final construction-step removal/disabled empty Clear.
-- `xcodebuild build-for-testing` succeeded using `/private/tmp/Catanalyst-req013-derived`.
+- `xcodebuild build-for-testing` succeeded using `/private/tmp/HexIQ-req013-derived`.

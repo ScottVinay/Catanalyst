@@ -1,13 +1,13 @@
 //
-//  CatanalystUITests.swift
-//  CatanalystUITests
+//  HexIQUITests.swift
+//  HexIQUITests
 //
 //  Created by Scott Vinay on 20/07/2026.
 //
 
 import XCTest
 
-final class CatanalystUITests: XCTestCase {
+final class HexIQUITests: XCTestCase {
 
     private func makeApp() -> XCUIApplication {
         let app = XCUIApplication()

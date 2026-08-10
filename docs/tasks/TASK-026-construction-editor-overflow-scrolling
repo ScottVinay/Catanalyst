@@ -31,4 +31,4 @@ Ensure ordered construction plans remain fully editable when their rows exceed t
 - Newly appended construction steps animate-scroll to a stable bottom anchor after returning from placement; removals do not force-scroll.
 - Cards retain the same content path and receive no construction-specific auto-scroll behavior.
 - Added a deterministic twelve-step ordered overflow fixture with stable unique row identities.
-- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks025-030-derived`.
+- The complete app and test bundles compile using `/private/tmp/HexIQ-tasks025-030-derived`.

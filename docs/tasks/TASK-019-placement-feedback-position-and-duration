@@ -28,4 +28,4 @@ Move invalid-placement messages lower on the screen and shorten their display pe
 - Moved the shared Board placement message from the centre to 96 points above the viewport bottom so it remains low without overlapping the overlaid bottom bar.
 - Shortened the cancellable dismissal task to 1,500 ms; every new error cancels and replaces the prior task before scheduling its own dismissal.
 - Added UI regression coverage for lower-half positioning, automatic dismissal within two seconds, and remaining on the invalid placement screen.
-- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.
+- The complete app and test bundles compile using `/private/tmp/HexIQ-tasks018-024-derived`.

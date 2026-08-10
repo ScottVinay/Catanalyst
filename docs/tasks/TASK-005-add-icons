@@ -30,7 +30,7 @@ Render terrain-specific symbols on every applied terrain hex while retaining the
 - Terrain radial choices reuse the same symbol mapping over their matching terrain colour.
 - Removed the separate single Ocean icon so every terrain follows one deterministic rendering path.
 - Added domain regression coverage for distinct non-empty mappings and the six-copy contract.
-- The app, unit-test, and UI-test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.
+- The app, unit-test, and UI-test bundles compile using `/private/tmp/HexIQ-tasks018-024-derived`.
 
 ## Remaining manual verification
 

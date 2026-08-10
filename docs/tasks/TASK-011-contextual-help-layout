@@ -31,8 +31,8 @@ Centre the Board edit-mode selector, present the Cards/Constructions choice in t
 
 - UI coverage checks the Terrain/Numbers midpoint, centred plan-type chooser, and all requested help controls.
 - UI coverage checks that graph/help taps remain independent, plan types are vertically ordered, and the construction preview sits to the right of the player selector.
-- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-help-layout-derived` succeeded for the app and both test bundles.
-- The revised app and test bundles compile using `/private/tmp/Catanalyst-layout-corrections-derived`.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/HexIQ-help-layout-derived` succeeded for the app and both test bundles.
+- The revised app and test bundles compile using `/private/tmp/HexIQ-layout-corrections-derived`.
 
 ## Remaining risks and manual checks
 

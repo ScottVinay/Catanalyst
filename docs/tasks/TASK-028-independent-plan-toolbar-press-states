@@ -29,4 +29,4 @@ Eliminate the remaining shared enlargement/highlight animation between Graph and
 - Moved Graph and Help from navigation toolbar items into independent 44-point header buttons.
 - Each control owns its own pressed background, scale animation, hit region, accessibility identity, and action.
 - UI regression coverage asserts non-overlapping frames and taps Graph, Help, then Graph to detect cross-activation.
-- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/Catanalyst-tasks025-030-derived`; live pressed-state verification remains manual.
+- `xcodebuild build-for-testing` compiled the app and both test bundles using `/private/tmp/HexIQ-tasks025-030-derived`; live pressed-state verification remains manual.

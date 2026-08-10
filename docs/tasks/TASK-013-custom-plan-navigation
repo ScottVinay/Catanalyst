@@ -35,4 +35,4 @@ Make custom-plan viewing and editor dismissal follow a predictable path back to 
 - Replaced the custom-row long press with tap navigation and updated its accessibility hint.
 - Moved edit presentation into `PlanBrowserView`; the viewer dismisses before the editor opens, eliminating nested-sheet return to a stale viewer.
 - Extended UI coverage through viewer → editor → Cancel → browser.
-- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-req013-derived` succeeded.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/HexIQ-req013-derived` succeeded.

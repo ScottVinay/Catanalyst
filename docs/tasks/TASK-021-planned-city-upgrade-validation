@@ -31,4 +31,4 @@ Require construction-plan cities to upgrade an owned settlement.
 - Kept Board cycling behavior unchanged: an empty Board vertex still begins as a settlement, while explicit plan-city placement must upgrade an owned settlement.
 - Added analytical tests for valid/invalid ownership cases and sequential projection of settlement then city into one city.
 - Added UI coverage confirming an invalid empty-vertex city produces feedback and appends no plan step.
-- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.
+- The complete app and test bundles compile using `/private/tmp/HexIQ-tasks018-024-derived`.

@@ -38,7 +38,7 @@ Complete SCR-004's ordered construction-plan workflow and enforce REQ-012 in bot
 - Added domain tests for legal/illegal roads, building distance, exact error copy, step serialization, and projected-state isolation.
 - Updated existing road, ownership, and snapshot tests to construct legal fixtures.
 - Added UI coverage that enters construction placement, places a settlement, returns, and sees the first ordered row.
-- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-task012-derived` succeeded for the app and both test bundles after final occupied-location and decoding refinements.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/HexIQ-task012-derived` succeeded for the app and both test bundles after final occupied-location and decoding refinements.
 
 ## Remaining risks and manual checks
 

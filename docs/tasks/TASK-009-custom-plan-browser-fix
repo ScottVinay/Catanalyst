@@ -34,7 +34,7 @@ The custom plan browser currently looks different to the default browser. When a
 - Added unit coverage for custom placeholder identity, icon, and ten-turn probability data.
 - Extended the custom-plan UI scenario to check the shared table header, plan/value row alignment, and New Plan ordering.
 - Added domain and UI coverage proving a Red plan disappears for Blue and reappears when Red is selected again.
-- `xcodebuild build-for-testing -quiet -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/Catanalyst-task009-derived` succeeded for the app and both test bundles.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/HexIQ-task009-derived` succeeded for the app and both test bundles.
 
 ## Remaining risks and manual checks
 

@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Test Catanalyst",
+      "label": "Test HexIQ",
       "type": "shell",
       "command": "${workspaceFolder}/scripts/test.sh",
       "group": "test",

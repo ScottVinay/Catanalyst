@@ -36,4 +36,4 @@ Add an All option to the Custom Plan selector and identify each visible plan by 
 - Custom rows use owner-aware statistics, display colour ownership dots, and filter through a domain helper covered for all six players.
 - New plans created from All start as Red; untouched generated names follow owner changes while edited names remain intact.
 - Extended the custom-plan UI regression flow to cover All visibility, ownership, Red-default creation, and editor colour changes.
-- `xcodebuild build-for-testing` compiled the app, unit tests, and UI tests using `/private/tmp/Catanalyst-tasks025-030-derived`; live simulator execution remains for manual verification.
+- `xcodebuild build-for-testing` compiled the app, unit tests, and UI tests using `/private/tmp/HexIQ-tasks025-030-derived`; live simulator execution remains for manual verification.

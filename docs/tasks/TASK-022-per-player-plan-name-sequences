@@ -30,4 +30,4 @@ Regress automatic naming so only saved plans of the same kind and player advance
 - Audited the pure generator: it filters saved plans by exact player and kind before selecting the first unused positive exact default name.
 - Existing unit coverage verifies gaps, unrelated names, both kinds, and multiple players.
 - Expanded UI coverage verifies a renamed custom plan does not consume `Card plan 1`, Constructions do not advance Cards, cancelled drafts consume nothing, and Blue starts an independent sequence.
-- The complete app and test bundles compile using `/private/tmp/Catanalyst-tasks018-024-derived`.
+- The complete app and test bundles compile using `/private/tmp/HexIQ-tasks018-024-derived`.

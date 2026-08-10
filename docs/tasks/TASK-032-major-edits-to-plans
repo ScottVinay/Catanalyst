@@ -46,6 +46,6 @@ Subrows extended from a plan should have a block of whitespace to the left-side 
 
 - Added domain coverage for the nine shared icon choices, selected-icon round trips, legacy decoding, and independent `Prod N`/`Plan N` sequences.
 - Updated UI regression coverage for Analysis navigation, both tabs, direct editor creation, icon selection, All-player filtering, expansion, editing, and row alignment.
-- `xcodebuild build -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` succeeded.
-- `xcodebuild build-for-testing -project Catanalyst.xcodeproj -scheme Catanalyst -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` compiled the app, unit tests, and UI tests successfully.
+- `xcodebuild build -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` succeeded.
+- `xcodebuild build-for-testing -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` compiled the app, unit tests, and UI tests successfully.
 - Live focused UI verification remains intentionally deferred.

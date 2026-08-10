@@ -12,37 +12,37 @@
 			containerPortal = D2D9F1BC300E83DA0007C8B2 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = D2D9F1C3300E83DA0007C8B2;
-			remoteInfo = Catanalyst;
+			remoteInfo = HexIQ;
 		};
 		D2D9F1DC300E83DD0007C8B2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D2D9F1BC300E83DA0007C8B2 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = D2D9F1C3300E83DA0007C8B2;
-			remoteInfo = Catanalyst;
+			remoteInfo = HexIQ;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D2D9F1C4300E83DA0007C8B2 /* Catanalyst.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Catanalyst.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D2D9F1D1300E83DD0007C8B2 /* CatanalystTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CatanalystTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D2D9F1DB300E83DD0007C8B2 /* CatanalystUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CatanalystUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2D9F1C4300E83DA0007C8B2 /* HexIQ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HexIQ.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2D9F1D1300E83DD0007C8B2 /* HexIQTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HexIQTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2D9F1DB300E83DD0007C8B2 /* HexIQUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HexIQUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		D2D9F1C6300E83DA0007C8B2 /* Catanalyst */ = {
+		D2D9F1C6300E83DA0007C8B2 /* HexIQ */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Catanalyst;
+			path = HexIQ;
 			sourceTree = "<group>";
 		};
-		D2D9F1D4300E83DD0007C8B2 /* CatanalystTests */ = {
+		D2D9F1D4300E83DD0007C8B2 /* HexIQTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CatanalystTests;
+			path = HexIQTests;
 			sourceTree = "<group>";
 		};
-		D2D9F1DE300E83DD0007C8B2 /* CatanalystUITests */ = {
+		D2D9F1DE300E83DD0007C8B2 /* HexIQUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CatanalystUITests;
+			path = HexIQUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		D2D9F1BB300E83DA0007C8B2 = {
 			isa = PBXGroup;
 			children = (
-				D2D9F1C6300E83DA0007C8B2 /* Catanalyst */,
-				D2D9F1D4300E83DD0007C8B2 /* CatanalystTests */,
-				D2D9F1DE300E83DD0007C8B2 /* CatanalystUITests */,
+				D2D9F1C6300E83DA0007C8B2 /* HexIQ */,
+				D2D9F1D4300E83DD0007C8B2 /* HexIQTests */,
+				D2D9F1DE300E83DD0007C8B2 /* HexIQUITests */,
 				D2D9F1C5300E83DA0007C8B2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		D2D9F1C5300E83DA0007C8B2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D2D9F1C4300E83DA0007C8B2 /* Catanalyst.app */,
-				D2D9F1D1300E83DD0007C8B2 /* CatanalystTests.xctest */,
-				D2D9F1DB300E83DD0007C8B2 /* CatanalystUITests.xctest */,
+				D2D9F1C4300E83DA0007C8B2 /* HexIQ.app */,
+				D2D9F1D1300E83DD0007C8B2 /* HexIQTests.xctest */,
+				D2D9F1DB300E83DD0007C8B2 /* HexIQUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D2D9F1C3300E83DA0007C8B2 /* Catanalyst */ = {
+		D2D9F1C3300E83DA0007C8B2 /* HexIQ */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D2D9F1E5300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "Catanalyst" */;
+			buildConfigurationList = D2D9F1E5300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "HexIQ" */;
 			buildPhases = (
 				D2D9F1C0300E83DA0007C8B2 /* Sources */,
 				D2D9F1C1300E83DA0007C8B2 /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				D2D9F1C6300E83DA0007C8B2 /* Catanalyst */,
+				D2D9F1C6300E83DA0007C8B2 /* HexIQ */,
 			);
-			name = Catanalyst;
+			name = HexIQ;
 			packageProductDependencies = (
 			);
-			productName = Catanalyst;
-			productReference = D2D9F1C4300E83DA0007C8B2 /* Catanalyst.app */;
+			productName = HexIQ;
+			productReference = D2D9F1C4300E83DA0007C8B2 /* HexIQ.app */;
 			productType = "com.apple.product-type.application";
 		};
-		D2D9F1D0300E83DD0007C8B2 /* CatanalystTests */ = {
+		D2D9F1D0300E83DD0007C8B2 /* HexIQTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D2D9F1E8300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "CatanalystTests" */;
+			buildConfigurationList = D2D9F1E8300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "HexIQTests" */;
 			buildPhases = (
 				D2D9F1CD300E83DD0007C8B2 /* Sources */,
 				D2D9F1CE300E83DD0007C8B2 /* Frameworks */,
@@ -131,18 +131,18 @@
 				D2D9F1D3300E83DD0007C8B2 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				D2D9F1D4300E83DD0007C8B2 /* CatanalystTests */,
+				D2D9F1D4300E83DD0007C8B2 /* HexIQTests */,
 			);
-			name = CatanalystTests;
+			name = HexIQTests;
 			packageProductDependencies = (
 			);
-			productName = CatanalystTests;
-			productReference = D2D9F1D1300E83DD0007C8B2 /* CatanalystTests.xctest */;
+			productName = HexIQTests;
+			productReference = D2D9F1D1300E83DD0007C8B2 /* HexIQTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		D2D9F1DA300E83DD0007C8B2 /* CatanalystUITests */ = {
+		D2D9F1DA300E83DD0007C8B2 /* HexIQUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D2D9F1EB300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "CatanalystUITests" */;
+			buildConfigurationList = D2D9F1EB300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "HexIQUITests" */;
 			buildPhases = (
 				D2D9F1D7300E83DD0007C8B2 /* Sources */,
 				D2D9F1D8300E83DD0007C8B2 /* Frameworks */,
@@ -154,13 +154,13 @@
 				D2D9F1DD300E83DD0007C8B2 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				D2D9F1DE300E83DD0007C8B2 /* CatanalystUITests */,
+				D2D9F1DE300E83DD0007C8B2 /* HexIQUITests */,
 			);
-			name = CatanalystUITests;
+			name = HexIQUITests;
 			packageProductDependencies = (
 			);
-			productName = CatanalystUITests;
-			productReference = D2D9F1DB300E83DD0007C8B2 /* CatanalystUITests.xctest */;
+			productName = HexIQUITests;
+			productReference = D2D9F1DB300E83DD0007C8B2 /* HexIQUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D2D9F1BF300E83DA0007C8B2 /* Build configuration list for PBXProject "Catanalyst" */;
+			buildConfigurationList = D2D9F1BF300E83DA0007C8B2 /* Build configuration list for PBXProject "HexIQ" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D2D9F1C3300E83DA0007C8B2 /* Catanalyst */,
-				D2D9F1D0300E83DD0007C8B2 /* CatanalystTests */,
-				D2D9F1DA300E83DD0007C8B2 /* CatanalystUITests */,
+				D2D9F1C3300E83DA0007C8B2 /* HexIQ */,
+				D2D9F1D0300E83DD0007C8B2 /* HexIQTests */,
+				D2D9F1DA300E83DD0007C8B2 /* HexIQUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		D2D9F1D3300E83DD0007C8B2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D2D9F1C3300E83DA0007C8B2 /* Catanalyst */;
+			target = D2D9F1C3300E83DA0007C8B2 /* HexIQ */;
 			targetProxy = D2D9F1D2300E83DD0007C8B2 /* PBXContainerItemProxy */;
 		};
 		D2D9F1DD300E83DD0007C8B2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D2D9F1C3300E83DA0007C8B2 /* Catanalyst */;
+			target = D2D9F1C3300E83DA0007C8B2 /* HexIQ */;
 			targetProxy = D2D9F1DC300E83DD0007C8B2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -408,7 +408,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = sv.Catanalyst;
+				PRODUCT_BUNDLE_IDENTIFIER = sv.HexIQ;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -440,7 +440,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = sv.Catanalyst;
+				PRODUCT_BUNDLE_IDENTIFIER = sv.HexIQ;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -461,7 +461,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = sv.CatanalystTests;
+				PRODUCT_BUNDLE_IDENTIFIER = sv.HexIQTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -469,7 +469,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Catanalyst.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Catanalyst";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HexIQ.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HexIQ";
 			};
 			name = Debug;
 		};
@@ -482,7 +482,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = sv.CatanalystTests;
+				PRODUCT_BUNDLE_IDENTIFIER = sv.HexIQTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -490,7 +490,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Catanalyst.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Catanalyst";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HexIQ.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HexIQ";
 			};
 			name = Release;
 		};
@@ -501,7 +501,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = sv.CatanalystUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = sv.HexIQUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -509,7 +509,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Catanalyst;
+				TEST_TARGET_NAME = HexIQ;
 			};
 			name = Debug;
 		};
@@ -520,7 +520,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = sv.CatanalystUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = sv.HexIQUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -528,14 +528,14 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Catanalyst;
+				TEST_TARGET_NAME = HexIQ;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D2D9F1BF300E83DA0007C8B2 /* Build configuration list for PBXProject "Catanalyst" */ = {
+		D2D9F1BF300E83DA0007C8B2 /* Build configuration list for PBXProject "HexIQ" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D2D9F1E3300E83DD0007C8B2 /* Debug */,
@@ -544,7 +544,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D2D9F1E5300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "Catanalyst" */ = {
+		D2D9F1E5300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "HexIQ" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D2D9F1E6300E83DD0007C8B2 /* Debug */,
@@ -553,7 +553,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D2D9F1E8300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "CatanalystTests" */ = {
+		D2D9F1E8300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "HexIQTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D2D9F1E9300E83DD0007C8B2 /* Debug */,
@@ -562,7 +562,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D2D9F1EB300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "CatanalystUITests" */ = {
+		D2D9F1EB300E83DD0007C8B2 /* Build configuration list for PBXNativeTarget "HexIQUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D2D9F1EC300E83DD0007C8B2 /* Debug */,
