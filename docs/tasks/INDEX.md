@@ -51,3 +51,5 @@
 - [TASK-049: Toggle Board Vertex Values](TASK-049-toggle-vertex-values)
 - [TASK-050: Native Production Table Layout](TASK-050-native-production-table-layout)
 - [TASK-051: Advanced Production Analysis](TASK-051-advanced-production)
+- [TASK-052: Refine Advanced Production Analysis](TASK-052-modifications-to-advanced-production)
+- [TASK-053: Hide Vertex Values While Editing](TASK-053-board-edits)

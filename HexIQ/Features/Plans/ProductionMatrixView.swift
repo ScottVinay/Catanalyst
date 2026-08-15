@@ -182,10 +182,17 @@ private struct DetailedProductionView: View {
                             if expandedResources.contains(resource) {
                                 ForEach(Array(bucketValues(resource: resource, player: player).enumerated()), id: \.offset) { _, value in
                                     horizontalDivider
-                                    Text(value, format: .percent.precision(.fractionLength(1)))
-                                        .font(.caption2.monospacedDigit())
-                                        .foregroundStyle(.secondary)
-                                        .frame(width: columnWidth, height: subrowHeight)
+                                    if hasProduction(resource: resource, player: player) {
+                                        Text(value, format: .percent.precision(.fractionLength(1)))
+                                            .font(.caption2.monospacedDigit())
+                                            .foregroundStyle(.secondary)
+                                            .frame(width: columnWidth, height: subrowHeight)
+                                    } else {
+                                        Text("—")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                            .frame(width: columnWidth, height: subrowHeight)
+                                    }
                                 }
                             }
                         }
@@ -227,10 +234,16 @@ private struct DetailedProductionView: View {
         }
     }
 
+    private func hasProduction(resource: ProductionResource, player: PlayerColor) -> Bool {
+        ProductionMetrics.roundsUntilOne(
+            resource: resource, player: player, snapshot: board.snapshot
+        ) != nil
+    }
+
     private var subrowLabels: [String] {
         mode == .cards
-            ? ["0 cards", "1 card", "2 cards", "3 cards", "4+ cards"]
-            : ["1 round", "2 rounds", "3 rounds", "4+ rounds"]
+            ? ["0 cards", "1+ cards", "2+ cards", "3+ cards", "4+ cards"]
+            : ["2+ rounds", "3+ rounds", "4+ rounds", "5+ rounds"]
     }
 
     private var tableHeight: CGFloat {
@@ -399,8 +412,8 @@ private struct ProductionRadarChart: View {
 }
 
 private enum DiceRelianceMode: String, CaseIterable, Identifiable {
-    case produced = "Cards produced on dice result"
-    case expected = "Expected card production"
+    case produced = "Cards on roll"
+    case expected = "Expected production"
     var id: Self { self }
 }
 
@@ -417,13 +430,7 @@ private struct DiceRelianceView: View {
                 .foregroundStyle(.secondary)
                 .textCase(.uppercase)
 
-            Picker("Player", selection: $player) {
-                ForEach(board.activePlayers) { candidate in
-                    Text(candidate.displayName).tag(candidate)
-                }
-            }
-            .pickerStyle(.menu)
-            .accessibilityIdentifier("diceReliancePlayerPicker")
+            playerPicker
 
             HStack(spacing: 8) {
                 Picker("Dice production metric", selection: $mode) {
@@ -452,7 +459,7 @@ private struct DiceRelianceView: View {
         .alert("Dice reliance", isPresented: $showsHelp) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Cards produced on dice result shows how many cards you will get upon getting a given dice result.\n\nExpected card production multiplies this by the probability of that number being rolled to show its expected contribution towards your total production.")
+            Text("Cards on roll shows how many cards you will get when a given dice result is rolled.\n\nExpected production multiplies this by the probability of that result to show its expected contribution towards your total production.")
         }
         .accessibilityIdentifier("diceReliance")
     }
@@ -463,6 +470,31 @@ private struct DiceRelianceView: View {
         return ProductionMetrics.displayedDiceResults.map { result in
             (result, mode == .produced ? Double(raw[result, default: 0]) : expected[result, default: 0])
         }
+    }
+
+    private var playerPicker: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                ForEach(board.activePlayers) { candidate in
+                    Button { player = candidate } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: player == candidate ? "checkmark.circle.fill" : "circle")
+                            Text(candidate.displayName)
+                        }
+                        .font(.caption)
+                        .foregroundStyle(candidate == .white ? Color.gray : candidate.color)
+                        .padding(.horizontal, 8)
+                        .frame(height: 30)
+                        .background(Color.secondary.opacity(0.1), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("diceReliancePlayer-\(candidate.rawValue)")
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("diceReliancePlayerPicker")
     }
 
     private func selectValidPlayer() {
@@ -476,44 +508,93 @@ private struct DiceBarChart: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let chartTop: CGFloat = 10
-            let chartBottom = proxy.size.height - 34
+            let axisTitleWidth: CGFloat = 14
+            let tickLabelWidth: CGFloat = 34
+            let axisWidth = axisTitleWidth + tickLabelWidth
+            let chartTop: CGFloat = 8
+            let chartBottom = proxy.size.height - 42
             let chartHeight = max(1, chartBottom - chartTop)
-            let maximum = max(results.map(\.1).max() ?? 0, 1)
-            let slotWidth = proxy.size.width / CGFloat(max(results.count, 1))
+            let chartWidth = max(1, proxy.size.width - axisWidth - 4)
+            let dataMaximum = results.map(\.1).max() ?? 0
+            let maximum = dataMaximum > 0 ? dataMaximum : 1
+            let tickStep = niceTickStep(for: maximum)
+            let ticks = tickValues(maximum: maximum, step: tickStep)
+            let slotWidth = chartWidth / CGFloat(max(results.count, 1))
 
             ZStack(alignment: .topLeading) {
-                ForEach(0..<4, id: \.self) { index in
-                    let y = chartTop + chartHeight * CGFloat(index) / 3
+                ForEach(ticks, id: \.self) { tick in
+                    let y = chartBottom - chartHeight * tick / maximum
                     Path { path in
-                        path.move(to: CGPoint(x: 0, y: y))
+                        path.move(to: CGPoint(x: axisWidth, y: y))
                         path.addLine(to: CGPoint(x: proxy.size.width, y: y))
                     }
                     .stroke(Color.secondary.opacity(0.2), style: StrokeStyle(lineWidth: 1, dash: [4]))
+
+                    Text(tickLabel(tick, step: tickStep))
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .frame(width: tickLabelWidth, alignment: .trailing)
+                        .position(x: axisTitleWidth + tickLabelWidth / 2, y: y)
                 }
 
                 ForEach(Array(results.enumerated()), id: \.element.0) { index, item in
                     let height = chartHeight * item.1 / maximum
-                    VStack(spacing: 4) {
-                        Spacer(minLength: 0)
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(color)
-                            .frame(width: max(8, slotWidth * 0.48), height: max(item.1 > 0 ? 2 : 0, height))
-                        Text("\(item.0)")
-                            .font(.caption2.monospacedDigit())
-                            .frame(height: 18)
-                    }
-                    .frame(width: slotWidth, height: proxy.size.height, alignment: .bottom)
-                    .position(x: slotWidth * (CGFloat(index) + 0.5), y: proxy.size.height / 2)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(color)
+                        .frame(width: max(8, slotWidth * 0.48), height: max(item.1 > 0 ? 2 : 0, height))
+                        .position(
+                            x: axisWidth + slotWidth * (CGFloat(index) + 0.5),
+                            y: chartBottom - height / 2
+                        )
+
+                    Text("\(item.0)")
+                        .font(.caption2.monospacedDigit())
+                        .position(
+                            x: axisWidth + slotWidth * (CGFloat(index) + 0.5),
+                            y: chartBottom + 12
+                        )
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Dice result \(item.0)")
                     .accessibilityValue(item.1.formatted(.number.precision(.fractionLength(2))))
                 }
+
+                Text("Production")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .rotationEffect(.degrees(-90))
+                    .position(x: axisTitleWidth / 2, y: chartTop + chartHeight / 2)
             }
         }
         .overlay(alignment: .bottom) {
             Text("Dice result").font(.caption2).foregroundStyle(.secondary)
         }
+    }
+
+    private func niceTickStep(for maximum: Double) -> Double {
+        let roughStep = maximum / 3
+        let magnitude = pow(10, floor(log10(max(roughStep, 0.000_001))))
+        let normalized = roughStep / magnitude
+        let multiplier: Double
+        if normalized <= 1 { multiplier = 1 }
+        else if normalized <= 2 { multiplier = 2 }
+        else if normalized <= 5 { multiplier = 5 }
+        else { multiplier = 10 }
+        return multiplier * magnitude
+    }
+
+    private func tickValues(maximum: Double, step: Double) -> [Double] {
+        var values = [0.0]
+        var value = step
+        while value < maximum {
+            values.append(value)
+            value += step
+        }
+        return values
+    }
+
+    private func tickLabel(_ value: Double, step: Double) -> String {
+        let digits = max(0, Int(ceil(-log10(step))))
+        return value.formatted(.number.precision(.fractionLength(digits)))
     }
 }
 
@@ -523,7 +604,7 @@ private func resourceColor(_ resource: ProductionResource) -> Color {
     case .brick: .red
     case .wood: .green
     case .ore: Color(red: 0.42, green: 0.55, blue: 0.65)
-    case .wheat: .yellow
+    case .wheat: Color(red: 0.72, green: 0.56, blue: 0.02)
     case .sheep: .primary
     }
 }

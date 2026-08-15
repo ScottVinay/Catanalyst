@@ -19,7 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-001 through TASK-049 and TASK-051 are implemented and marked `done`; TASK-050 remains documented as in progress pending its own review closeout.
+- TASK-001 through TASK-049 and TASK-051 through TASK-053 are implemented and marked `done`; TASK-050 remains documented as in progress pending its own review closeout.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
 - TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
@@ -28,6 +28,9 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Completed TASK-052 with cumulative card/wait thresholds, zero-production dashes, a colour-coded single-player Dice reliance picker, independently normalised charts with labelled round ticks, revised copy, and darker Grain styling.
+- Completed TASK-053 by hiding and forcing off Vertex values only while Board editing, then restoring the unchanged prior viewing preference on Done.
+- Extended TASK-053 by removing repeated in-hex terrain symbols, fixing dark-mode number-picker colours, keeping number/building content upright during Board rotation, and stacking Ocean radially beyond Desert in one terrain wedge.
 - Completed TASK-051's advanced Production analysis with expandable per-round/waiting distributions, hex-addressable contribution records, one-through-six-player convolution, a multi-player production-balance radar plot, and raw/expected dice-reliance bars.
 - Production now scrolls vertically across its three distinct elements, retains fixed resource/player-value alignment, uses the clarified `Rounds per card` geometric calculation, and omits dice result 7 from the chart.
 - Completed REQ-021's TASK-049 with a display-only Vertex values toggle, adjoining pip totals at all 54 Board vertices, and one/two owner-colour rings for settlements/cities.

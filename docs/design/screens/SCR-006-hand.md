@@ -31,3 +31,7 @@ This screen assigns the resource cards currently held by each player. Stored han
 - Removing the final card removes that stack and returns the resource count to zero.
 - Provide a Clear action that removes every card from the selected player's hand immediately.
 - Editing one player's hand must not mutate any other player's hand.
+
+## Victory point cards
+
+Below the resource cards, is card to tap to add a victory point card, and one to add a "Largest Army" card with a picture of soldiers on it. Adding a Largest Army removes it from any other player that had it.

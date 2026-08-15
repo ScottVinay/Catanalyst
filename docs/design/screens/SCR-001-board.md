@@ -103,3 +103,24 @@ There should be a "Done" button at the bottom to save the board and exit edit mo
 ## Player selection
 
 ITEM-001-player-selector should be visible and active.
+
+# Stats bar
+
+- At the bottom of the main SCR-001-board screen, there should be a tab with an upward arrow. This is above the bottom bar.
+- Tapping this brings up a full-width table
+- The has rows:
+    - Victory Points (indicated in the label column by a sunrise in a circle)
+    - Road Length (indicated in the label column by an icon of a road)
+- This has one column for each active player
+
+- Victory Points is calculated as:
+    - 1 for each settlement
+    - 2 for each city
+    - 2 for the Longest Road
+    - 1 for each Victory Point card (see SCR-006-hand)
+    - 2 for the Largest Army card (see SCR-006-hand)
+
+- A road is a continuous, non-branching sequence of your road pieces in which each road piece is used at most once, and consecutive road pieces meet at an intersection. A player's "Road Length" is the maximum number of road pieces in any such sequence.
+
+- The first player who achieves a Road Length of 5 gets the 2 Victory points for Longest Road, and also gets a crown next to their Road Length number. When a player builds a road that is longer than the Road Length of the player with the Longest Road, they get the Longest Road and VPs are moved over.
+- In case the user does not update the app in the approriate order, this can be changed manually. Tapping the Road Length cell of that player will come up with a box: "Are you sure you want to reassign Longest Road to <Player Name>?". Tapping "Yes" will move the Longest Road to them, and corresponding VPs.

@@ -21,7 +21,6 @@ struct BoardStateTests {
     func terrainSymbols() {
         #expect(Set(Terrain.allCases.map(\.systemImage)).count == Terrain.allCases.count)
         #expect(Terrain.allCases.allSatisfy { !$0.systemImage.isEmpty })
-        #expect(Terrain.allCases.allSatisfy { $0.symbolCopies == 6 })
     }
 
     @Test("Standard geometry shares vertices and edges between hexes")
@@ -550,8 +549,15 @@ struct BoardStateTests {
         )
         #expect(cards.count == 5)
         #expect(waits.count == 4)
-        #expect(abs(cards.reduce(0, +) - 1) < 0.0001)
-        #expect(abs(waits.reduce(0, +) - 1) < 0.0001)
+        #expect(abs(cards[0] - pow(31.0 / 36.0, 6)) < 0.0001)
+        #expect(abs(cards[1] - (1 - cards[0])) < 0.0001)
+        #expect(cards[1] >= cards[2])
+        #expect(cards[2] >= cards[3])
+        #expect(cards[3] >= cards[4])
+        #expect(abs(waits[0] - cards[0]) < 0.0001)
+        #expect(abs(waits[1] - pow(cards[0], 2)) < 0.0001)
+        #expect(abs(waits[2] - pow(cards[0], 3)) < 0.0001)
+        #expect(abs(waits[3] - pow(cards[0], 4)) < 0.0001)
         #expect(cards[4] > 0)
     }
 

@@ -1,0 +1,5 @@
+- When two fingers are on the screen, even in edit mode, we should never open the radial for a hex, since two fingers means we are preparing to zoom.
+- Zoomed-out mode should be slightly more zoomed out, to allow the radials to fit on the screen.
+- When holding over a number in the number radial, that number should appear in the middle even before releasing, so we can see even if our thumb is covering the radial.
+- Make sure all icons for buildings, such as settlements or cities, include sharp black outlines so it is clear what they are, even if looking at white buildings
+- The background behind the board should be light blue with faint waves.

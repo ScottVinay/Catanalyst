@@ -143,19 +143,26 @@ final class HexIQUITests: XCTestCase {
         )
 
         app.buttons["editBoardButton"].tap()
-        XCTAssertTrue(app.switches["vertexValuesToggle"].exists)
-        toggle.tap()
+        XCTAssertFalse(app.switches["vertexValuesToggle"].exists)
+        XCTAssertEqual(
+            app.descendants(matching: .any).matching(
+                NSPredicate(format: "identifier BEGINSWITH 'vertexValue-'")
+            ).count,
+            0
+        )
         let settlementTarget = app.buttons.matching(
             NSPredicate(format: "label BEGINSWITH 'Add Red settlement'")
         ).firstMatch
         XCTAssertTrue(settlementTarget.waitForExistence(timeout: 2))
         settlementTarget.tap()
-        toggle.tap()
-
-        XCTAssertTrue(
+        app.buttons["doneEditingButton"].tap()
+        XCTAssertTrue(app.switches["vertexValuesToggle"].waitForExistence(timeout: 2))
+        XCTAssertEqual(app.switches["vertexValuesToggle"].value as? String, "1")
+        XCTAssertEqual(
             app.descendants(matching: .any).matching(
-                NSPredicate(format: "label CONTAINS 'settlement'")
-            ).firstMatch.waitForExistence(timeout: 2)
+                NSPredicate(format: "identifier BEGINSWITH 'vertexValue-'")
+            ).count,
+            54
         )
     }
 
@@ -223,13 +230,16 @@ final class HexIQUITests: XCTestCase {
         app.segmentedControls["productionMetricPicker"].buttons["Rounds per card"].tap()
         XCTAssertTrue(app.staticTexts["Rounds per card"].exists)
         app.buttons["productionRow-Brick"].tap()
-        XCTAssertTrue(app.staticTexts["1 round"].exists)
+        XCTAssertTrue(app.staticTexts["2+ rounds"].exists)
         XCTAssertEqual(tabSelector.frame, selectorFrame)
         app.otherElements["productionMatrix"].swipeUp()
         XCTAssertTrue(app.otherElements["productionBalance"].waitForExistence(timeout: 1))
         app.otherElements["productionMatrix"].swipeUp()
         XCTAssertTrue(app.otherElements["diceReliance"].waitForExistence(timeout: 1))
         XCTAssertTrue(app.otherElements["diceRelianceChart"].exists)
+        XCTAssertTrue(app.otherElements["diceReliancePlayerPicker"].exists)
+        XCTAssertTrue(app.segmentedControls["diceRelianceMetricPicker"].buttons["Cards on roll"].exists)
+        XCTAssertTrue(app.segmentedControls["diceRelianceMetricPicker"].buttons["Expected production"].exists)
         XCTAssertFalse(app.staticTexts["Dice result 7"].exists)
 #if false // Superseded by REQ-019's Production matrix.
         XCTAssertTrue(app.otherElements["productionTable"].exists)

@@ -1,0 +1,36 @@
+status: done
+started_datetime: 2026-08-10T19:30:00+01:00
+completed_datetime: 2026-08-10T20:17:00+01:00
+priority: P1
+requirement: REQ-021
+design: SCR-001-board
+depends_on: TASK-049
+
+# Hide vertex values while editing
+
+Keep Board editing in standard building-display mode without losing the user's viewing-mode selection.
+
+## Acceptance criteria
+
+- [x] The Vertex values toggle is absent in Board edit mode.
+- [x] Entering edit mode hides vertex values and shows normal buildings/edit targets.
+- [x] Leaving edit mode restores the viewing mode selected before editing.
+- [x] The toggle remains display-only and Board state is unchanged.
+- [x] UI regression coverage compiles.
+- [x] Remove the icon pictures that are within the hexes, but keep them in the radial selector.
+- [x] Ensure that the numbers in the radial picker are always black or red. When I ran this on a phone in dark mode, they were white and red.
+- [x] When rotating the board, the number tokens, and the icons for settlements and cities should remain right-side up, so the board is still legible.
+- [x] Remove the "Water" option from the terrain radial selector. Instead, water should be aligned with desert, but stacked atop of it, i.e. within the same angles but radially further out, but touching desert. When we move past desert into water, water is selected. When we move past water, water stays selected.
+
+## Evidence
+
+- Removed the edit-mode toggle and masks the rendered vertex-value mode with `!isEditing`, leaving the user's stored view state untouched.
+- Updated the focused UI flow to verify values disappear in editing, edit targets remain usable, and the enabled viewing mode returns after Done.
+- `git diff --check` and the HexIQ app/unit/UI test-bundle build passed.
+- Live simulator execution remains covered by the existing CoreSimulator worker blocker.
+- The newer task direction to remove applied-hex terrain symbols supersedes the conflicting repeated-symbol instruction in SCR-001 for this implementation; the human-owned design file was not edited.
+- Removed repeated terrain symbols from applied hexes while retaining each terrain symbol in the picker.
+- Forced number/remove picker symbols to red or black and counter-rotated number tokens, building icons, ghost buildings, and picker symbols against Board presentation rotation.
+- Reworked terrain geometry into six angular wedges with Ocean occupying the outer radial continuation of Desert; dragging beyond Ocean retains Ocean selection.
+- Added deterministic geometry coverage for Desert, Ocean, and continued outward Ocean selection.
+- The final HexIQ app/unit/UI test-bundle build and `git diff --check` pass.

@@ -1,0 +1,34 @@
+status: done
+started_datetime: 2026-08-10T19:30:00+01:00
+completed_datetime: 2026-08-10T19:54:00+01:00
+priority: P1
+requirement: REQ-019
+design: SCR-002-plans
+depends_on: TASK-051
+
+# Refine advanced Production analysis
+
+Improve cumulative probability rows, zero-production presentation, Dice reliance controls/scaling, and Grain contrast.
+
+## Acceptance criteria
+
+- [x] Card subrows are 0, 1+, 2+, 3+, and 4+ cards and show the corresponding cumulative probabilities.
+- [x] Rounds subrows are 2+, 3+, 4+, and 5+ rounds and show `p0`, `p0²`, `p0³`, and `p0⁴`.
+- [x] Every expanded value is a dash when that player has no production for the resource.
+- [x] Dice reliance uses a Production-balance-style single-select active-player picker.
+- [x] Dice reliance labels are `Cards on roll` and `Expected production`, with matching help text.
+- [x] Each Dice reliance mode scales independently so its largest bar reaches the chart maximum.
+- [x] The chart has readable round-number y ticks, grid lines, and non-overlapping axis labels.
+- [x] Grain yellow has sufficient light-mode contrast.
+- [x] Domain and UI regression coverage compiles.
+
+## Evidence
+
+- Changed card thresholds to cumulative tails and waiting thresholds to the confirmed 2+/3+/4+/5+ survival probabilities.
+- Added zero-production dash rendering independently of the underlying mathematical zero-card probability.
+- Replaced the menu with a horizontally scrolling, colour-coded single-selection player picker.
+- Added mode-specific chart normalisation, 1/2/5-based round tick steps, numeric y-axis labels, grid lines, and separately reserved y-title/tick-label space.
+- Updated toggle/help copy, darkened Grain, and extended domain/UI regression assertions.
+- `git diff --check` passed.
+- `xcodebuild build-for-testing -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO -quiet` passed.
+- Live simulator execution remains covered by the existing CoreSimulator worker blocker.

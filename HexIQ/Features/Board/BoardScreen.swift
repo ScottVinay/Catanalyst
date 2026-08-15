@@ -37,18 +37,13 @@ struct BoardScreen: View {
                     isEditing: isEditing,
                     editTool: editTool,
                     selectedPlayer: selectedPlayer,
-                    showsVertexValues: showsVertexValues,
+                    showsVertexValues: showsVertexValues && !isEditing,
                     presentationRotationDegrees: rotationPresentation.degrees
                 )
                 .accessibilityIdentifier("boardEditor")
 
                 VStack(spacing: 8) {
                     if isEditing {
-                        HStack {
-                            Spacer()
-                            vertexValuesToggle
-                        }
-
                         ZStack {
                             Picker("Hex editing mode", selection: $editTool) {
                                 ForEach(BoardEditTool.allCases) { tool in

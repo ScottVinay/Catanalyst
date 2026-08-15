@@ -58,10 +58,15 @@ struct BoardEditorView: View {
                 x: availableSize.width == 0 ? 0.5 : geometricCenter.x / availableSize.width,
                 y: availableSize.height == 0 ? 0.5 : geometricCenter.y / availableSize.height
             )
+            let rotationDegrees = presentationRotationDegrees ?? board.orientation.degrees
 
             ZStack {
                 ForEach(board.tiles) { tile in
-                    HexTileView(tile: tile, hexSize: hexSize)
+                    HexTileView(
+                        tile: tile,
+                        hexSize: hexSize,
+                        contentRotationDegrees: -rotationDegrees
+                    )
                         .position(BoardGeometry.center(
                             for: tile.coordinate,
                             hexSize: hexSize,
@@ -111,6 +116,7 @@ struct BoardEditorView: View {
                                 hexSize: hexSize,
                                 color: board.owner(of: vertex).color
                             )
+                                .rotationEffect(.degrees(-rotationDegrees))
                                 .position(BoardGeometry.point(
                                     for: vertex,
                                     hexSize: hexSize,
@@ -120,7 +126,11 @@ struct BoardEditorView: View {
                     }
                 }
 
-                ghostBuildings(hexSize: hexSize, origin: origin)
+                ghostBuildings(
+                    hexSize: hexSize,
+                    origin: origin,
+                    contentRotationDegrees: -rotationDegrees
+                )
 
                 if placementMode != nil {
                     constructionPlacementTargets(hexSize: hexSize, origin: origin)
@@ -136,7 +146,8 @@ struct BoardEditorView: View {
                             hexSize: hexSize,
                             origin: origin
                         ),
-                        hexSize: hexSize
+                        hexSize: hexSize,
+                        contentRotationDegrees: -rotationDegrees
                     )
                 }
 
@@ -155,7 +166,7 @@ struct BoardEditorView: View {
                 }
             }
             .rotationEffect(
-                .degrees(presentationRotationDegrees ?? board.orientation.degrees),
+                .degrees(rotationDegrees),
                 anchor: rotationAnchor
             )
             .coordinateSpace(.named("boardEditingSpace"))
@@ -259,12 +270,7 @@ struct BoardEditorView: View {
                 case let .second(true, drag):
                     openPicker(at: coordinate)
                     highlightedPickerIndex = drag.flatMap {
-                        RadialPickerGeometry.optionIndex(
-                            at: $0.location,
-                            around: center,
-                            hexSize: hexSize,
-                            optionCount: optionCount
-                        )
+                        pickerOptionIndex(at: $0.location, around: center, hexSize: hexSize)
                     }
                 default:
                     break
@@ -275,11 +281,10 @@ struct BoardEditorView: View {
                 defer { closePicker() }
                 guard case let .second(true, drag) = value,
                       let drag,
-                      let index = RadialPickerGeometry.optionIndex(
+                      let index = pickerOptionIndex(
                         at: drag.location,
                         around: center,
-                        hexSize: hexSize,
-                        optionCount: optionCount
+                        hexSize: hexSize
                       ) else { return }
                 applySelection(index, to: coordinate)
             }
@@ -361,7 +366,11 @@ struct BoardEditorView: View {
     }
 
     @ViewBuilder
-    private func ghostBuildings(hexSize: CGFloat, origin: CGPoint) -> some View {
+    private func ghostBuildings(
+        hexSize: CGFloat,
+        origin: CGPoint,
+        contentRotationDegrees: Double
+    ) -> some View {
         ForEach(ghostSteps) { step in
             if case let .vertex(vertex) = step.location {
                 BuildingView(
@@ -370,6 +379,7 @@ struct BoardEditorView: View {
                     color: selectedPlayer.color
                 )
                 .opacity(0.42)
+                .rotationEffect(.degrees(contentRotationDegrees))
                 .position(BoardGeometry.point(for: vertex, hexSize: hexSize, origin: origin))
             }
         }
@@ -469,6 +479,28 @@ struct BoardEditorView: View {
         }
     }
 
+    private func pickerOptionIndex(
+        at location: CGPoint,
+        around center: CGPoint,
+        hexSize: CGFloat
+    ) -> Int? {
+        switch editTool {
+        case .terrain:
+            RadialPickerGeometry.terrainOptionIndex(
+                at: location,
+                around: center,
+                hexSize: hexSize
+            )
+        case .number:
+            RadialPickerGeometry.optionIndex(
+                at: location,
+                around: center,
+                hexSize: hexSize,
+                optionCount: optionCount
+            )
+        }
+    }
+
     private func applySelection(_ index: Int, to coordinate: HexCoordinate) {
         switch editTool {
         case .terrain:
@@ -486,19 +518,20 @@ struct BoardEditorView: View {
     @ViewBuilder
     private func selectionWheel(
         around center: CGPoint,
-        hexSize: CGFloat
+        hexSize: CGFloat,
+        contentRotationDegrees: Double
     ) -> some View {
-        let outerRadius = hexSize * RadialPickerGeometry.outerRadiusScale
-        let iconRadius = hexSize * (
-            RadialPickerGeometry.innerRadiusScale + RadialPickerGeometry.outerRadiusScale
-        ) / 2
+        let standardOuterRadius = hexSize * RadialPickerGeometry.outerRadiusScale
+        let outerRadius = hexSize * (editTool == .terrain
+            ? RadialPickerGeometry.stackedOuterRadiusScale
+            : RadialPickerGeometry.outerRadiusScale)
 
         ZStack {
             ForEach(0..<optionCount, id: \.self) { index in
-                RingSegment(index: index, count: optionCount)
+                pickerSegment(at: index)
                     .fill(pickerOptionColor(at: index))
                     .overlay {
-                        RingSegment(index: index, count: optionCount)
+                        pickerSegment(at: index)
                             .stroke(
                                 highlightedPickerIndex == index ? Color.yellow : .white.opacity(0.85),
                                 lineWidth: highlightedPickerIndex == index ? 4 : 1.5
@@ -511,8 +544,16 @@ struct BoardEditorView: View {
                     .accessibilityLabel(pickerOptionAccessibilityLabel(at: index))
                     .accessibilityIdentifier("hexPickerOption-\(index)")
 
-                let angle = (-Double.pi / 2) + (2 * Double.pi * Double(index) / Double(optionCount))
+                let angularCount = editTool == .terrain ? 6 : optionCount
+                let angularIndex = editTool == .terrain && index == 6 ? 5 : index
+                let angle = (-Double.pi / 2) + (2 * Double.pi * Double(angularIndex) / Double(angularCount))
+                let iconRadius = editTool == .terrain && index == 6
+                    ? (standardOuterRadius + outerRadius) / 2
+                    : hexSize * (
+                        RadialPickerGeometry.innerRadiusScale + RadialPickerGeometry.outerRadiusScale
+                    ) / 2
                 pickerOptionSymbol(at: index)
+                    .rotationEffect(.degrees(contentRotationDegrees))
                     .position(
                         x: outerRadius + CGFloat(cos(angle)) * iconRadius,
                         y: outerRadius + CGFloat(sin(angle)) * iconRadius
@@ -528,6 +569,27 @@ struct BoardEditorView: View {
         .animation(.easeOut(duration: 0.1), value: highlightedPickerIndex)
     }
 
+    private func pickerSegment(at index: Int) -> RingSegment {
+        if editTool == .terrain, index == 6 {
+            return RingSegment(
+                index: 5,
+                count: 6,
+                innerRadiusScale: RadialPickerGeometry.outerRadiusScale,
+                segmentOuterRadiusScale: RadialPickerGeometry.stackedOuterRadiusScale,
+                containerOuterRadiusScale: RadialPickerGeometry.stackedOuterRadiusScale
+            )
+        }
+        return RingSegment(
+            index: index,
+            count: editTool == .terrain ? 6 : optionCount,
+            innerRadiusScale: RadialPickerGeometry.innerRadiusScale,
+            segmentOuterRadiusScale: RadialPickerGeometry.outerRadiusScale,
+            containerOuterRadiusScale: editTool == .terrain
+                ? RadialPickerGeometry.stackedOuterRadiusScale
+                : RadialPickerGeometry.outerRadiusScale
+        )
+    }
+
     @ViewBuilder
     private func pickerOptionSymbol(at index: Int) -> some View {
         switch editTool {
@@ -541,11 +603,11 @@ struct BoardEditorView: View {
             case let .token(token):
                 Text("\(token.rawValue)")
                     .font(.caption.bold())
-                    .foregroundStyle(token.isHighProbability ? .red : .primary)
+                    .foregroundStyle(token.isHighProbability ? .red : .black)
             case .remove:
                 Image(systemName: "xmark")
                     .font(.caption.bold())
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.black)
             }
         }
     }
@@ -573,21 +635,23 @@ struct BoardEditorView: View {
 private struct RingSegment: Shape {
     let index: Int
     let count: Int
+    var innerRadiusScale = RadialPickerGeometry.innerRadiusScale
+    var segmentOuterRadiusScale = RadialPickerGeometry.outerRadiusScale
+    var containerOuterRadiusScale = RadialPickerGeometry.outerRadiusScale
 
     func path(in rect: CGRect) -> Path {
         guard count > 0 else { return Path() }
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let outerRadius = min(rect.width, rect.height) / 2
-        let innerRadius = outerRadius
-            * RadialPickerGeometry.innerRadiusScale
-            / RadialPickerGeometry.outerRadiusScale
+        let innerRadius = outerRadius * innerRadiusScale / containerOuterRadiusScale
+        let segmentOuterRadius = outerRadius * segmentOuterRadiusScale / containerOuterRadiusScale
         let step = 2 * Double.pi / Double(count)
         let middle = (-Double.pi / 2) + (Double(index) * step)
         let start = Angle(radians: middle - (step / 2))
         let end = Angle(radians: middle + (step / 2))
 
         var path = Path()
-        path.addArc(center: center, radius: outerRadius, startAngle: start, endAngle: end, clockwise: false)
+        path.addArc(center: center, radius: segmentOuterRadius, startAngle: start, endAngle: end, clockwise: false)
         path.addArc(center: center, radius: innerRadius, startAngle: end, endAngle: start, clockwise: true)
         path.closeSubpath()
         return path
@@ -597,26 +661,16 @@ private struct RingSegment: Shape {
 private struct HexTileView: View {
     let tile: HexTile
     let hexSize: CGFloat
+    let contentRotationDegrees: Double
 
     var body: some View {
         ZStack {
             Hexagon()
                 .fill(tile.terrain.color)
 
-            GeometryReader { proxy in
-                ForEach(0..<tile.terrain.symbolCopies, id: \.self) { index in
-                    Image(systemName: tile.terrain.systemImage)
-                        .font(.system(size: hexSize * 0.23, weight: .semibold))
-                        .foregroundStyle(tile.terrain.symbolForegroundColor)
-                        .opacity(0.5)
-                        .position(symbolPosition(at: index, in: proxy.size))
-                }
-            }
-            .clipShape(Hexagon())
-            .accessibilityHidden(true)
-
             if let number = tile.number {
                 NumberTokenView(token: number, size: hexSize * 0.8)
+                    .rotationEffect(.degrees(contentRotationDegrees))
             }
         }
         .overlay(Hexagon().stroke(.white.opacity(0.85), lineWidth: max(1.5, hexSize * 0.04)))
@@ -627,20 +681,6 @@ private struct HexTileView: View {
             .accessibilityValue(tile.terrain.displayName)
             .accessibilityIdentifier("hex-\(tile.coordinate.id)")
     }
-
-    private func symbolPosition(at index: Int, in size: CGSize) -> CGPoint {
-        let position = Self.symbolPositions[index % Self.symbolPositions.count]
-        return CGPoint(x: position.x * size.width, y: position.y * size.height)
-    }
-
-    private static let symbolPositions = [
-        CGPoint(x: 0.33, y: 0.27),
-        CGPoint(x: 0.67, y: 0.27),
-        CGPoint(x: 0.24, y: 0.50),
-        CGPoint(x: 0.76, y: 0.50),
-        CGPoint(x: 0.34, y: 0.73),
-        CGPoint(x: 0.66, y: 0.73)
-    ]
 
     private var tileAccessibilityLabel: String {
         if let number = tile.number {

@@ -164,7 +164,13 @@ nonisolated enum ProductionMetrics {
         snapshot: BoardSnapshot
     ) -> [Double] {
         let distribution = perRoundDistribution(resource: resource, player: player, snapshot: snapshot)
-        return (0...3).map(distribution.probability(of:)) + [distribution.probability(atLeast: 4)]
+        return [
+            distribution.probability(of: 0),
+            distribution.probability(atLeast: 1),
+            distribution.probability(atLeast: 2),
+            distribution.probability(atLeast: 3),
+            distribution.probability(atLeast: 4)
+        ]
     }
 
     static func roundsPerCardBuckets(
@@ -174,8 +180,7 @@ nonisolated enum ProductionMetrics {
     ) -> [Double] {
         let p0 = perRoundDistribution(resource: resource, player: player, snapshot: snapshot)
             .probability(of: 0)
-        let success = 1 - p0
-        return [success, p0 * success, p0 * p0 * success, p0 * p0 * p0]
+        return [p0, pow(p0, 2), pow(p0, 3), pow(p0, 4)]
     }
 
     static func diceProbability(_ result: Int) -> Double {

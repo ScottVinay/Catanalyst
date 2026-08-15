@@ -28,7 +28,6 @@ nonisolated enum Terrain: String, CaseIterable, Codable, Identifiable, Sendable 
         }
     }
 
-    var symbolCopies: Int { 6 }
 }
 
 nonisolated enum NumberToken: Int, CaseIterable, Codable, Identifiable, Sendable {

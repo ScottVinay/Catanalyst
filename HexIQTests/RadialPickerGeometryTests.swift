@@ -4,6 +4,29 @@ import Testing
 
 @Suite("Radial picker geometry")
 struct RadialPickerGeometryTests {
+    @Test("Terrain picker stacks ocean beyond desert and retains outer ocean selection")
+    func stackedOceanSelection() {
+        let center = CGPoint(x: 100, y: 100)
+        let hexSize: CGFloat = 40
+        let desertAngle = -Double.pi / 2 + 5 * 2 * Double.pi / 6
+        func point(radiusScale: CGFloat) -> CGPoint {
+            CGPoint(
+                x: center.x + cos(desertAngle) * hexSize * radiusScale,
+                y: center.y + sin(desertAngle) * hexSize * radiusScale
+            )
+        }
+
+        #expect(RadialPickerGeometry.terrainOptionIndex(
+            at: point(radiusScale: 1.4), around: center, hexSize: hexSize
+        ) == 5)
+        #expect(RadialPickerGeometry.terrainOptionIndex(
+            at: point(radiusScale: 2.0), around: center, hexSize: hexSize
+        ) == 6)
+        #expect(RadialPickerGeometry.terrainOptionIndex(
+            at: point(radiusScale: 4.0), around: center, hexSize: hexSize
+        ) == 6)
+    }
+
     private let center = CGPoint(x: 100, y: 100)
     private let hexSize: CGFloat = 40
 
