@@ -579,6 +579,119 @@ struct BoardStateTests {
         #expect(abs(expected[6, default: 0] - 10.0 / 36.0) < 0.0001)
         #expect(expected[7] == nil)
     }
+
+    @Test("Road length follows an edge-simple route and opposing buildings interrupt it")
+    func longestRoadRouteAndInterruption() throws {
+        let chain = try #require(roadChain(length: 6))
+        var snapshot = BoardSnapshot(
+            tiles: BoardSnapshot.standard.tiles,
+            roads: Set(chain),
+            buildings: [:],
+            roadOwners: Dictionary(uniqueKeysWithValues: chain.map { ($0, .red) })
+        )
+        var board = BoardState(snapshot: snapshot)
+        #expect(board.roadLength(for: .red) == 6)
+
+        let sharedVertex = try #require(commonVertex(chain[2], chain[3]))
+        snapshot.buildings[sharedVertex] = .settlement
+        snapshot.buildingOwners[sharedVertex] = .blue
+        board = BoardState(snapshot: snapshot)
+        #expect(board.roadLength(for: .red) == 3)
+    }
+
+    @Test("Longest Road awards at five, retains ties, and permits manual tied transfer")
+    func longestRoadOwnership() throws {
+        let redChain = try #require(roadChain(length: 5))
+        let blueChain = try #require(roadChain(length: 5, excluding: Set(redChain)))
+        let snapshot = BoardSnapshot(
+            tiles: BoardSnapshot.standard.tiles,
+            roads: Set(redChain + blueChain),
+            buildings: [:],
+            roadOwners: Dictionary(uniqueKeysWithValues:
+                redChain.map { ($0, PlayerColor.red) } + blueChain.map { ($0, PlayerColor.blue) }
+            ),
+            longestRoadHolder: .red
+        )
+        let board = BoardState(snapshot: snapshot)
+
+        #expect(board.roadLength(for: .red) == 5)
+        #expect(board.roadLength(for: .blue) == 5)
+        #expect(board.reassignLongestRoad(to: .blue))
+        #expect(board.longestRoadHolder == .blue)
+        #expect(!board.reassignLongestRoad(to: .orange))
+        #expect(board.longestRoadHolder == .blue)
+    }
+
+    @Test("Building and removing the fifth road awards and removes Longest Road")
+    func automaticLongestRoadOwnership() throws {
+        let chain = try #require(roadChain(length: 5))
+        let firstFour = Array(chain.prefix(4))
+        let board = BoardState(snapshot: BoardSnapshot(
+            tiles: BoardSnapshot.standard.tiles,
+            roads: Set(firstFour),
+            buildings: [:],
+            roadOwners: Dictionary(uniqueKeysWithValues: firstFour.map { ($0, .red) })
+        ))
+
+        #expect(board.placeRoad(on: chain[4], for: .red) == nil)
+        #expect(board.longestRoadHolder == .red)
+        #expect(board.victoryPoints(for: .red) == 2)
+        #expect(board.toggleRoad(on: chain[4], for: .red) == nil)
+        #expect(board.longestRoadHolder == nil)
+    }
+
+    @Test("Victory points and award state persist with backward-compatible defaults")
+    func scoringAndPersistence() throws {
+        let vertex = try #require(BoardGeometry.standardVertices.first)
+        let snapshot = BoardSnapshot(
+            tiles: BoardSnapshot.standard.tiles,
+            roads: [],
+            buildings: [vertex: .city],
+            buildingOwners: [vertex: .red],
+            activePlayers: [.red, .blue],
+            victoryPointCards: [.red: 2],
+            largestArmyHolder: .red,
+            longestRoadHolder: .red
+        )
+        let decoded = try BoardState.decode(BoardState(snapshot: snapshot).encoded())
+
+        #expect(decoded.victoryPointCardCount(for: .red) == 2)
+        #expect(decoded.largestArmyHolder == .red)
+        #expect(decoded.longestRoadHolder == .red)
+        #expect(decoded.victoryPoints(for: .red) == 8)
+
+        decoded.assignLargestArmy(to: .blue)
+        #expect(decoded.largestArmyHolder == .blue)
+        decoded.assignLargestArmy(to: .blue)
+        #expect(decoded.largestArmyHolder == nil)
+    }
+}
+
+private func roadChain(length: Int, excluding excluded: Set<BoardEdge> = []) -> [BoardEdge]? {
+    func search(vertex: BoardVertex, path: [BoardEdge], visited: Set<BoardVertex>) -> [BoardEdge]? {
+        if path.count == length { return path }
+        for edge in BoardGeometry.standardEdges where
+            !excluded.contains(edge) && !path.contains(edge) &&
+            (edge.start == vertex || edge.end == vertex) {
+            let next = edge.start == vertex ? edge.end : edge.start
+            guard !visited.contains(next) else { continue }
+            if let result = search(
+                vertex: next,
+                path: path + [edge],
+                visited: visited.union([next])
+            ) { return result }
+        }
+        return nil
+    }
+
+    for vertex in BoardGeometry.standardVertices {
+        if let result = search(vertex: vertex, path: [], visited: [vertex]) { return result }
+    }
+    return nil
+}
+
+private func commonVertex(_ first: BoardEdge, _ second: BoardEdge) -> BoardVertex? {
+    [first.start, first.end].first { $0 == second.start || $0 == second.end }
 }
 
 private extension Collection {

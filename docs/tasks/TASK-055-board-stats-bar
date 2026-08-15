@@ -1,0 +1,35 @@
+status: done
+started_datetime: 2026-08-15T00:00:00+01:00
+completed_datetime: 2026-08-15T20:52:00+01:00
+priority: P1
+requirement:
+design: SCR-001-board, SCR-006-hand
+depends_on: TASK-024, TASK-046
+
+# Board stats bar
+
+Add the expandable Board stats table and the persisted scoring inputs required by it.
+
+## Acceptance criteria
+
+- [x] An upward-arrow tab above the Board bottom bar expands and collapses a full-width inline stats table.
+- [x] The table contains Victory Points and Road Length rows with one column per active player.
+- [x] Victory Points include settlements, cities, Victory Point cards, Largest Army, and Longest Road.
+- [x] Hand supports any number of Victory Point cards per player and one globally unique Largest Army holder.
+- [x] Road Length is the longest edge-simple route, interrupted by another player's building.
+- [x] Longest Road is awarded at five, retained on ties, transferred when exceeded, and removed if its holder falls below five.
+- [x] Holding the crown for 0.5 seconds shakes it, lifts it with a pop, and permits dropping it only on another player's equally long Road Length cell.
+- [x] An invalid crown drop returns it to its holder without changing ownership.
+- [x] Scoring state is serializable and backward-compatible with existing saved games.
+- [x] Domain tests cover road networks, interruptions, scoring, ownership, manual tie reassignment, and serialization.
+- [x] Relevant UI regression coverage compiles.
+
+## Evidence
+
+- Added persisted Victory Point-card, Largest Army, and Longest Road state with legacy decoding defaults.
+- Added edge-simple longest-route calculation, opposing-building interruption, automatic ownership updates, tied manual reassignment, and scoring tests.
+- Added the inline active-player stats table and the half-second shaking, popping, draggable crown interaction.
+- Added Hand controls and Board/Hand UI regression coverage.
+- `xcodebuild build-for-testing -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` passed.
+- Live unit execution reached `Testing started` but was cancelled after the known simulator failure left it waiting for workers to materialize.
+- Manual check: verify crown pickup animation, valid tied drop, invalid snap-back, compact-width table layout, and VoiceOver drag guidance on a device.

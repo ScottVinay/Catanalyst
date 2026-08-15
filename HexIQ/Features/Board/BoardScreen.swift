@@ -19,6 +19,7 @@ struct BoardScreen: View {
     @State private var selectedPlayer = PlayerColor.red
     @State private var isShowingEditHelp = false
     @State private var showsVertexValues = false
+    @State private var isShowingStats = false
     @State private var rotationPresentation: BoardRotationPresentation
 
     init(board: BoardState, onNewGame: @escaping () -> Void) {
@@ -99,7 +100,12 @@ struct BoardScreen: View {
                 Text("Choose Terrain or Numbers, then hold a hex to open its radial choices. Roads and buildings are edited by tapping their edges or vertices.")
             }
             .overlay(alignment: .bottom) {
-                bottomBar
+                VStack(spacing: 0) {
+                    if !isEditing {
+                        BoardStatsBar(board: board, isExpanded: $isShowingStats)
+                    }
+                    bottomBar
+                }
             }
             .sheet(isPresented: $isShowingAnalysis) {
                 PlanBrowserView(board: board, selectedPlayer: $selectedPlayer)

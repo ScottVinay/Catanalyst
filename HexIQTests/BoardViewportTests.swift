@@ -16,7 +16,7 @@ struct BoardViewportTests {
 
         viewport.finishMagnification(0.8)
         #expect(viewport.zoom == .overview)
-        #expect(viewport.scale == 1)
+        #expect(viewport.scale == 0.9)
     }
 
     @Test("Small magnification changes do not switch levels")

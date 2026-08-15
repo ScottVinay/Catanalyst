@@ -1,0 +1,30 @@
+status: done
+started_datetime: 2026-08-15T00:00:00+01:00
+completed_datetime: 2026-08-15T20:52:00+01:00
+priority: P1
+requirement: REQ-022
+design: SCR-001-board
+depends_on: TASK-031, TASK-053
+
+# Board miscellaneous refinements
+
+Implement the interaction and presentation refinements in REQ-022-board-misc.
+
+## Acceptance criteria
+
+- [x] A two-finger interaction never opens a hex radial, including in edit mode.
+- [x] Overview is zoomed out enough for radial controls to remain usable near screen edges.
+- [x] Hovering over a number radial option previews that number in the centre token before release.
+- [x] Settlement and city icons, including ghost placements, have a sharp black outline.
+- [x] The Board background is light blue with subtle wave decoration.
+- [x] Relevant unit and UI regression coverage compiles.
+
+## Evidence
+
+- Magnification state now closes and suppresses radial editing throughout a two-finger gesture.
+- Reduced Overview scale from 1.0 to 0.9 and updated its deterministic viewport test.
+- Added a centred live number-token preview for the highlighted number wedge.
+- Rebuilt building symbols as colour fills over a crisp enlarged black silhouette, shared by saved and ghost buildings.
+- Added a code-native light-blue Canvas background with faint wave lines.
+- The full app/unit/UI test-bundle build passed; live execution remains subject to the existing simulator worker blocker.
+- Manual check: verify two-finger suppression timing, edge-hex radial clearance, outline legibility for White, and wave contrast in light/dark appearance on a device.

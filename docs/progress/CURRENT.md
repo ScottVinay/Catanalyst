@@ -19,7 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-001 through TASK-049 and TASK-051 through TASK-053 are implemented and marked `done`; TASK-050 remains documented as in progress pending its own review closeout.
+- TASK-001 through TASK-049 and TASK-051 through TASK-053 plus TASK-055 and TASK-056 are implemented and marked `done`; TASK-050 remains documented as in progress pending its own review closeout, and TASK-054 is documented but not started.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
 - TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
@@ -28,6 +28,8 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Completed TASK-055 with a collapsible Board stats table, persisted VP/Largest Army inputs, longest-route scoring, and a half-second lift-and-drag crown reassignment interaction restricted to tied players.
+- Completed TASK-056 / REQ-022 with two-finger radial suppression, a wider Overview, live number-wheel previews, crisp black building outlines, and a light-blue wave background.
 - Completed TASK-052 with cumulative card/wait thresholds, zero-production dashes, a colour-coded single-player Dice reliance picker, independently normalised charts with labelled round ticks, revised copy, and darker Grain styling.
 - Completed TASK-053 by hiding and forcing off Vertex values only while Board editing, then restoring the unchanged prior viewing preference on Done.
 - Extended TASK-053 by removing repeated in-hex terrain symbols, fixing dark-mode number-picker colours, keeping number/building content upright during Board rotation, and stacking Ocean radially beyond Desert in one terrain wedge.

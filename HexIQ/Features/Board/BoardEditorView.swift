@@ -29,6 +29,7 @@ struct BoardEditorView: View {
     @State private var viewport = BoardViewport()
     @GestureState private var transientPan = CGSize.zero
     @GestureState private var isHexEditGestureActive = false
+    @GestureState private var isMagnifying = false
     @State private var placementMessage: String?
     @State private var messageDismissalTask: Task<Void, Never>?
 
@@ -185,8 +186,12 @@ struct BoardEditorView: View {
                     closePicker()
                 }
             }
+            .onChange(of: isMagnifying) { _, magnifying in
+                if magnifying { closePicker() }
+            }
         }
         .padding(8)
+        .background(BoardWaterBackground())
     }
 
     private func vertexValues(hexSize: CGFloat, origin: CGPoint) -> some View {
@@ -204,6 +209,7 @@ struct BoardEditorView: View {
 
     private var magnificationGesture: some Gesture {
         MagnifyGesture()
+            .updating($isMagnifying) { _, state, _ in state = true }
             .onEnded { value in
                 viewport.finishMagnification(value.magnification)
             }
@@ -262,7 +268,7 @@ struct BoardEditorView: View {
                 }
             }
             .onChanged { value in
-                guard isEditing else { return }
+                guard isEditing, !isMagnifying else { return }
                 switch value {
                 case .first(true):
                     openPicker(at: coordinate)
@@ -277,7 +283,7 @@ struct BoardEditorView: View {
                 }
             }
             .onEnded { value in
-                guard isEditing else { return }
+                guard isEditing, !isMagnifying else { return }
                 defer { closePicker() }
                 guard case let .second(true, drag) = value,
                       let drag,
@@ -561,6 +567,16 @@ struct BoardEditorView: View {
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }
+
+            if editTool == .number,
+               let highlightedPickerIndex,
+               case let .token(token) = NumberPickerOption.all[highlightedPickerIndex] {
+                NumberTokenView(token: token, size: hexSize * 0.8)
+                    .rotationEffect(.degrees(contentRotationDegrees))
+                    .position(x: outerRadius, y: outerRadius)
+                    .allowsHitTesting(false)
+                    .accessibilityIdentifier("numberPickerPreview")
+            }
         }
         .frame(width: outerRadius * 2, height: outerRadius * 2)
         .scaleEffect(0.58 + (0.42 * pickerExpansion))
@@ -740,13 +756,42 @@ private struct BuildingView: View {
     let color: Color
 
     var body: some View {
-        Image(systemName: building == .city ? "building.2.fill" : "house.fill")
-            .font(.system(size: building == .city ? hexSize * 0.42 : hexSize * 0.34))
-            .foregroundStyle(color)
-            .shadow(color: .black.opacity(0.45), radius: 0.8)
+        let symbol = building == .city ? "building.2.fill" : "house.fill"
+        let size = building == .city ? hexSize * 0.42 : hexSize * 0.34
+        ZStack {
+            Image(systemName: symbol)
+                .font(.system(size: size, weight: .black))
+                .foregroundStyle(.black)
+                .scaleEffect(1.13)
+            Image(systemName: symbol)
+                .font(.system(size: size, weight: .black))
+                .foregroundStyle(color)
+        }
             .padding(2)
-            .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 3))
             .accessibilityHidden(true)
+    }
+}
+
+private struct BoardWaterBackground: View {
+    var body: some View {
+        Canvas { context, size in
+            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(
+                Color(red: 0.73, green: 0.90, blue: 0.97)
+            ))
+            for row in stride(from: CGFloat(24), through: size.height, by: 42) {
+                var path = Path()
+                path.move(to: CGPoint(x: -24, y: row))
+                for x in stride(from: CGFloat(-24), through: size.width + 24, by: 24) {
+                    path.addQuadCurve(
+                        to: CGPoint(x: x + 24, y: row),
+                        control: CGPoint(x: x + 12, y: row - 7)
+                    )
+                }
+                context.stroke(path, with: .color(.white.opacity(0.22)), lineWidth: 1.2)
+            }
+        }
+        .ignoresSafeArea()
+        .accessibilityHidden(true)
     }
 }
 

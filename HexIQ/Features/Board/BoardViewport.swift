@@ -10,7 +10,7 @@ nonisolated struct BoardViewport: Equatable {
     private(set) var offset: CGSize = .zero
 
     var scale: CGFloat {
-        zoom == .detail ? 1.85 : 1
+        zoom == .detail ? 1.85 : 0.9
     }
 
     func displayOffset(in containerSize: CGSize) -> CGSize {

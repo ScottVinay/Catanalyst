@@ -172,6 +172,9 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
     var customPlans: [CustomPlan]
     var orientation: BoardOrientation
     var activePlayers: [PlayerColor]
+    var victoryPointCards: [PlayerColor: Int]
+    var largestArmyHolder: PlayerColor?
+    var longestRoadHolder: PlayerColor?
 
     init(
         tiles: [HexTile],
@@ -182,7 +185,10 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
         hands: [PlayerColor: ResourceHand] = [:],
         customPlans: [CustomPlan] = [],
         orientation: BoardOrientation = .north,
-        activePlayers: [PlayerColor] = PlayerColor.defaultActive
+        activePlayers: [PlayerColor] = PlayerColor.defaultActive,
+        victoryPointCards: [PlayerColor: Int] = [:],
+        largestArmyHolder: PlayerColor? = nil,
+        longestRoadHolder: PlayerColor? = nil
     ) {
         self.tiles = tiles
         self.roads = roads
@@ -193,12 +199,16 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
         self.customPlans = customPlans
         self.orientation = orientation
         self.activePlayers = Self.orderedPlayers(activePlayers)
+        self.victoryPointCards = victoryPointCards.filter { $0.value > 0 }
+        self.largestArmyHolder = largestArmyHolder
+        self.longestRoadHolder = longestRoadHolder
     }
 }
 
 extension BoardSnapshot: Codable {
     private enum CodingKeys: String, CodingKey {
         case tiles, roads, buildings, roadOwners, buildingOwners, hands, customPlans, orientation, activePlayers
+        case victoryPointCards, largestArmyHolder, longestRoadHolder
     }
 
     init(from decoder: Decoder) throws {
@@ -230,6 +240,12 @@ extension BoardSnapshot: Codable {
             try container.decodeIfPresent([PlayerColor].self, forKey: .activePlayers)
                 ?? PlayerColor.allCases
         )
+        victoryPointCards = try container.decodeIfPresent(
+            [PlayerColor: Int].self,
+            forKey: .victoryPointCards
+        )?.filter { $0.value > 0 } ?? [:]
+        largestArmyHolder = try container.decodeIfPresent(PlayerColor.self, forKey: .largestArmyHolder)
+        longestRoadHolder = try container.decodeIfPresent(PlayerColor.self, forKey: .longestRoadHolder)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -243,6 +259,9 @@ extension BoardSnapshot: Codable {
         try container.encode(customPlans, forKey: .customPlans)
         try container.encode(orientation, forKey: .orientation)
         try container.encode(activePlayers, forKey: .activePlayers)
+        try container.encode(victoryPointCards, forKey: .victoryPointCards)
+        try container.encodeIfPresent(largestArmyHolder, forKey: .largestArmyHolder)
+        try container.encodeIfPresent(longestRoadHolder, forKey: .longestRoadHolder)
     }
 
     nonisolated static func orderedPlayers(_ players: some Sequence<PlayerColor>) -> [PlayerColor] {
@@ -266,12 +285,17 @@ final class BoardState {
     var customPlans: [CustomPlan] { snapshot.customPlans }
     var orientation: BoardOrientation { snapshot.orientation }
     var activePlayers: [PlayerColor] { snapshot.activePlayers }
+    var largestArmyHolder: PlayerColor? { snapshot.largestArmyHolder }
+    var longestRoadHolder: PlayerColor? { snapshot.longestRoadHolder }
 
     func hasStoredState(for player: PlayerColor) -> Bool {
         !(snapshot.hands[player] ?? ResourceHand()).isEmpty ||
             snapshot.customPlans.contains { $0.player == player } ||
             snapshot.roadOwners.values.contains(player) ||
             snapshot.buildingOwners.values.contains(player)
+            || victoryPointCardCount(for: player) > 0
+            || snapshot.largestArmyHolder == player
+            || snapshot.longestRoadHolder == player
     }
 
     func addPlayer(_ player: PlayerColor) {
@@ -289,7 +313,11 @@ final class BoardState {
         snapshot.buildingOwners = snapshot.buildingOwners.filter { $0.value != player }
         snapshot.hands.removeValue(forKey: player)
         snapshot.customPlans.removeAll { $0.player == player }
+        snapshot.victoryPointCards.removeValue(forKey: player)
+        if snapshot.largestArmyHolder == player { snapshot.largestArmyHolder = nil }
+        if snapshot.longestRoadHolder == player { snapshot.longestRoadHolder = nil }
         snapshot.activePlayers.removeAll { $0 == player }
+        refreshLongestRoad()
     }
 
     func rotateLeft() {
@@ -328,6 +356,70 @@ final class BoardState {
         snapshot.hands[player] = ResourceHand()
     }
 
+    func victoryPointCardCount(for player: PlayerColor) -> Int {
+        snapshot.victoryPointCards[player, default: 0]
+    }
+
+    func addVictoryPointCard(to player: PlayerColor) {
+        snapshot.victoryPointCards[player, default: 0] += 1
+    }
+
+    func removeVictoryPointCard(from player: PlayerColor) {
+        let count = victoryPointCardCount(for: player)
+        if count > 1 {
+            snapshot.victoryPointCards[player] = count - 1
+        } else {
+            snapshot.victoryPointCards.removeValue(forKey: player)
+        }
+    }
+
+    func assignLargestArmy(to player: PlayerColor) {
+        snapshot.largestArmyHolder = snapshot.largestArmyHolder == player ? nil : player
+    }
+
+    func roadLength(for player: PlayerColor) -> Int {
+        let ownedRoads = snapshot.roads.filter { owner(of: $0) == player }
+        guard !ownedRoads.isEmpty else { return 0 }
+
+        func walk(from vertex: BoardVertex, used: Set<BoardEdge>) -> Int {
+            if !used.isEmpty,
+               snapshot.buildings[vertex] != nil,
+               owner(of: vertex) != player {
+                return 0
+            }
+            return ownedRoads
+                .filter { !used.contains($0) && ($0.start == vertex || $0.end == vertex) }
+                .map { edge in
+                    let next = edge.start == vertex ? edge.end : edge.start
+                    return 1 + walk(from: next, used: used.union([edge]))
+                }
+                .max() ?? 0
+        }
+
+        return ownedRoads.flatMap { [walk(from: $0.start, used: []), walk(from: $0.end, used: [])] }.max() ?? 0
+    }
+
+    func victoryPoints(for player: PlayerColor) -> Int {
+        let buildingPoints = snapshot.buildings.reduce(into: 0) { total, entry in
+            guard owner(of: entry.key) == player else { return }
+            total += entry.value == .city ? 2 : 1
+        }
+        return buildingPoints
+            + victoryPointCardCount(for: player)
+            + (snapshot.largestArmyHolder == player ? 2 : 0)
+            + (snapshot.longestRoadHolder == player ? 2 : 0)
+    }
+
+    @discardableResult
+    func reassignLongestRoad(to player: PlayerColor) -> Bool {
+        guard let holder = snapshot.longestRoadHolder,
+              holder != player,
+              roadLength(for: holder) >= 5,
+              roadLength(for: player) == roadLength(for: holder) else { return false }
+        snapshot.longestRoadHolder = player
+        return true
+    }
+
     func owner(of edge: BoardEdge) -> PlayerColor {
         snapshot.roadOwners[edge] ?? .red
     }
@@ -360,6 +452,7 @@ final class BoardState {
             guard owner(of: edge) == player else { return nil }
             snapshot.roads.remove(edge)
             snapshot.roadOwners.removeValue(forKey: edge)
+            refreshLongestRoad()
             return nil
         } else {
             return placeRoad(on: edge, for: player)
@@ -378,6 +471,7 @@ final class BoardState {
         guard hasAdjacentBuilding || hasAdjacentRoad else { return .roadNeedsConnection }
         snapshot.roads.insert(edge)
         snapshot.roadOwners[edge] = player
+        refreshLongestRoad(contender: player)
         return nil
     }
 
@@ -399,6 +493,7 @@ final class BoardState {
         case .city:
             snapshot.buildings.removeValue(forKey: vertex)
             snapshot.buildingOwners.removeValue(forKey: vertex)
+            refreshLongestRoad()
             return nil
         }
     }
@@ -413,6 +508,7 @@ final class BoardState {
             if existing == .settlement, building == .city {
                 guard owner(of: vertex) == player else { return .cityNeedsSettlement }
                 snapshot.buildings[vertex] = .city
+                refreshLongestRoad()
                 return nil
             }
             if building == .city { return .cityNeedsSettlement }
@@ -427,6 +523,7 @@ final class BoardState {
         guard !hasAdjacentBuilding else { return .buildingTooClose }
         snapshot.buildings[vertex] = building
         snapshot.buildingOwners[vertex] = player
+        refreshLongestRoad()
         return nil
     }
 
@@ -440,6 +537,29 @@ final class BoardState {
 
     private func tileIndex(at coordinate: HexCoordinate) -> Int? {
         snapshot.tiles.firstIndex { $0.coordinate == coordinate }
+    }
+
+    private func refreshLongestRoad(contender: PlayerColor? = nil) {
+        if let holder = snapshot.longestRoadHolder {
+            let holderLength = roadLength(for: holder)
+            guard holderLength >= 5 else {
+                snapshot.longestRoadHolder = nil
+                refreshLongestRoad(contender: contender)
+                return
+            }
+            if let contender,
+               contender != holder,
+               roadLength(for: contender) > holderLength {
+                snapshot.longestRoadHolder = contender
+            }
+            return
+        }
+
+        if let contender, roadLength(for: contender) >= 5 {
+            snapshot.longestRoadHolder = contender
+            return
+        }
+        snapshot.longestRoadHolder = snapshot.activePlayers.first { roadLength(for: $0) >= 5 }
     }
 }
 

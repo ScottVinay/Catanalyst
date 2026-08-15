@@ -68,6 +68,42 @@ struct HandView: View {
                             }
                         }
                     }
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Victory point cards").font(.headline)
+                        HStack(spacing: 12) {
+                            Button {
+                                board.addVictoryPointCard(to: selectedPlayer)
+                            } label: {
+                                Label(
+                                    "Victory Point\(victoryPointCards == 1 ? "" : "s") · \(victoryPointCards)",
+                                    systemImage: "sunrise.circle.fill"
+                                )
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                            }
+                            .buttonStyle(.bordered)
+                            .contextMenu {
+                                Button("Remove one", role: .destructive) {
+                                    board.removeVictoryPointCard(from: selectedPlayer)
+                                }
+                                .disabled(victoryPointCards == 0)
+                            }
+                            .accessibilityHint("Adds one card. Hold to remove one.")
+                            .accessibilityIdentifier("addVictoryPointCardButton")
+
+                            Button {
+                                board.assignLargestArmy(to: selectedPlayer)
+                            } label: {
+                                Label("Largest Army", systemImage: "person.3.fill")
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(board.largestArmyHolder == selectedPlayer ? selectedPlayer.color : nil)
+                            .accessibilityValue(board.largestArmyHolder == selectedPlayer ? "Held" : "Not held")
+                            .accessibilityHint("Assigns Largest Army to this player and removes it from its previous holder.")
+                            .accessibilityIdentifier("largestArmyButton")
+                        }
+                    }
                 }
                 .padding()
             }
@@ -85,5 +121,9 @@ struct HandView: View {
 
     private var currentHand: ResourceHand {
         board.hand(for: selectedPlayer)
+    }
+
+    private var victoryPointCards: Int {
+        board.victoryPointCardCount(for: selectedPlayer)
     }
 }

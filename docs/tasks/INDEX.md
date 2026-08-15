@@ -53,3 +53,6 @@
 - [TASK-051: Advanced Production Analysis](TASK-051-advanced-production)
 - [TASK-052: Refine Advanced Production Analysis](TASK-052-modifications-to-advanced-production)
 - [TASK-053: Hide Vertex Values While Editing](TASK-053-board-edits)
+- [TASK-054: Board Burger Menu](TASK-054-burger-menu)
+- [TASK-055: Board Stats Bar](TASK-055-board-stats-bar)
+- [TASK-056: Board Miscellaneous Refinements](TASK-056-board-misc-refinements)
