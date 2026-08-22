@@ -57,13 +57,62 @@ struct ResourceCardStackView: View {
             ForEach(0..<count, id: \.self) { index in
                 ResourceCardView(resource: resource, showsWhiteOutline: true)
                     .frame(width: 52)
-                    .offset(x: CGFloat(index) * 8)
+                    .offset(x: CGFloat(index) * 11)
             }
         }
-        .frame(width: 52 + CGFloat(max(0, count - 1)) * 8, height: 76, alignment: .leading)
+        .frame(width: 52 + CGFloat(max(0, count - 1)) * 11, height: 76, alignment: .leading)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(count) \(resource.displayName) cards")
         .accessibilityValue("White outlined stack")
         .accessibilityIdentifier(accessibilityIdentifier)
+    }
+}
+
+struct VictoryPointCardView: View {
+    var showsAddBadge = false
+    var showsWhiteOutline = false
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(red: 0.72, green: 0.74, blue: 0.77))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(showsWhiteOutline ? .white : .black.opacity(0.25), lineWidth: showsWhiteOutline ? 2 : 1)
+                }
+                .aspectRatio(2.5 / 3.5, contentMode: .fit)
+
+            Image(systemName: "sunrise.circle.fill")
+                .font(.title3)
+                .foregroundStyle(.black.opacity(0.72))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if showsAddBadge {
+                Image(systemName: "plus.circle.fill")
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(.white, Color.accentColor)
+                    .offset(x: 5, y: -5)
+            }
+        }
+        .accessibilityLabel("Victory Point card")
+    }
+}
+
+struct VictoryPointCardStackView: View {
+    let count: Int
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            ForEach(0..<count, id: \.self) { index in
+                VictoryPointCardView(showsWhiteOutline: true)
+                    .frame(width: 52)
+                    .offset(x: CGFloat(index) * 11)
+            }
+        }
+        .frame(width: 52 + CGFloat(max(0, count - 1)) * 11, height: 76, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(count) Victory Point cards")
+        .accessibilityValue("White outlined stack")
+        .accessibilityIdentifier("handSelectedVictoryPointCard")
     }
 }

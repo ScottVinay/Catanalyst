@@ -124,3 +124,18 @@ ITEM-001-player-selector should be visible and active.
 
 - The first player who achieves a Road Length of 5 gets the 2 Victory points for Longest Road, and also gets a crown next to their Road Length number. When a player builds a road that is longer than the Road Length of the player with the Longest Road, they get the Longest Road and VPs are moved over.
 - In case the user does not update the app in the approriate order, this can be changed manually. Tapping the Road Length cell of that player will come up with a box: "Are you sure you want to reassign Longest Road to <Player Name>?". Tapping "Yes" will move the Longest Road to them, and corresponding VPs.
+
+## Stats presentation refinements
+
+- Player columns are headed by the player names rendered in their respective colours, rather than colour dots.
+- Longest Road is indicated by a black road icon in a golden circle beside the holder's independently centred Road Length number.
+- Hold the Longest Road badge for half a second to lift it, then drag it to another player with an equal Road Length. It shakes during pickup and pops free; invalid drops return it unchanged.
+- The stats table, tab, and arrow expand and collapse as one coherent moving surface without fading between separate positions.
+- Building symbols remain in white boxes and use crisp black lines around both their outer silhouette and internal details.
+
+## Clear board
+
+- The burger menu contains **Clear board**.
+- It confirms with `This will remove all placed items and empty all hands. Are you sure?` and No / Yes actions.
+- Yes removes roads, settlements, cities, all resource and Victory Point cards, Largest Army, and Longest Road.
+- Terrain, number tokens, active players, orientation, and saved plans remain unchanged.

@@ -35,3 +35,5 @@ This screen assigns the resource cards currently held by each player. Stored han
 ## Victory point cards
 
 Below the resource cards, is card to tap to add a victory point card, and one to add a "Largest Army" card with a picture of soldiers on it. Adding a Largest Army removes it from any other player that had it.
+
+The Victory Point add control uses the same poker-card presentation and interaction as resource cards, with a sunrise in a circle on a silver background. Added Victory Point cards appear in the selected hand and tapping their stack removes one, as with resources. All stacked hand cards use enough stagger spacing to make their quantity readily visible.

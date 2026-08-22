@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct BoardStatsBar: View {
+    private let tableHeight: CGFloat = 120
+    private let tabHeight: CGFloat = 24
+
     let board: BoardState
     @Binding var isExpanded: Bool
 
@@ -12,22 +15,26 @@ struct BoardStatsBar: View {
     var body: some View {
         VStack(spacing: 0) {
             Button {
-                withAnimation(.snappy) { isExpanded.toggle() }
+                isExpanded.toggle()
             } label: {
-                Image(systemName: isExpanded ? "chevron.down" : "chevron.up")
+                Image(systemName: "chevron.up")
                     .font(.caption.bold())
-                    .frame(width: 54, height: 24)
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    .frame(width: 54, height: tabHeight)
                     .background(.bar, in: UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(isExpanded ? "Hide player stats" : "Show player stats")
             .accessibilityIdentifier("statsBarToggle")
 
-            if isExpanded {
-                statsTable
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+            statsTable
+                .frame(height: tableHeight)
+                .accessibilityHidden(!isExpanded)
         }
+        .offset(y: isExpanded ? 0 : tableHeight)
+        .frame(height: tableHeight + tabHeight, alignment: .top)
+        .clipped()
+        .animation(.smooth(duration: 0.28), value: isExpanded)
     }
 
     private var statsTable: some View {
@@ -35,12 +42,13 @@ struct BoardStatsBar: View {
             GridRow {
                 Color.clear.frame(width: 112, height: 30)
                 ForEach(board.activePlayers) { player in
-                    Circle()
-                        .fill(player.color)
-                        .overlay(Circle().stroke(.black.opacity(0.5), lineWidth: 1))
-                        .frame(width: 18, height: 18)
+                    Text(player.displayName)
+                        .font(.caption.bold())
+                        .foregroundStyle(player.color)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                         .frame(maxWidth: .infinity)
-                        .accessibilityLabel(player.displayName)
+                        .accessibilityIdentifier("statsPlayerHeader-\(player.rawValue)")
                 }
             }
             Divider()
@@ -79,21 +87,30 @@ struct BoardStatsBar: View {
     }
 
     private func roadLengthCell(for player: PlayerColor) -> some View {
-        HStack(spacing: 3) {
+        ZStack {
             Text("\(board.roadLength(for: player))")
+                .frame(maxWidth: .infinity)
             if board.longestRoadHolder == player {
-                Image(systemName: "crown.fill")
-                    .foregroundStyle(.yellow)
-                    .symbolEffect(.wiggle, isActive: crownIsArmed)
-                    .scaleEffect(draggedCrownHolder == player ? 1.22 : 1)
-                    .offset(draggedCrownHolder == player ? crownTranslation : .zero)
-                    .shadow(radius: draggedCrownHolder == player ? 4 : 0)
-                    .zIndex(10)
-                    .gesture(crownGesture(for: player))
-                    .simultaneousGesture(crownPressFeedback)
-                    .accessibilityLabel("Longest Road crown")
-                    .accessibilityHint("Hold, then drag to a tied player's Road Length cell.")
-                    .accessibilityIdentifier("longestRoadCrown-\(player.rawValue)")
+                HStack {
+                    Spacer()
+                    Image(systemName: "road.lanes")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.black)
+                        .frame(width: 24, height: 24)
+                        .background(Color.yellow, in: Circle())
+                        .overlay(Circle().stroke(.black.opacity(0.35), lineWidth: 1))
+                        .symbolEffect(.wiggle, isActive: crownIsArmed)
+                        .scaleEffect(draggedCrownHolder == player ? 1.22 : 1)
+                        .offset(draggedCrownHolder == player ? crownTranslation : .zero)
+                        .shadow(radius: draggedCrownHolder == player ? 4 : 0)
+                        .zIndex(10)
+                        .gesture(crownGesture(for: player))
+                        .simultaneousGesture(crownPressFeedback)
+                        .accessibilityLabel("Longest Road badge")
+                        .accessibilityHint("Hold, then drag to a tied player's Road Length cell.")
+                        .accessibilityIdentifier("longestRoadCrown-\(player.rawValue)")
+                }
+                .padding(.trailing, 4)
             }
         }
         .font(.subheadline.monospacedDigit())

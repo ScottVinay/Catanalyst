@@ -48,6 +48,40 @@ final class HexIQUITests: XCTestCase {
     }
 
     @MainActor
+    func testClearBoardRequiresConfirmationAndEmptiesHands() throws {
+        let app = makeApp()
+        app.launch()
+        app.buttons["standardBoardButton"].tap()
+        app.buttons["handButton"].tap()
+        app.buttons["handAddCard-brick"].tap()
+        app.buttons["addVictoryPointCardButton"].tap()
+        app.buttons["largestArmyButton"].tap()
+        app.buttons["closeHandButton"].tap()
+
+        app.buttons["gameMenuButton"].tap()
+        app.buttons["clearBoardButton"].tap()
+        let alert = app.alerts["Clear board"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 2))
+        XCTAssertEqual(
+            alert.staticTexts.element(boundBy: 1).label,
+            "This will remove all placed items and empty all hands. Are you sure?"
+        )
+        alert.buttons["No"].tap()
+
+        app.buttons["handButton"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["handSelectedCard-brick"].exists)
+        app.buttons["closeHandButton"].tap()
+
+        app.buttons["gameMenuButton"].tap()
+        app.buttons["clearBoardButton"].tap()
+        app.alerts["Clear board"].buttons["Yes"].tap()
+        app.buttons["handButton"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["emptyHandCards"].exists)
+        XCTAssertEqual(app.buttons["largestArmyButton"].value as? String, "Not held")
+        app.buttons["closeHandButton"].tap()
+    }
+
+    @MainActor
     func testCreatesAStandardBoardAndEntersEditMode() throws {
         let app = makeApp()
         app.launch()
@@ -75,6 +109,7 @@ final class HexIQUITests: XCTestCase {
         XCTAssertTrue(app.buttons["statsBarToggle"].exists)
         app.buttons["statsBarToggle"].tap()
         XCTAssertTrue(app.otherElements["statsTable"].exists)
+        XCTAssertTrue(app.staticTexts["statsPlayerHeader-red"].exists)
         XCTAssertEqual(app.staticTexts["victoryPoints-red"].label, "0")
         XCTAssertEqual(app.descendants(matching: .any)["roadLength-red"].label, "0")
         app.buttons["statsBarToggle"].tap()
@@ -103,7 +138,9 @@ final class HexIQUITests: XCTestCase {
         app.buttons["selectPlayer-red"].tap()
         XCTAssertEqual(redBrickStack.label, "1 Brick cards")
         app.buttons["addVictoryPointCardButton"].tap()
-        XCTAssertTrue(app.buttons["addVictoryPointCardButton"].label.contains("1"))
+        XCTAssertEqual(app.descendants(matching: .any)["handSelectedVictoryPointCard"].label, "1 Victory Point cards")
+        app.descendants(matching: .any)["handSelectedVictoryPointCard"].tap()
+        XCTAssertFalse(app.descendants(matching: .any)["handSelectedVictoryPointCard"].exists)
         app.buttons["largestArmyButton"].tap()
         XCTAssertEqual(app.buttons["largestArmyButton"].value as? String, "Held")
         app.buttons["selectPlayer-blue"].tap()

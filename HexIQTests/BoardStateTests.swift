@@ -202,6 +202,7 @@ struct BoardStateTests {
         board.addCard(.brick, to: .red)
         board.addCard(.brick, to: .red)
         board.addCard(.ore, to: .blue)
+        board.addVictoryPointCard(to: .blue)
         #expect(board.hand(for: .red)[.brick] == 2)
         #expect(board.hand(for: .blue)[.ore] == 1)
 
@@ -213,6 +214,7 @@ struct BoardStateTests {
 
         board.clearHand(for: .blue)
         #expect(board.hand(for: .blue).isEmpty)
+        #expect(board.victoryPointCardCount(for: .blue) == 0)
     }
 
     @Test("Legacy Board JSON without hands decodes empty hands")
@@ -664,6 +666,44 @@ struct BoardStateTests {
         #expect(decoded.largestArmyHolder == .blue)
         decoded.assignLargestArmy(to: .blue)
         #expect(decoded.largestArmyHolder == nil)
+    }
+
+    @Test("Clear board removes placed and held state while preserving game setup and plans")
+    func clearBoardBoundary() throws {
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+        let edge = try #require(BoardGeometry.standardEdges.first)
+        let plan = CustomPlan(name: "Keep me", kind: .cards, player: .red)
+        var hand = ResourceHand()
+        hand.add(.brick)
+        let snapshot = BoardSnapshot(
+            tiles: [HexTile(coordinate: coordinate, terrain: .wheat, number: .six)],
+            roads: [edge],
+            buildings: [vertex: .settlement],
+            roadOwners: [edge: .red],
+            buildingOwners: [vertex: .red],
+            hands: [.red: hand],
+            customPlans: [plan],
+            orientation: .east,
+            activePlayers: [.red, .blue],
+            victoryPointCards: [.red: 2],
+            largestArmyHolder: .red,
+            longestRoadHolder: .red
+        )
+        let board = BoardState(snapshot: snapshot)
+
+        board.clearPlacedItemsAndHands()
+
+        #expect(board.roads.isEmpty)
+        #expect(board.buildings.isEmpty)
+        #expect(board.hand(for: .red).isEmpty)
+        #expect(board.victoryPointCardCount(for: .red) == 0)
+        #expect(board.largestArmyHolder == nil)
+        #expect(board.longestRoadHolder == nil)
+        #expect(board.tiles == snapshot.tiles)
+        #expect(board.customPlans == [plan])
+        #expect(board.orientation == .east)
+        #expect(board.activePlayers == [.red, .blue])
     }
 }
 

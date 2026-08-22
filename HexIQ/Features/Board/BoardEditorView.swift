@@ -762,12 +762,18 @@ private struct BuildingView: View {
             Image(systemName: symbol)
                 .font(.system(size: size, weight: .black))
                 .foregroundStyle(.black)
-                .scaleEffect(1.13)
+                .scaleEffect(1.16)
             Image(systemName: symbol)
                 .font(.system(size: size, weight: .black))
                 .foregroundStyle(color)
+                .scaleEffect(0.88)
         }
-            .padding(2)
+            .padding(4)
+            .background(.white, in: RoundedRectangle(cornerRadius: 4))
+            .overlay {
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(.black, lineWidth: 1)
+            }
             .accessibilityHidden(true)
     }
 }

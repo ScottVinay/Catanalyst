@@ -354,6 +354,18 @@ final class BoardState {
 
     func clearHand(for player: PlayerColor) {
         snapshot.hands[player] = ResourceHand()
+        snapshot.victoryPointCards.removeValue(forKey: player)
+    }
+
+    func clearPlacedItemsAndHands() {
+        snapshot.roads.removeAll()
+        snapshot.buildings.removeAll()
+        snapshot.roadOwners.removeAll()
+        snapshot.buildingOwners.removeAll()
+        snapshot.hands.removeAll()
+        snapshot.victoryPointCards.removeAll()
+        snapshot.largestArmyHolder = nil
+        snapshot.longestRoadHolder = nil
     }
 
     func victoryPointCardCount(for player: PlayerColor) -> Int {

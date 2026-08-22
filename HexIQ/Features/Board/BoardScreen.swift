@@ -20,6 +20,7 @@ struct BoardScreen: View {
     @State private var isShowingEditHelp = false
     @State private var showsVertexValues = false
     @State private var isShowingStats = false
+    @State private var isConfirmingClearBoard = false
     @State private var rotationPresentation: BoardRotationPresentation
 
     init(board: BoardState, onNewGame: @escaping () -> Void) {
@@ -99,6 +100,14 @@ struct BoardScreen: View {
             } message: {
                 Text("Choose Terrain or Numbers, then hold a hex to open its radial choices. Roads and buildings are edited by tapping their edges or vertices.")
             }
+            .alert("Clear board", isPresented: $isConfirmingClearBoard) {
+                Button("No", role: .cancel) {}
+                Button("Yes", role: .destructive) {
+                    board.clearPlacedItemsAndHands()
+                }
+            } message: {
+                Text("This will remove all placed items and empty all hands. Are you sure?")
+            }
             .overlay(alignment: .bottom) {
                 VStack(spacing: 0) {
                     if !isEditing {
@@ -137,6 +146,10 @@ struct BoardScreen: View {
 
     private var gameMenu: some View {
         Menu {
+            Button("Clear board", systemImage: "trash", role: .destructive) {
+                isConfirmingClearBoard = true
+            }
+            .accessibilityIdentifier("clearBoardButton")
             Button("Change players", systemImage: "person.2") {
                 isShowingChangePlayers = true
             }

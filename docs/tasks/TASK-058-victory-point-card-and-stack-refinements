@@ -1,0 +1,35 @@
+status: done
+started_datetime: 2026-08-15T21:36:00+01:00
+completed_datetime: 2026-08-15T21:58:00+01:00
+priority: P1
+requirement: REQ-023
+design: SCR-006-hand
+depends_on: TASK-024, TASK-055
+
+# Victory Point card and hand-stack refinements
+
+Present Victory Point cards through the same add/selected-hand interaction as resource cards and improve stacked-card legibility.
+
+## Acceptance criteria
+
+- [x] Add cards includes a poker-proportioned silver Victory Point card with a sunrise-in-circle symbol.
+- [x] Tapping the add card adds one Victory Point card to the selected player's hand.
+- [x] Held Victory Point cards appear in the selected-hand area and use the common stacked-card presentation.
+- [x] Tapping the selected Victory Point stack removes exactly one card.
+- [x] Resource and Victory Point stacks use slightly greater stagger spacing so their counts are easier to read.
+- [x] Largest Army remains globally unique and usable beneath the card areas.
+- [x] Per-player isolation, persistence, stats refresh, and Clear board behavior remain intact.
+- [x] Relevant domain and UI regression coverage compiles.
+
+## Evidence
+
+- Added reusable silver Victory Point card and stacked-card views with the sunrise-circle symbol.
+- Moved held Victory Point cards into Selected cards with tap-to-remove behavior; the add card now sits below the resource-card row.
+- Increased the common card-stack stagger from 8 to 11 points and kept Largest Army in a separate section below both card areas.
+- Updated Clear hand to remove both resource and Victory Point cards, with domain regression coverage.
+- Added UI coverage for adding, displaying, and removing the selected Victory Point stack.
+- `xcodebuild build-for-testing -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` compiled the app, unit-test, and UI-test sources; Xcode again stalled while finalising test products and was interrupted.
+
+## Manual checks
+
+- Inspect the silver card, stack spacing, overflow behavior with large card counts, and tap-to-remove interaction on a simulator or device.

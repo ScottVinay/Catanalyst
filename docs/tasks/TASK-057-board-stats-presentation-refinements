@@ -1,0 +1,35 @@
+status: done
+started_datetime: 2026-08-15T21:25:00+01:00
+completed_datetime: 2026-08-15T21:36:00+01:00
+priority: P1
+requirement: REQ-023
+design: SCR-001-board
+depends_on: TASK-055, TASK-056
+
+# Board and stats presentation refinements
+
+Refine the Board building treatment and the stats table introduced by TASK-055 and TASK-056.
+
+## Acceptance criteria
+
+- [x] Settlement and city icons remain inside white boxes.
+- [x] Building icons have crisp black outer and internal edge lines, including White-player buildings and ghost placements.
+- [x] Stats headers show each active player's colour name in that colour rather than a dot.
+- [x] Longest Road is shown as a black road icon inside a golden circle beside an independently centred Road Length number.
+- [x] The golden road badge retains TASK-055's hold, shake, lift, drag, valid tied transfer, and invalid-return behavior.
+- [x] Expanding and collapsing stats moves the table, tab, and arrow coherently without fade/replacement artifacts.
+- [x] Relevant UI regression coverage compiles.
+
+## Evidence
+
+- Restored white building tiles and strengthened the two-layer black/color symbol treatment.
+- Replaced player dots with colored player-name headers.
+- Replaced the crown artwork with a draggable golden road badge while preserving the existing half-second hold gesture and reassignment rules.
+- Kept the stats table mounted and moved the table, tab, and rotating persistent arrow as one fixed-height group using a single 0.28-second animation transaction, with no opacity animation.
+- Added a UI assertion for the named player header.
+- `xcodebuild build -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` succeeded.
+
+## Manual checks
+
+- Inspect building inner outlines and the stats animation on a device at normal and larger Dynamic Type sizes.
+- Exercise valid and invalid Longest Road drops to confirm the badge's visual return behavior.

@@ -1,3 +1,33 @@
-Changes to the burger menu accessible from "board"
+status: done
+started_datetime: 2026-08-15T21:00:00+01:00
+completed_datetime: 2026-08-15T21:25:00+01:00
+priority: P1
+requirement: REQ-023
+design: SCR-001-board, SCR-006-hand
+depends_on: TASK-024, TASK-055
 
-- Add an option to clear all things placed on the board.
+# Clear board menu action
+
+Add a destructive Clear board action to the Board burger menu while preserving the current game setup and saved plans.
+
+## Acceptance criteria
+
+- [x] The Board burger menu contains `Clear board`.
+- [x] Selecting it presents `This will remove all placed items and empty all hands. Are you sure?` with No and Yes actions.
+- [x] No dismisses without changing game state.
+- [x] Yes removes every road, settlement, and city.
+- [x] Yes clears all players' resource and Victory Point cards, Largest Army, and Longest Road.
+- [x] Terrain, number tokens, active players, orientation, and plans remain unchanged.
+- [x] Cleared state persists through the normal active-game persistence boundary.
+- [x] Domain and UI regression coverage compiles.
+
+## Evidence
+
+- Added `BoardState.clearPlacedItemsAndHands()` as the single domain mutation boundary.
+- Added the destructive burger-menu action and confirmation alert to `BoardScreen`.
+- Added domain coverage for cleared and preserved state plus a UI confirmation regression test.
+- `xcodebuild build-for-testing -project HexIQ.xcodeproj -scheme HexIQ -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO` compiled the changed app and test sources; Xcode subsequently stalled while finalising test products and was interrupted.
+
+## Manual checks
+
+- Confirm the menu wording, No/Yes behavior, and persisted cleared state on a simulator or device.

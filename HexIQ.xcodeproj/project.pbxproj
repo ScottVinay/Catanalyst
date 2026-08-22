@@ -24,6 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D2D9255C3034DCCD004A446E /* HexIQ.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = HexIQ.xcodeproj; sourceTree = SOURCE_ROOT; };
 		D2D9F1C4300E83DA0007C8B2 /* HexIQ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HexIQ.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2D9F1D1300E83DD0007C8B2 /* HexIQTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HexIQTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2D9F1DB300E83DD0007C8B2 /* HexIQUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HexIQUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +76,7 @@
 		D2D9F1BB300E83DA0007C8B2 = {
 			isa = PBXGroup;
 			children = (
+				D2D9255C3034DCCD004A446E /* HexIQ.xcodeproj */,
 				D2D9F1C6300E83DA0007C8B2 /* HexIQ */,
 				D2D9F1D4300E83DD0007C8B2 /* HexIQTests */,
 				D2D9F1DE300E83DD0007C8B2 /* HexIQUITests */,

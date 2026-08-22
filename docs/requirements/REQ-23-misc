@@ -1,0 +1,9 @@
+I have changes that need to be made, that have resulted from TASK-055 and TASK-056. You may also make changes to any SCR files that are changed.
+
+- Building icons should still be in white boxes, just now with black lines. Inner edges as well as outer should have black lines.
+- Player colours in the stats bar header should not just be coloured dots. They should be "Red" in the colour red, "Blue" in the colour blue etc.
+- Instead of a crown, make it a black road icon in a golden circle. Also, it should be to the side of the number. At the moment, it takes the place of the number, and the number is instead offset to the side which looks out of place.
+- The UI to add a victory point should be similar to adding resource cards. There should be a "card" underneath the resource cards, but instead of a resource logo, it has a sunset in a circle on a silver background. Tapping this adds the card to the "hand" on the right hand side. Tapping this can remove it as usual.
+- When cards are stacked in the hand, make the spacing slightly greater so it is easier to see how many there are.
+- Currently, when tapping the arrow to bring up or down the stats bar, the arrow stays in one place, fades out, then reappears in the new location, as does the tab iself. All elements (stats bar, tab, arrow) should move coherently and smoothly.
+- Add an option to the burger menu to "Clear board". This says "This will remove all placed items and empty all hands. Are you sure?" and gives an option for No / Yes. Pressing yes removes all settlements, road, cities, and empties all hands. Plans remain.

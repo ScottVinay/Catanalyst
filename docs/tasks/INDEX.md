@@ -56,3 +56,5 @@
 - [TASK-054: Board Burger Menu](TASK-054-burger-menu)
 - [TASK-055: Board Stats Bar](TASK-055-board-stats-bar)
 - [TASK-056: Board Miscellaneous Refinements](TASK-056-board-misc-refinements)
+- [TASK-057: Board and Stats Presentation Refinements](TASK-057-board-stats-presentation-refinements)
+- [TASK-058: Victory Point Card and Stack Refinements](TASK-058-victory-point-card-and-stack-refinements)

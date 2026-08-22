@@ -23,11 +23,11 @@ struct HandView: View {
                             .font(.headline)
                         Spacer()
                         Button("Clear") { board.clearHand(for: selectedPlayer) }
-                            .disabled(currentHand.isEmpty)
+                            .disabled(hasNoSelectedCards)
                             .accessibilityIdentifier("clearHandButton")
                     }
 
-                    if currentHand.isEmpty {
+                    if hasNoSelectedCards {
                         Text("No cards in hand")
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, minHeight: 120)
@@ -43,6 +43,15 @@ struct HandView: View {
                                         count: currentHand[resource],
                                         accessibilityIdentifier: "handSelectedCard-\(resource.rawValue)"
                                     )
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityHint("Removes one card from hand")
+                            }
+                            if victoryPointCards > 0 {
+                                Button {
+                                    board.removeVictoryPointCard(from: selectedPlayer)
+                                } label: {
+                                    VictoryPointCardStackView(count: victoryPointCards)
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityHint("Removes one card from hand")
@@ -67,42 +76,30 @@ struct HandView: View {
                                 .accessibilityIdentifier("handAddCard-\(resource.rawValue)")
                             }
                         }
+                        Button {
+                            board.addVictoryPointCard(to: selectedPlayer)
+                        } label: {
+                            VictoryPointCardView(showsAddBadge: true)
+                                .frame(width: 52)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Add Victory Point card to hand")
+                        .accessibilityIdentifier("addVictoryPointCardButton")
                     }
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Victory point cards").font(.headline)
-                        HStack(spacing: 12) {
-                            Button {
-                                board.addVictoryPointCard(to: selectedPlayer)
-                            } label: {
-                                Label(
-                                    "Victory Point\(victoryPointCards == 1 ? "" : "s") · \(victoryPointCards)",
-                                    systemImage: "sunrise.circle.fill"
-                                )
+                        Text("Special awards").font(.headline)
+                        Button {
+                            board.assignLargestArmy(to: selectedPlayer)
+                        } label: {
+                            Label("Largest Army", systemImage: "person.3.fill")
                                 .frame(maxWidth: .infinity, minHeight: 44)
-                            }
-                            .buttonStyle(.bordered)
-                            .contextMenu {
-                                Button("Remove one", role: .destructive) {
-                                    board.removeVictoryPointCard(from: selectedPlayer)
-                                }
-                                .disabled(victoryPointCards == 0)
-                            }
-                            .accessibilityHint("Adds one card. Hold to remove one.")
-                            .accessibilityIdentifier("addVictoryPointCardButton")
-
-                            Button {
-                                board.assignLargestArmy(to: selectedPlayer)
-                            } label: {
-                                Label("Largest Army", systemImage: "person.3.fill")
-                                    .frame(maxWidth: .infinity, minHeight: 44)
-                            }
-                            .buttonStyle(.bordered)
-                            .tint(board.largestArmyHolder == selectedPlayer ? selectedPlayer.color : nil)
-                            .accessibilityValue(board.largestArmyHolder == selectedPlayer ? "Held" : "Not held")
-                            .accessibilityHint("Assigns Largest Army to this player and removes it from its previous holder.")
-                            .accessibilityIdentifier("largestArmyButton")
                         }
+                        .buttonStyle(.bordered)
+                        .tint(board.largestArmyHolder == selectedPlayer ? selectedPlayer.color : nil)
+                        .accessibilityValue(board.largestArmyHolder == selectedPlayer ? "Held" : "Not held")
+                        .accessibilityHint("Assigns Largest Army to this player and removes it from its previous holder.")
+                        .accessibilityIdentifier("largestArmyButton")
                     }
                 }
                 .padding()
@@ -125,5 +122,9 @@ struct HandView: View {
 
     private var victoryPointCards: Int {
         board.victoryPointCardCount(for: selectedPlayer)
+    }
+
+    private var hasNoSelectedCards: Bool {
+        currentHand.isEmpty && victoryPointCards == 0
     }
 }

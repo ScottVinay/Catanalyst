@@ -19,7 +19,7 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-001 through TASK-049 and TASK-051 through TASK-053 plus TASK-055 and TASK-056 are implemented and marked `done`; TASK-050 remains documented as in progress pending its own review closeout, and TASK-054 is documented but not started.
+- TASK-001 through TASK-049 and TASK-051 through TASK-058 are implemented and marked `done`; TASK-050 remains documented as in progress pending its own review closeout.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
 - TASK-025 supersedes values-row locking during downward overscroll with native elastic movement and normalized fixed-pane synchronization.
@@ -28,6 +28,11 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Completed REQ-023's TASK-054, TASK-057, and TASK-058 with confirmed Clear board behavior, refined Board/stats presentation, and card-style Victory Point input and stacks.
+- Clear board removes placed pieces, resource/VP hands, Largest Army, and Longest Road while retaining setup, orientation, and plans.
+- Stats use colored player-name headers, a centered road number with a draggable golden road badge, and a coherent clipped-height expand/collapse animation; buildings are presented in black-outlined white tiles.
+- The stats table, tab, and arrow now translate as one rigid group on the same 0.28-second curve without fading.
+- Victory Point cards now use a silver poker card below the resource add row and a tap-to-remove selected stack with wider staggering shared by resource stacks.
 - Completed TASK-055 with a collapsible Board stats table, persisted VP/Largest Army inputs, longest-route scoring, and a half-second lift-and-drag crown reassignment interaction restricted to tied players.
 - Completed TASK-056 / REQ-022 with two-finger radial suppression, a wider Overview, live number-wheel previews, crisp black building outlines, and a light-blue wave background.
 - Completed TASK-052 with cumulative card/wait thresholds, zero-production dashes, a colour-coded single-player Dice reliance picker, independently normalised charts with labelled round ticks, revised copy, and darker Grain styling.
@@ -109,8 +114,8 @@ Use the area below the three dashes for your current notes:
 
 ## Known blocker
 
-- CoreSimulator remains unreliable. The latest app, unit-test, and UI-test bundles compile successfully, but workers failed to materialize for the focused TASK-051 run; live focused execution remains deferred.
+- CoreSimulator remains unreliable. The latest app, unit-test, and UI-test sources compile successfully, but `build-for-testing` can stall while finalising test products and workers previously failed to materialize; live focused execution remains deferred.
 
 ## Recommended next action
 
-- On a functioning simulator/device, perform TASK-051's detailed-table expansion/alignment, balance-player selection/scaling, and dice-toggle checks alongside the remaining REQ-019/020 and prior REQ-017/018 checks.
+- On a functioning simulator/device, perform REQ-023's Clear board, stats animation/badge drag, building-outline, and Victory Point card/stack checks alongside the remaining earlier manual acceptance checks.
