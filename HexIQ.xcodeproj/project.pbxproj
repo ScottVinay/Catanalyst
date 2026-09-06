@@ -94,6 +94,11 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		D2FA12EC304E0C4300AF1291 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -200,6 +205,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D2D9F1C5300E83DA0007C8B2 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D2FA12EC304E0C4300AF1291 /* Products */;
+					ProjectRef = D2D9255C3034DCCD004A446E /* HexIQ.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				D2D9F1C3300E83DA0007C8B2 /* HexIQ */,

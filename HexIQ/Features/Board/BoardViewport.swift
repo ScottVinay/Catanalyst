@@ -42,10 +42,19 @@ nonisolated struct BoardViewport: Equatable {
         )
     }
 
-    mutating func center(on boardPoint: CGPoint, in containerSize: CGSize) {
+    mutating func center(
+        on boardPoint: CGPoint,
+        rotationDegrees: Double = 0,
+        in containerSize: CGSize
+    ) {
         guard zoom == .detail else { return }
+        let angle = rotationDegrees * .pi / 180
+        let rotatedPoint = CGPoint(
+            x: boardPoint.x * cos(angle) - boardPoint.y * sin(angle),
+            y: boardPoint.x * sin(angle) + boardPoint.y * cos(angle)
+        )
         offset = clamped(
-            CGSize(width: -boardPoint.x, height: -boardPoint.y),
+            CGSize(width: -rotatedPoint.x, height: -rotatedPoint.y),
             in: containerSize
         )
     }

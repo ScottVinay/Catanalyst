@@ -29,6 +29,51 @@ final class HexIQUITests: XCTestCase {
     }
 
     @MainActor
+    func testStatsTabAttachment() throws {
+        let app = makeApp()
+        app.launch()
+        XCTAssertTrue(app.buttons["standardBoardButton"].waitForExistence(timeout: 5))
+        app.buttons["standardBoardButton"].tap()
+        let toggle = app.buttons["statsBarToggle"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+        let collapsedFrame = toggle.frame
+        for _ in 0..<3 {
+            toggle.tap()
+            let table = app.otherElements["statsTable"]
+            XCTAssertTrue(table.waitForExistence(timeout: 2))
+            // XCTest reports the Grid's content bounds, excluding its 6-point
+            // vertical padding. Compare the tab against the padded surface.
+            XCTAssertEqual(toggle.frame.maxY, table.frame.minY - 6, accuracy: 2)
+            XCTAssertEqual(collapsedFrame.minY - toggle.frame.minY, 120, accuracy: 2)
+            toggle.tap()
+            // The table stays mounted so the surface can animate as one piece.
+            // It must be noninteractive once translated behind the bottom bar.
+            XCTAssertFalse(table.isHittable)
+            XCTAssertEqual(toggle.frame.minY, collapsedFrame.minY, accuracy: 2)
+        }
+    }
+
+    @MainActor
+    func testZoomedRotatedHexSelection() throws {
+        let app = makeApp()
+        app.launch()
+        XCTAssertTrue(app.buttons["standardBoardButton"].waitForExistence(timeout: 5))
+        app.buttons["standardBoardButton"].tap()
+        let hex = app.descendants(matching: .any)["hex-0,0"]
+        XCTAssertTrue(hex.waitForExistence(timeout: 5))
+        let overviewWidth = hex.frame.width
+        app.buttons["rotateBoardRightButton"].tap()
+        app.otherElements["boardEditor"].pinch(withScale: 1.5, velocity: 1)
+        XCTAssertGreaterThan(hex.frame.width, overviewWidth * 1.7)
+        app.buttons["editBoardButton"].tap()
+        let centre = hex.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        // Brick lies above the hex in board coordinates, hence to its right
+        // after the clockwise turn. Exercise the transformed radial hit target.
+        centre.press(forDuration: 0.45, thenDragTo: centre.withOffset(CGVector(dx: hex.frame.width * 0.7, dy: 0)))
+        XCTAssertEqual(hex.value as? String, "Brick")
+    }
+
+    @MainActor
     func testNewGameReturnsToBoardSelectionAndCreatesCleanGame() throws {
         let app = makeApp()
         app.launch()

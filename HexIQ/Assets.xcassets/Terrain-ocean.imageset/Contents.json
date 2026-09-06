@@ -1,0 +1,12 @@
+{
+  "images": [
+    {
+      "filename": "Terrain-ocean.png",
+      "idiom": "universal"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}

@@ -40,15 +40,17 @@ struct BoardEditorView: View {
                 availableSize.width / (sqrt(3) * 5.6),
                 availableSize.height / 9.0
             )
-            let hexSize = baseSize * viewport.scale
+            // Lay out the entire board once. Only the enclosing scene transforms
+            // during zoom, so images, paths, text, and targets cannot drift apart.
+            let hexSize = baseSize
             let restingOffset = viewport.displayOffset(in: availableSize)
             let pan = CGSize(
                 width: restingOffset.width + transientPan.width,
                 height: restingOffset.height + transientPan.height
             )
             let origin = CGPoint(
-                x: (availableSize.width / 2) + pan.width,
-                y: (availableSize.height / 2) + pan.height
+                x: availableSize.width / 2,
+                y: availableSize.height / 2
             )
             let geometricCenter = BoardGeometry.geometricCenter(
                 for: board.tiles.map(\.coordinate),
@@ -151,7 +153,14 @@ struct BoardEditorView: View {
                         contentRotationDegrees: -rotationDegrees
                     )
                 }
-
+            }
+            .frame(width: availableSize.width, height: availableSize.height)
+            .coordinateSpace(.named("boardEditingSpace"))
+            .rotationEffect(.degrees(rotationDegrees), anchor: rotationAnchor)
+            .scaleEffect(viewport.scale)
+            .offset(pan)
+            .animation(.easeInOut(duration: 0.18), value: viewport)
+            .overlay {
                 if let placementMessage {
                     Text(placementMessage)
                         .font(.subheadline.weight(.semibold))
@@ -166,15 +175,10 @@ struct BoardEditorView: View {
                         .accessibilityIdentifier("placementErrorMessage")
                 }
             }
-            .rotationEffect(
-                .degrees(rotationDegrees),
-                anchor: rotationAnchor
-            )
-            .coordinateSpace(.named("boardEditingSpace"))
+            .coordinateSpace(.named("boardViewportSpace"))
             .contentShape(Rectangle())
             .simultaneousGesture(magnificationGesture)
             .simultaneousGesture(panGesture(in: availableSize))
-            .animation(.easeInOut(duration: 0.18), value: viewport)
             .onChange(of: isEditing) { _, editing in
                 if !editing { closePicker() }
             }
@@ -216,7 +220,7 @@ struct BoardEditorView: View {
     }
 
     private func panGesture(in containerSize: CGSize) -> some Gesture {
-        DragGesture(minimumDistance: 8)
+        DragGesture(minimumDistance: 8, coordinateSpace: .named("boardViewportSpace"))
             .updating($transientPan) { value, state, _ in
                 guard viewport.zoom == .detail, activePicker == nil else { return }
                 state = value.translation
@@ -238,10 +242,14 @@ struct BoardEditorView: View {
         if viewport.zoom == .detail {
             let boardPoint = BoardGeometry.center(
                 for: coordinate,
-                hexSize: hexSize,
+                hexSize: hexSize * viewport.scale,
                 origin: .zero
             )
-            viewport.center(on: boardPoint, in: containerSize)
+            viewport.center(
+                on: boardPoint,
+                rotationDegrees: presentationRotationDegrees ?? board.orientation.degrees,
+                in: containerSize
+            )
         }
 
     }
@@ -683,6 +691,14 @@ private struct HexTileView: View {
         ZStack {
             Hexagon()
                 .fill(tile.terrain.color)
+                .overlay {
+                    Image(BoardArtwork.terrainName(tile.terrain))
+                        .resizable()
+                        .scaledToFill()
+                        .opacity(BoardArtwork.terrainOpacity)
+                        .clipShape(Hexagon())
+                        .accessibilityHidden(true)
+                }
 
             if let number = tile.number {
                 NumberTokenView(token: number, size: hexSize * 0.8)
@@ -756,18 +772,13 @@ private struct BuildingView: View {
     let color: Color
 
     var body: some View {
-        let symbol = building == .city ? "building.2.fill" : "house.fill"
-        let size = building == .city ? hexSize * 0.42 : hexSize * 0.34
-        ZStack {
-            Image(systemName: symbol)
-                .font(.system(size: size, weight: .black))
-                .foregroundStyle(.black)
-                .scaleEffect(1.16)
-            Image(systemName: symbol)
-                .font(.system(size: size, weight: .black))
-                .foregroundStyle(color)
-                .scaleEffect(0.88)
-        }
+        let size = building == .city ? hexSize * 0.62 : hexSize * 0.50
+        Image(BoardArtwork.buildingName(building))
+            .resizable()
+            .scaledToFit()
+            // Multiplication colours the light surfaces and preserves black lines.
+            .colorMultiply(color)
+            .frame(width: size, height: size)
             .padding(4)
             .background(.white, in: RoundedRectangle(cornerRadius: 4))
             .overlay {

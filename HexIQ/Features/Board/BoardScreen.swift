@@ -42,6 +42,7 @@ struct BoardScreen: View {
                     showsVertexValues: showsVertexValues && !isEditing,
                     presentationRotationDegrees: rotationPresentation.degrees
                 )
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("boardEditor")
 
                 VStack(spacing: 8) {

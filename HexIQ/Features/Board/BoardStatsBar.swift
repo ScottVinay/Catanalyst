@@ -7,34 +7,44 @@ struct BoardStatsBar: View {
     let board: BoardState
     @Binding var isExpanded: Bool
 
-    @State private var draggedCrownHolder: PlayerColor?
-    @State private var crownTranslation = CGSize.zero
+    @State private var draggedRingHolder: PlayerColor?
+    @State private var ringTranslation = CGSize.zero
     @State private var roadCellFrames: [PlayerColor: CGRect] = [:]
-    @State private var crownIsArmed = false
+    @State private var ringIsArmed = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            Button {
-                isExpanded.toggle()
-            } label: {
-                Image(systemName: "chevron.up")
-                    .font(.caption.bold())
-                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                    .frame(width: 54, height: tabHeight)
-                    .background(.bar, in: UnevenRoundedRectangle(topLeadingRadius: 10, topTrailingRadius: 10))
+        // One continuous background fixes the tab's lower edge to the table's
+        // upper edge. The complete surface has just one animated translation.
+        StatsDrawerShape(tabWidth: 54, tabHeight: tabHeight)
+            .fill(.bar)
+            .overlay(alignment: .top) {
+                Button {
+                    isExpanded.toggle()
+                } label: {
+                    StatsChevron()
+                        .stroke(.primary, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                        .frame(width: 10, height: 5)
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        .frame(width: 54, height: tabHeight)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(isExpanded ? "Hide player stats" : "Show player stats")
+                .accessibilityIdentifier("statsBarToggle")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(isExpanded ? "Hide player stats" : "Show player stats")
-            .accessibilityIdentifier("statsBarToggle")
-
-            statsTable
-                .frame(height: tableHeight)
-                .accessibilityHidden(!isExpanded)
-        }
-        .offset(y: isExpanded ? 0 : tableHeight)
-        .frame(height: tableHeight + tabHeight, alignment: .top)
-        .clipped()
-        .animation(.smooth(duration: 0.28), value: isExpanded)
+            .overlay(alignment: .bottom) {
+                statsTable
+                    .frame(height: tableHeight)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("statsTable")
+                    .accessibilityHidden(!isExpanded)
+                    .allowsHitTesting(isExpanded)
+            }
+            .frame(height: tableHeight + tabHeight)
+            .offset(y: isExpanded ? 0 : tableHeight)
+            .frame(height: tableHeight + tabHeight, alignment: .top)
+            .clipped()
+            .animation(.smooth(duration: 0.28), value: isExpanded)
     }
 
     private var statsTable: some View {
@@ -63,10 +73,8 @@ struct BoardStatsBar: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(.bar)
         .coordinateSpace(.named("statsTable"))
         .onPreferenceChange(RoadCellFrameKey.self) { roadCellFrames = $0 }
-        .accessibilityIdentifier("statsTable")
     }
 
     private func statRow<Content: View>(
@@ -91,29 +99,30 @@ struct BoardStatsBar: View {
             Text("\(board.roadLength(for: player))")
                 .frame(maxWidth: .infinity)
             if board.longestRoadHolder == player {
-                HStack {
-                    Spacer()
-                    Image(systemName: "road.lanes")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(.black)
-                        .frame(width: 24, height: 24)
-                        .background(Color.yellow, in: Circle())
-                        .overlay(Circle().stroke(.black.opacity(0.35), lineWidth: 1))
-                        .symbolEffect(.wiggle, isActive: crownIsArmed)
-                        .scaleEffect(draggedCrownHolder == player ? 1.22 : 1)
-                        .offset(draggedCrownHolder == player ? crownTranslation : .zero)
-                        .shadow(radius: draggedCrownHolder == player ? 4 : 0)
-                        .zIndex(10)
-                        .gesture(crownGesture(for: player))
-                        .simultaneousGesture(crownPressFeedback)
-                        .accessibilityLabel("Longest Road badge")
-                        .accessibilityHint("Hold, then drag to a tied player's Road Length cell.")
-                        .accessibilityIdentifier("longestRoadCrown-\(player.rawValue)")
-                }
-                .padding(.trailing, 4)
+                Circle()
+                    .strokeBorder(Color.yellow, lineWidth: 3)
+                    .frame(width: 30, height: 30)
+                    .contentShape(Circle())
+                    .rotationEffect(.degrees(ringIsArmed ? 4 : 0))
+                    .offset(x: ringIsArmed ? 1.5 : 0)
+                    .animation(
+                        ringIsArmed ? .easeInOut(duration: 0.08).repeatForever(autoreverses: true) : .default,
+                        value: ringIsArmed
+                    )
+                    .scaleEffect(draggedRingHolder == player ? 1.22 : 1)
+                    .offset(draggedRingHolder == player ? ringTranslation : .zero)
+                    .shadow(radius: draggedRingHolder == player ? 4 : 0)
+                    .zIndex(10)
+                    .gesture(ringGesture(for: player))
+                    .simultaneousGesture(ringPressFeedback)
+                    .accessibilityLabel("Longest Road ring")
+                    .accessibilityValue("\(board.roadLength(for: player))")
+                    .accessibilityHint("Hold, then drag to a tied player's Road Length cell.")
+                    .accessibilityIdentifier("longestRoadCrown-\(player.rawValue)")
             }
         }
         .font(.subheadline.monospacedDigit())
+        .zIndex(draggedRingHolder == player ? 10 : 0)
         .contentShape(Rectangle())
         .background(
             GeometryReader { proxy in
@@ -127,20 +136,20 @@ struct BoardStatsBar: View {
         .accessibilityIdentifier("roadLength-\(player.rawValue)")
     }
 
-    private func crownGesture(for holder: PlayerColor) -> some Gesture {
+    private func ringGesture(for holder: PlayerColor) -> some Gesture {
         LongPressGesture(minimumDuration: 0.5, maximumDistance: 12)
             .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .named("statsTable")))
             .onChanged { value in
                 switch value {
                 case .first(true):
-                    crownIsArmed = true
+                    ringIsArmed = true
                 case let .second(true, drag):
-                    if draggedCrownHolder == nil {
-                        draggedCrownHolder = holder
-                        crownIsArmed = false
+                    if draggedRingHolder == nil {
+                        draggedRingHolder = holder
+                        ringIsArmed = false
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     }
-                    crownTranslation = drag?.translation ?? .zero
+                    ringTranslation = drag?.translation ?? .zero
                 default:
                     break
                 }
@@ -148,9 +157,9 @@ struct BoardStatsBar: View {
             .onEnded { value in
                 defer {
                     withAnimation(.spring(response: 0.25, dampingFraction: 0.68)) {
-                        draggedCrownHolder = nil
-                        crownTranslation = .zero
-                        crownIsArmed = false
+                        draggedRingHolder = nil
+                        ringTranslation = .zero
+                        ringIsArmed = false
                     }
                 }
                 guard case let .second(true, drag) = value, let location = drag?.location,
@@ -160,14 +169,48 @@ struct BoardStatsBar: View {
             }
     }
 
-    private var crownPressFeedback: some Gesture {
+    private var ringPressFeedback: some Gesture {
         DragGesture(minimumDistance: 0)
             .onChanged { _ in
-                if draggedCrownHolder == nil { crownIsArmed = true }
+                if draggedRingHolder == nil { ringIsArmed = true }
             }
             .onEnded { _ in
-                if draggedCrownHolder == nil { crownIsArmed = false }
+                if draggedRingHolder == nil { ringIsArmed = false }
             }
+    }
+}
+
+private struct StatsDrawerShape: Shape {
+    let tabWidth: CGFloat
+    let tabHeight: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let left = rect.midX - tabWidth / 2
+        let right = rect.midX + tabWidth / 2
+        let radius: CGFloat = 10
+        return Path { path in
+            path.move(to: CGPoint(x: rect.minX, y: tabHeight))
+            path.addLine(to: CGPoint(x: left, y: tabHeight))
+            path.addLine(to: CGPoint(x: left, y: radius))
+            path.addQuadCurve(to: CGPoint(x: left + radius, y: 0), control: CGPoint(x: left, y: 0))
+            path.addLine(to: CGPoint(x: right - radius, y: 0))
+            path.addQuadCurve(to: CGPoint(x: right, y: radius), control: CGPoint(x: right, y: 0))
+            path.addLine(to: CGPoint(x: right, y: tabHeight))
+            path.addLine(to: CGPoint(x: rect.maxX, y: tabHeight))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+            path.closeSubpath()
+        }
+    }
+}
+
+private struct StatsChevron: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        }
     }
 }
 

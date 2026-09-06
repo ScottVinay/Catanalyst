@@ -1,0 +1,30 @@
+---
+status: not-started
+started_datetime:
+completed_datetime:
+---
+
+# TASK-060 — Proposed: resolve existing unit regression failures
+
+Priority: P2
+Requirements: REQ-006, REQ-017
+
+## Discovery
+
+The full simulator unit suite run while validating TASK-059 exposed three failing tests in unchanged assertions/implementations:
+
+- `BoardViewportTests.detailPanIsClamped`: existing `400 * 0.55` and `800 * 0.55` calculations produce `220.00000000000003` / `440.00000000000006`, which fail exact equality with 220 / 440.
+- `BoardViewportTests.displayOffsets`: existing `800 * 0.035` produces `28.000000000000004`, failing exact equality with 28.
+- `CustomPlanTests.analysisIcons`: the legacy JSON fixture supplies `cardCounts` as an object, but decoding the enum-keyed dictionary expects an array; `DecodingError.typeMismatch` results.
+
+Evidence: `/tmp/task059-unit.xcresult` and `/tmp/task059-unit.log`; Xcode 26.5, iPhone 17 / iOS 26.5 simulator. TASK-059 does not change these assertions, clamp/overview arithmetic, custom-plan decoding, or legacy fixture.
+
+Reproduced all three failures during resumed validation on 2026-09-06, in `/tmp/task059-resumed-validation.xcresult`. The full unit target reports 78 passing definitions and these three failing definitions; all six TASK-059 rotation parameters pass. The original temporary evidence paths above are no longer available.
+
+## Proposed scope
+
+1. Confirm intended persistence compatibility and correct the legacy fixture or decoding accordingly.
+2. Express viewport geometry assertions with a justified sub-pixel tolerance while retaining boundary coverage.
+3. Run the full unit suite and record completion evidence.
+
+No implementation started; tracked separately to preserve TASK-059 scope.

@@ -1,0 +1,85 @@
+---
+status: in-progress
+started_datetime: 2026-09-06T15:01:45Z
+completed_datetime:
+---
+
+# TASK-059 — Board artwork and attached presentation
+
+Priority: P2
+Requirements: REQ-006, REQ-021, REQ-022, REQ-023 (`REQ-23-misc`)
+
+## Request
+
+We currently have very basic drawn assets for the towns and cities, and
+plain colour for the tile background. Additionally, there is a slight separation of the assets and background when zooming.
+
+I want custom-created picture assets for these, made using whatever approach you deem most appropriate. I want them to look cartoonish and professional.
+
+Also, please, once again, make sure that the arrow atop the stats bar stays connected to the bar at all times, and moves with it.
+Also, the yellow crown showing who has the longest road should be a circle surrounding that number rather than next to it.
+
+## Accepted plan
+
+User approved the implementation plan with the following addition: terrain artwork must be minimal, cohesive, and quiet. Provide one code opacity setting tagged `// # terrainalpha`, fading artwork into each terrain's existing plain colour.
+
+1. Generate seven restrained terrain illustrations and settlement/city artwork; integrate project-owned assets with legible tokens, owner colours, and outlined white building tiles.
+2. Use one board transform for zoom, keeping terrain, pieces, and hit targets aligned.
+3. Attach the stats arrow/tab/table to one moving surface.
+4. Surround the centred Longest Road number with a gold ring, preserving tied-player drag reassignment.
+5. Add focused regression coverage, review the diff, run available checks, and record manual acceptance needs.
+
+## Requirement notes
+
+- TASK-059 explicitly supersedes REQ-023's side-of-number badge appearance. Existing ownership/scoring/reassignment rules continue to apply.
+- `docs/REQUIREMENTS.md` does not exist; linked requirements are under `docs/requirements/`.
+- Human-owned product and requirement documents remain unchanged.
+
+## Acceptance criteria
+
+- [x] Seven cohesive, minimal terrain images render over existing terrain colours with one tagged alpha setting.
+- [x] Settlement/city artwork remains distinct and owner-coloured, with sharp outlines in white tiles; real and planned pieces share it.
+- [ ] Terrain, tokens, roads, buildings, vertex values, and editing targets remain attached during zoom/pan/rotation.
+- [ ] Stats tab and arrow remain attached to the table throughout expansion/collapse, including interrupted animations.
+- [ ] Longest Road uses a gold ring around the centred number; hold/drag reassignment still respects ties.
+- [x] Automated checks and manual visual checks are recorded.
+
+## Implementation and validation
+
+- `BoardArtwork.swift` centralises the asset names and `terrainOpacity = 0.45 // # terrainalpha`. Zero restores the exact existing plain-colour tile; one shows the complete image. The setting affects only terrain artwork, preserving token and piece contrast.
+- The built-in image_gen tool generated nine project-owned PNGs: seven `Terrain-<terrain>.imageset` images and `Building-settlement.imageset` / `Building-city.imageset` under `HexIQ/Assets.xcassets/`. Original outputs are copied unchanged, including building alpha. No dependency was added. Full prompts: [artwork generation notes](TASK-059-artwork-prompts.md).
+- Hexes, roads, real/ghost buildings, vertex values, and editing targets use fixed unzoomed geometry, with one enclosing scale/offset. The named picker coordinate space lives inside that transform; the pan coordinate space stays outside it. Tap-to-centre accounts for the displayed board rotation.
+- Building images multiply their neutral surfaces by the player colour, preserving black linework, and retain white outlined tiles. Tokens and buildings still counter-rotate to remain upright.
+- The stats drawer uses one continuous tab/table background, an explicit table accessibility container, and a vector chevron. One translation moves the full surface; there are no separate tab/table backgrounds to diverge.
+- A 30-point gold stroke surrounds the independently centred road number. The existing 0.5-second hold/drag and tied-player domain rules remain in place; the moving cell has elevated stacking order.
+
+### Checks completed
+
+- `git diff --check`: passed.
+- `xcodebuild build-for-testing -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'platform=iOS Simulator,id=F081416B-AB8C-40AC-A330-89ED6A48BF7C' -derivedDataPath /tmp/HexIQTask059 CODE_SIGNING_ALLOWED=NO`: passed (app and test targets).
+- Full unit command: `xcodebuild test -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'platform=iOS Simulator,id=F081416B-AB8C-40AC-A330-89ED6A48BF7C' -derivedDataPath /tmp/HexIQTask059 -resultBundlePath /tmp/task059-unit.xcresult -parallel-testing-enabled NO -only-testing:HexIQTests CODE_SIGNING_ALLOWED=NO`.
+- Full-unit result: **78 passed, 3 failed** (81 test definitions; the new centring test includes six rotation cases). The three failures concern unchanged exact floating-point assertions and a legacy custom-plan fixture; proposed [TASK-060](TASK-060-existing-unit-regression-failures) records them. No existing tests were deleted or weakened.
+- All three new artwork tests and all six new centring cases passed: bundled assets, actual building alpha, ring pixel bounds centred in four/six-player columns, and board renders at 0°/90°.
+- Inspected the rendered [Overview board](evidence/TASK-059/board-overview.png) and [rotated board](evidence/TASK-059/board-rotated.png): quiet terrain, clear tokens, all six owner colours, sharp white-building boundaries, and upright building/token content.
+- The first focused UI run exposed duplicate accessibility identifiers on table children. Added an explicit container; final focused rerun pending below.
+
+### Remaining manual acceptance
+
+- Watch repeated and interrupted stats expansion/collapse, confirming no tab/arrow gap or fade at intermediate frames.
+- Pinch repeatedly with placed roads/buildings and Vertex values, then pan, rotate, and use terrain/number radials in each orientation. Check construction previews and ghost placements at both zoom levels.
+- Hold and drag the gold ring between tied players; verify pickup, valid reassignment and VP transfer, invalid drop return, and narrow six-player columns.
+- Check dark mode and large Dynamic Type on a physical iPhone.
+
+### Resumed validation — 2026-09-06
+
+- Reconstructed the accepted plan from this task and reviewed all Task-059 tracked and untracked source, tests, asset manifests, prompts, and saved visual evidence.
+- Repaired a malformed `CGPoint` expression in `BoardViewport.center` found in the resumed working tree. The calculation rotates the displayed point before deriving the pan offset; the existing six-angle regression covers it.
+- Re-inspected both saved board renders. Real and planned buildings share `BuildingView`; terrain, pieces, and targets share the enclosing board transform. Final diff whitespace checks pass.
+- The original `/tmp/task059-unit.xcresult` is no longer present in this session. The earlier full-suite counts above are retained as historical evidence, not a new execution result.
+- Fresh full-unit run: **78 passed, 3 failed** test definitions, with all six rotation parameters passing. The failures match TASK-060 exactly. All three artwork tests pass, including ring centring in four/six-player columns and transparent building assets.
+- Command: `xcodebuild test -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'platform=iOS Simulator,id=F081416B-AB8C-40AC-A330-89ED6A48BF7C' -derivedDataPath /tmp/HexIQTask059 -resultBundlePath /tmp/task059-resumed-validation.xcresult -parallel-testing-enabled NO -only-testing:HexIQTests -only-testing:HexIQUITests/HexIQUITests/testStatsTabAttachmentAndZoomedRotatedHexSelection CODE_SIGNING_ALLOWED=NO`.
+- The initial focused UI check in `/tmp/task059-resumed-focused.xcresult` compared the tab boundary against the inset Grid accessibility bounds (6.67 points below it). Moved the stats accessibility container after the full-height table frame so it describes the complete table. Added explicit initial-screen readiness waits to the UI test.
+- Subsequent UI runs failed during setup before validating that change: the combined run could not find the stats toggle after selecting a board; the isolated run saw an already-open Board while waiting for board selection. Evidence: `/tmp/task059-resumed-validation.xcresult` and `/tmp/task059-resumed-ui.xcresult`.
+- The user confirmed concurrent Xcode/simulator interaction and requested pausing simulator tests. No simulator test remains running. These setup failures do not establish a product regression or a passing UI check; rerun in an uninterrupted session.
+- The captured UI hierarchy also showed the parent `boardEditor` identifier on hex children. When resuming, verify explicit Board accessibility containment if the hex query cannot resolve; this is not yet changed.
+- Task remains **in-progress**: focused UI validation and the manual criteria above remain open. Preserve concurrent user changes to the project file and other task files.

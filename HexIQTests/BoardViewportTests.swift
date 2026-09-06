@@ -70,4 +70,22 @@ struct BoardViewportTests {
         viewport.finishPan(CGSize(width: 30, height: 40), in: phoneSize)
         #expect(viewport.displayOffset(in: phoneSize) == CGSize(width: 30, height: 40))
     }
+
+    @Test("Tap-to-centre follows the displayed point after every quarter turn", arguments: [0.0, 90, 180, 270, 450, -90])
+    func centersRotatedHex(degrees: Double) {
+        var viewport = BoardViewport()
+        viewport.finishMagnification(1.2)
+        let point = CGPoint(x: 75, y: -110)
+        viewport.center(on: point, rotationDegrees: degrees, in: phoneSize)
+
+        let expected: CGSize
+        switch Int(degrees).quotientAndRemainder(dividingBy: 360).remainder {
+        case 90: expected = CGSize(width: -110, height: -75)
+        case 180: expected = CGSize(width: 75, height: -110)
+        case 270, -90: expected = CGSize(width: 110, height: 75)
+        default: expected = CGSize(width: -75, height: 110)
+        }
+        #expect(abs(viewport.offset.width - expected.width) < 0.001)
+        #expect(abs(viewport.offset.height - expected.height) < 0.001)
+    }
 }
