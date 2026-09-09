@@ -1,1 +1,13 @@
-Cities and Knights
+Cities and Knights mode has several significant ways in which it changes the board.
+
+When this mode is active, cities no longer have the property of producing two of a resource. Instead they generate one resource of that type, and one commodity. This is determined as:
+
+- Lumber -> Paper
+- Wool -> Cloth
+- Ore -> Coin
+
+The table of statistics should have rows at the bottom for each of these commodities.
+
+The radial view has a toggle at the side for "Commodities". This should be small. If switched on, the 5-way radial becomes an 8-way radial including commodity production. These extra directions should appear and smoothly and quickly expand, or do the reverse when changing back.
+
+The bars showing the reliance on each number include contributions from commodities.
