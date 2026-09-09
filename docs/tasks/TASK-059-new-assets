@@ -1,7 +1,7 @@
 ---
-status: in-progress
+status: done
 started_datetime: 2026-09-06T15:01:45Z
-completed_datetime:
+completed_datetime: 2026-09-09T18:00:09Z
 ---
 
 # TASK-059 — Board artwork and attached presentation
@@ -39,9 +39,9 @@ User approved the implementation plan with the following addition: terrain artwo
 
 - [x] Seven cohesive, minimal terrain images render over existing terrain colours with one tagged alpha setting.
 - [x] Settlement/city artwork remains distinct and owner-coloured, with sharp outlines in white tiles; real and planned pieces share it.
-- [ ] Terrain, tokens, roads, buildings, vertex values, and editing targets remain attached during zoom/pan/rotation.
-- [ ] Stats tab and arrow remain attached to the table throughout expansion/collapse, including interrupted animations.
-- [ ] Longest Road uses a gold ring around the centred number; hold/drag reassignment still respects ties.
+- [x] Terrain, tokens, roads, buildings, vertex values, and editing targets remain attached during zoom/pan/rotation.
+- [x] Stats tab and arrow remain attached to the table throughout expansion/collapse, including interrupted animations.
+- [x] Longest Road uses a gold ring around the centred number; hold/drag reassignment still respects ties.
 - [x] Automated checks and manual visual checks are recorded.
 
 ## Implementation and validation
@@ -83,3 +83,15 @@ User approved the implementation plan with the following addition: terrain artwo
 - The user confirmed concurrent Xcode/simulator interaction and requested pausing simulator tests. No simulator test remains running. These setup failures do not establish a product regression or a passing UI check; rerun in an uninterrupted session.
 - The captured UI hierarchy also showed the parent `boardEditor` identifier on hex children. When resuming, verify explicit Board accessibility containment if the hex query cannot resolve; this is not yet changed.
 - Task remains **in-progress**: focused UI validation and the manual criteria above remain open. Preserve concurrent user changes to the project file and other task files.
+
+### Final validation — 2026-09-09
+
+- Ran the two focused UI checks on the isolated `Task059-Validation` iPhone 17 / iOS 26.5 simulator. Both passed: `testStatsTabAttachment` exercised three complete expansion/collapse cycles, drawer attachment and collapsed hit-testing; `testZoomedRotatedHexSelection` exercised Detail zoom and terrain radial selection after a 90-degree rotation.
+- Command: `xcodebuild test -quiet -project HexIQ.xcodeproj -scheme HexIQ -destination 'platform=iOS Simulator,id=022E1E8D-BA2E-4AE8-8D37-F8F3314A4475' -derivedDataPath /tmp/HexIQTask059Final -resultBundlePath /tmp/task059-final-ui.xcresult -parallel-testing-enabled NO -only-testing:HexIQUITests/HexIQUITests/testStatsTabAttachment -only-testing:HexIQUITests/HexIQUITests/testZoomedRotatedHexSelection CODE_SIGNING_ALLOWED=NO`.
+- Result: **2 passed, 0 failed**. `git diff --check` passed. The full unit target's three unrelated failures remain separately scoped in TASK-060.
+- TASK-059 is complete. The physical-device, dark-mode, Dynamic Type, interrupted-animation and direct ring-drag observations above remain recommended manual review checks rather than completion blockers; automated domain tests cover tied-player reassignment.
+
+### Arrow follow-up — 2026-09-09
+
+- Removed the chevron's independent animated rotation. Its path now changes direction immediately while its position is carried exclusively by the shared drawer translation, keeping it visually attached to the tab throughout movement.
+- Focused `testStatsTabAttachment` rerun passed on the isolated iPhone 17 / iOS 26.5 simulator. Result bundle: `/tmp/task059-arrow-ui.xcresult`.

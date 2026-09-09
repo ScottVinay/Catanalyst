@@ -21,10 +21,9 @@ struct BoardStatsBar: View {
                 Button {
                     isExpanded.toggle()
                 } label: {
-                    StatsChevron()
+                    StatsChevron(pointsDown: isExpanded)
                         .stroke(.primary, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                         .frame(width: 10, height: 5)
-                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
                         .frame(width: 54, height: tabHeight)
                         .contentShape(Rectangle())
                 }
@@ -205,11 +204,15 @@ private struct StatsDrawerShape: Shape {
 }
 
 private struct StatsChevron: Shape {
+    let pointsDown: Bool
+
     func path(in rect: CGRect) -> Path {
         Path { path in
-            path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
-            path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
-            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+            let outerY = pointsDown ? rect.minY : rect.maxY
+            let centreY = pointsDown ? rect.maxY : rect.minY
+            path.move(to: CGPoint(x: rect.minX, y: outerY))
+            path.addLine(to: CGPoint(x: rect.midX, y: centreY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: outerY))
         }
     }
 }

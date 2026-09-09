@@ -19,8 +19,9 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
-- TASK-059 implementation is complete and under validation: generated terrain/building artwork, a shared Board zoom transform, a continuous stats drawer surface, and the centred Longest Road ring. `HexIQ/Features/Board/BoardArtwork.swift` contains the single `// # terrainalpha` setting, default 0.45. Artwork prompts are in `docs/tasks/TASK-059-artwork-prompts.md`.
-- Resumed TASK-059 validation repaired a malformed rotation `CGPoint` expression and moved the stats accessibility container to its full-height frame. Fresh unit execution: 78 passing definitions, three known TASK-060 failures; all six rotation parameters and all artwork tests pass. The focused UI check remains unverified. The user confirmed concurrent simulator interaction and requested pausing simulator tests; do not restart them until requested. Details and result-bundle paths are in TASK-059.
+- TASK-059 is complete: generated terrain/building artwork, a shared Board zoom transform, a continuous stats drawer surface, and the centred Longest Road ring. `HexIQ/Features/Board/BoardArtwork.swift` contains the single `// # terrainalpha` setting, default 0.45. Artwork prompts and full validation evidence are recorded in TASK-059.
+- Final TASK-059 focused UI validation passed on 2026-09-09: 2 passed, 0 failed on the isolated iPhone 17 / iOS 26.5 simulator. All six rotation parameters and all artwork tests also pass. The full unit target's three unrelated failures remain recorded in TASK-060.
+- TASK-059 arrow follow-up removes its separate rotation animation: the chevron changes direction immediately and moves only with the shared drawer transform. The focused stats UI test passes.
 - TASK-001 through TASK-049 and TASK-051 through TASK-058 are implemented and marked `done`; TASK-050 remains documented as in progress pending its own review closeout.
 - Focused simulator/device acceptance checks remain unchecked where explicitly designated for manual verification.
 - TASK-029 supersedes custom-plan tap-to-detail behavior: tap expands inline and long press opens SCR-004-edit directly.
@@ -116,9 +117,9 @@ Use the area below the three dashes for your current notes:
 
 ## Validation limitations
 
-- App and test targets compile, and simulator unit execution succeeded during the resumed TASK-059 session. The suite remains red due to three existing regressions documented in TASK-060. Focused UI validation is paused at the user's request while they use Xcode/the simulator; animation, zoom/radial, and ring-drag acceptance still needs verification.
+- App and test targets compile. TASK-059's focused unit and UI coverage passes. The full unit suite remains red only because of three existing regressions documented in TASK-060. Physical-device checks for interrupted animation, direct ring dragging, dark mode, and large Dynamic Type remain recommended.
 
 ## Recommended next action
 
-- Resume TASK-059's focused UI check in an uninterrupted simulator session once the user requests it; inspect Board accessibility containment if individual hex identifiers do not resolve. Keep TASK-059 in-progress until remaining validation is recorded. TASK-060 is proposed work, not authorized implementation.
+- Review or schedule TASK-060's three existing unit regression fixes; its implementation remains separate from completed TASK-059.
 - On a functioning simulator/device, perform REQ-023's Clear board, stats animation/badge drag, building-outline, and Victory Point card/stack checks alongside the remaining earlier manual acceptance checks.
