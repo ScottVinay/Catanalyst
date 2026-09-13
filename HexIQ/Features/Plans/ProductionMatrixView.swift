@@ -21,6 +21,7 @@ struct ProductionMatrixView: View {
             .padding(.bottom, 24)
         }
         .scrollBounceBehavior(.basedOnSize, axes: .vertical)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("productionMatrix")
     }
 }
@@ -73,6 +74,7 @@ private struct DetailedProductionView: View {
         } message: {
             Text("Cards per round shows the mean average of how many of each card you typically get in one round (from your turn back round to your turn again).\n\nRounds per card shows how many rounds you typically need to wait until you get at least one of the given card. This does not account for trades, robber, or held cards.\n\nTap any resource to see a detailed breakdown of this average.")
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("detailedProductionAnalysis")
     }
 
@@ -116,7 +118,7 @@ private struct DetailedProductionView: View {
                 .foregroundStyle(.secondary)
                 .padding(.leading, 10)
 
-            ForEach(ProductionResource.allCases) { resource in
+            ForEach(displayedResources) { resource in
                 horizontalDivider
                 resourceButton(resource)
                 if expandedResources.contains(resource) {
@@ -132,6 +134,7 @@ private struct DetailedProductionView: View {
             }
         }
         .frame(width: resourceColumnWidth)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("productionResourceColumn")
     }
 
@@ -175,7 +178,7 @@ private struct DetailedProductionView: View {
                             .foregroundStyle(player == .white ? Color.gray : player.color)
                             .frame(width: columnWidth, height: columnHeaderHeight)
 
-                        ForEach(ProductionResource.allCases) { resource in
+                        ForEach(displayedResources) { resource in
                             horizontalDivider
                             mainValue(resource: resource, player: player)
                                 .frame(width: columnWidth, height: rowHeight)
@@ -248,7 +251,7 @@ private struct DetailedProductionView: View {
 
     private var tableHeight: CGFloat {
         metricHeaderHeight + 1 + columnHeaderHeight
-            + CGFloat(ProductionResource.allCases.count) * (rowHeight + 1)
+            + CGFloat(displayedResources.count) * (rowHeight + 1)
             + CGFloat(expandedResources.count * subrowLabels.count) * (subrowHeight + 1)
     }
 
@@ -261,29 +264,53 @@ private struct DetailedProductionView: View {
     }
 
     private var tableLineColor: Color { Color.secondary.opacity(0.25) }
+
+    private var displayedResources: [ProductionResource] {
+        [.all] + (board.citiesAndKnightsMode
+            ? ProductionResource.citiesAndKnights
+            : ProductionResource.individual)
+    }
 }
 
 private struct ProductionBalanceView: View {
     let board: BoardState
     @State private var selectedPlayers: Set<PlayerColor> = []
-
-    private let resources = ProductionResource.individual
+    @State private var showsCommodities = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Production balance")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .textCase(.uppercase)
+            HStack {
+                Text("Production balance")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                Spacer()
+                if board.citiesAndKnightsMode {
+                    HStack(spacing: 5) {
+                        Text("Commodities")
+                            .font(.caption)
+                        Toggle("Commodities", isOn: $showsCommodities.animation(.easeInOut(duration: 0.2)))
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.mini)
+                            .accessibilityIdentifier("productionCommoditiesToggle")
+                    }
+                }
+            }
 
             playerPicker
 
-            ProductionRadarChart(
-                players: visiblePlayers,
-                resources: resources,
-                values: productionValues,
-                maximum: maximumProduction
-            )
+            ZStack {
+                radarChart(resources: ProductionResource.individual)
+                    .opacity(showsCommodities ? 0 : 1)
+                    .scaleEffect(showsCommodities ? 0.92 : 1)
+                if board.citiesAndKnightsMode {
+                    radarChart(resources: ProductionResource.citiesAndKnights)
+                        .opacity(showsCommodities ? 1 : 0)
+                        .scaleEffect(showsCommodities ? 1 : 0.92)
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: showsCommodities)
             .frame(height: 300)
             .accessibilityIdentifier("productionBalanceChart")
         }
@@ -296,6 +323,7 @@ private struct ProductionBalanceView: View {
         .onChange(of: board.activePlayers) { _, players in
             selectedPlayers.formIntersection(players)
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("productionBalance")
     }
 
@@ -332,7 +360,9 @@ private struct ProductionBalanceView: View {
         board.activePlayers.filter(selectedPlayers.contains)
     }
 
-    private var productionValues: [PlayerColor: [Double]] {
+    private func productionValues(
+        resources: [ProductionResource]
+    ) -> [PlayerColor: [Double]] {
         Dictionary(uniqueKeysWithValues: board.activePlayers.map { player in
             (player, resources.map {
                 ProductionMetrics.meanPerRound(resource: $0, player: player, snapshot: board.snapshot)
@@ -340,8 +370,14 @@ private struct ProductionBalanceView: View {
         })
     }
 
-    private var maximumProduction: Double {
-        max(productionValues.values.flatMap { $0 }.max() ?? 0, 0.000_001)
+    private func radarChart(resources: [ProductionResource]) -> some View {
+        let values = productionValues(resources: resources)
+        return ProductionRadarChart(
+            players: visiblePlayers,
+            resources: resources,
+            values: values,
+            maximum: max(values.values.flatMap { $0 }.max() ?? 0, 0.000_001)
+        )
     }
 }
 
@@ -447,7 +483,7 @@ private struct DiceRelianceView: View {
                 .accessibilityIdentifier("diceRelianceHelp")
             }
 
-            DiceBarChart(results: chartValues, color: player.color)
+            DiceBarChart(results: chartValues)
                 .frame(height: 230)
                 .accessibilityIdentifier("diceRelianceChart")
         }
@@ -464,11 +500,21 @@ private struct DiceRelianceView: View {
         .accessibilityIdentifier("diceReliance")
     }
 
-    private var chartValues: [(Int, Double)] {
-        let raw = ProductionMetrics.cardsProducedByDiceResult(player: player, snapshot: board.snapshot)
-        let expected = ProductionMetrics.expectedCardsByDiceResult(player: player, snapshot: board.snapshot)
+    private var chartValues: [DiceBarResult] {
+        let values = ProductionMetrics.cardsProducedByDiceResultByResource(
+            player: player,
+            snapshot: board.snapshot
+        )
         return ProductionMetrics.displayedDiceResults.map { result in
-            (result, mode == .produced ? Double(raw[result, default: 0]) : expected[result, default: 0])
+            let segments = values.compactMap { resource, totals -> DiceBarSegment? in
+                var value = Double(totals[result, default: 0])
+                if mode == .expected {
+                    value *= ProductionMetrics.diceProbability(result)
+                }
+                return value > 0 ? DiceBarSegment(resource: resource, value: value) : nil
+            }
+            .sorted { $0.resource.chartOrder < $1.resource.chartOrder }
+            return DiceBarResult(diceResult: result, segments: segments)
         }
     }
 
@@ -502,9 +548,21 @@ private struct DiceRelianceView: View {
     }
 }
 
+private struct DiceBarResult: Identifiable {
+    let diceResult: Int
+    let segments: [DiceBarSegment]
+    var id: Int { diceResult }
+    var total: Double { segments.reduce(0) { $0 + $1.value } }
+}
+
+private struct DiceBarSegment: Identifiable {
+    let resource: ProductionResource
+    let value: Double
+    var id: ProductionResource { resource }
+}
+
 private struct DiceBarChart: View {
-    let results: [(Int, Double)]
-    let color: Color
+    let results: [DiceBarResult]
 
     var body: some View {
         GeometryReader { proxy in
@@ -515,7 +573,7 @@ private struct DiceBarChart: View {
             let chartBottom = proxy.size.height - 42
             let chartHeight = max(1, chartBottom - chartTop)
             let chartWidth = max(1, proxy.size.width - axisWidth - 4)
-            let dataMaximum = results.map(\.1).max() ?? 0
+            let dataMaximum = results.map(\.total).max() ?? 0
             let maximum = dataMaximum > 0 ? dataMaximum : 1
             let tickStep = niceTickStep(for: maximum)
             let ticks = tickValues(maximum: maximum, step: tickStep)
@@ -537,25 +595,33 @@ private struct DiceBarChart: View {
                         .position(x: axisTitleWidth + tickLabelWidth / 2, y: y)
                 }
 
-                ForEach(Array(results.enumerated()), id: \.element.0) { index, item in
-                    let height = chartHeight * item.1 / maximum
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(color)
-                        .frame(width: max(8, slotWidth * 0.48), height: max(item.1 > 0 ? 2 : 0, height))
+                ForEach(Array(results.enumerated()), id: \.element.id) { index, item in
+                    let height = chartHeight * item.total / maximum
+                    VStack(spacing: 0) {
+                        ForEach(item.segments.reversed()) { segment in
+                            DiceBarSegmentView(segment: segment)
+                                .frame(height: height * segment.value / max(item.total, 0.000_001))
+                                .accessibilityIdentifier(
+                                    "diceRelianceSegment-\(item.diceResult)-\(segment.resource.id)"
+                                )
+                        }
+                    }
+                        .frame(width: max(8, slotWidth * 0.48), height: max(item.total > 0 ? 2 : 0, height))
+                        .clipShape(RoundedRectangle(cornerRadius: 3))
                         .position(
                             x: axisWidth + slotWidth * (CGFloat(index) + 0.5),
                             y: chartBottom - height / 2
                         )
 
-                    Text("\(item.0)")
+                    Text("\(item.diceResult)")
                         .font(.caption2.monospacedDigit())
                         .position(
                             x: axisWidth + slotWidth * (CGFloat(index) + 0.5),
                             y: chartBottom + 12
                         )
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("Dice result \(item.0)")
-                    .accessibilityValue(item.1.formatted(.number.precision(.fractionLength(2))))
+                    .accessibilityLabel("Dice result \(item.diceResult)")
+                    .accessibilityValue(item.total.formatted(.number.precision(.fractionLength(2))))
                 }
 
                 Text("Production")
@@ -598,13 +664,55 @@ private struct DiceBarChart: View {
     }
 }
 
+private struct DiceBarSegmentView: View {
+    let segment: DiceBarSegment
+
+    var body: some View {
+        ZStack {
+            resourceColor(segment.resource)
+            if segment.resource.isCommodity {
+                Canvas { context, size in
+                    var lines = Path()
+                    let spacing: CGFloat = 6
+                    var x = -size.height
+                    while x < size.width {
+                        lines.move(to: CGPoint(x: x, y: size.height))
+                        lines.addLine(to: CGPoint(x: x + size.height, y: 0))
+                        x += spacing
+                    }
+                    context.stroke(lines, with: .color(.gray.opacity(0.55)), lineWidth: 1)
+                }
+            }
+        }
+        .accessibilityLabel(segment.resource.rawValue)
+        .accessibilityValue(segment.value.formatted(.number.precision(.fractionLength(2))))
+    }
+}
+
 private func resourceColor(_ resource: ProductionResource) -> Color {
-    switch resource {
+    switch resource.relatedResource {
     case .all: .purple
     case .brick: .red
     case .wood: .green
     case .ore: Color(red: 0.42, green: 0.55, blue: 0.65)
     case .wheat: Color(red: 0.72, green: 0.56, blue: 0.02)
     case .sheep: .primary
+    case .paper, .cloth, .coin: .secondary
+    }
+}
+
+private extension ProductionResource {
+    var chartOrder: Int {
+        switch self {
+        case .brick: 0
+        case .wood: 1
+        case .paper: 2
+        case .ore: 3
+        case .coin: 4
+        case .wheat: 5
+        case .sheep: 6
+        case .cloth: 7
+        case .all: 8
+        }
     }
 }

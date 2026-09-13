@@ -19,6 +19,8 @@ Use the area below the three dashes for your current notes:
 
 ## Current work
 
+- TASK-061 and TASK-062 are complete for REQ-024. New Game persists an opt-in Cities and Knights mode; eligible city production splits into Lumber/Paper, Wool/Cloth, and Ore/Coin. Detailed Production gains commodity rows, Production Balance can animate between five/eight axes, and Dice Reliance uses resource-coloured stacks with grey-hatched commodities.
+- TASK-061/062 validation: all 42 Board state tests and the focused Cities and Knights UI flow pass; test targets compile. The full unit target reports 81 passing definitions and only the three pre-existing TASK-060 failures. Manual review should inspect radar animation, bar hatching, dark mode, and large Dynamic Type on a populated board.
 - TASK-059 is complete: generated terrain/building artwork, a shared Board zoom transform, a continuous stats drawer surface, and the centred Longest Road ring. `HexIQ/Features/Board/BoardArtwork.swift` contains the single `// # terrainalpha` setting, default 0.45. Artwork prompts and full validation evidence are recorded in TASK-059.
 - Final TASK-059 focused UI validation passed on 2026-09-09: 2 passed, 0 failed on the isolated iPhone 17 / iOS 26.5 simulator. All six rotation parameters and all artwork tests also pass. The full unit target's three unrelated failures remain recorded in TASK-060.
 - TASK-059 arrow follow-up removes its separate rotation animation: the chevron changes direction immediately and moves only with the shared drawer transform. The focused stats UI test passes.
@@ -31,6 +33,7 @@ Use the area below the three dashes for your current notes:
 
 ## Completed in this branch
 
+- Completed TASK-061 and TASK-062 with backward-compatible mode persistence, shared commodity-aware production records, conditional analysis rows/radar axes, and stacked Dice Reliance bars.
 - Completed REQ-023's TASK-054, TASK-057, and TASK-058 with confirmed Clear board behavior, refined Board/stats presentation, and card-style Victory Point input and stacks.
 - Clear board removes placed pieces, resource/VP hands, Largest Army, and Longest Road while retaining setup, orientation, and plans.
 - Stats use colored player-name headers, a centered road number with a draggable golden road badge, and a coherent clipped-height expand/collapse animation; buildings are presented in black-outlined white tiles.

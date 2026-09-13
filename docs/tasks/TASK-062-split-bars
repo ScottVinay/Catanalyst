@@ -1,3 +1,33 @@
+---
+status: done
+started_datetime: 2026-09-09T18:10:00Z
+completed_datetime: 2026-09-09T20:22:35Z
+---
+
+# TASK-062 — Split Dice Reliance bars by production type
+
+Priority: P1
+Requirements: REQ-024
+
 The bar chart that shows the reliance on different numbers. The bars should be coloured according to their contribution from each resource type.
 
 The commodities also show contributions here, and are the colour of the corresponding resource, but with faint diagonal grey lines.
+
+## Accepted implementation
+
+- Derive stacked resource and commodity segments from the same contribution records used by production totals.
+- Preserve total bar heights in both Cards on roll and Expected production modes.
+- Use established resource colours and related-resource colours with diagonal grey commodity hatching.
+- Add focused calculation and UI regression coverage.
+
+## Completion evidence
+
+- Dice Reliance now derives a resource-by-dice-result breakdown from the same `ProductionContribution` records used by all production totals.
+- Every bar is a resource-coloured stack in both Cards on roll and Expected production modes. Expected segments apply the dice probability individually, preserving the previous total height.
+- Paper, Cloth, and Coin use the colour of Lumber, Wool, and Ore respectively, overlaid with faint diagonal grey lines.
+- Unit coverage proves resource/commodity segments sum to the reported total and verifies the Ore/Coin city split. All 42 `BoardStateTests` passed.
+- The focused Cities and Knights UI flow passed. `build-for-testing` and `git diff --check` passed; the full unit target's only failures are the three existing TASK-060 regressions.
+
+## Manual review
+
+- With a populated board, visually confirm narrow mixed-resource stacks and commodity hatching at both Dice Reliance metrics, in light and dark mode.

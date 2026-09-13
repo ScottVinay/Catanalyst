@@ -223,6 +223,24 @@ final class HexIQUITests: XCTestCase {
     }
 
     @MainActor
+    func testCreatesCitiesAndKnightsBoardWithCommodityAnalysis() throws {
+        let app = makeApp()
+        app.launch()
+
+        let modeToggle = app.switches["citiesAndKnightsToggle"]
+        XCTAssertTrue(modeToggle.waitForExistence(timeout: 3))
+        modeToggle.tap()
+        XCTAssertNotEqual(modeToggle.value as? String, "0")
+        app.buttons["standardBoardButton"].tap()
+        XCTAssertTrue(app.buttons["analysisButton"].waitForExistence(timeout: 3))
+        app.buttons["analysisButton"].tap()
+        XCTAssertTrue(app.buttons["productionRow-Paper"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["productionRow-Cloth"].exists)
+        XCTAssertTrue(app.buttons["productionRow-Coin"].exists)
+        XCTAssertTrue(app.switches["productionCommoditiesToggle"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
     func testTogglesVertexValuesAndPreservesBuildingOwnership() throws {
         let app = makeApp()
         app.launch()

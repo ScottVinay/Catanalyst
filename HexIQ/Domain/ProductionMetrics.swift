@@ -7,10 +7,17 @@ nonisolated enum ProductionResource: String, CaseIterable, Identifiable, Sendabl
     case ore = "Ore"
     case wheat = "Grain"
     case sheep = "Wool"
+    case paper = "Paper"
+    case cloth = "Cloth"
+    case coin = "Coin"
 
     var id: Self { self }
 
     static let individual: [ProductionResource] = [.brick, .wood, .ore, .wheat, .sheep]
+    static let commodities: [ProductionResource] = [.paper, .cloth, .coin]
+    static let citiesAndKnights: [ProductionResource] = individual + commodities
+
+    var isCommodity: Bool { Self.commodities.contains(self) }
 
     var systemImage: String {
         switch self {
@@ -20,6 +27,18 @@ nonisolated enum ProductionResource: String, CaseIterable, Identifiable, Sendabl
         case .wheat: Terrain.wheat.systemImage
         case .sheep: Terrain.wool.systemImage
         case .wood: Terrain.lumber.systemImage
+        case .paper: "doc.fill"
+        case .cloth: "square.grid.3x3.fill"
+        case .coin: "circle.fill"
+        }
+    }
+
+    var relatedResource: ProductionResource {
+        switch self {
+        case .paper: .wood
+        case .cloth: .sheep
+        case .coin: .ore
+        default: self
         }
     }
 }
@@ -58,22 +77,44 @@ nonisolated enum ProductionMetrics {
     static func contributions(snapshot: BoardSnapshot) -> [ProductionContribution] {
         snapshot.buildings.flatMap { vertex, building -> [ProductionContribution] in
             guard let player = snapshot.buildingOwners[vertex] else { return [] }
-            let cardsProduced = building == .city ? 2 : 1
-            return snapshot.tiles.compactMap { tile in
+            return snapshot.tiles.flatMap { tile -> [ProductionContribution] in
                 guard BoardGeometry.vertices(for: tile.coordinate).contains(vertex),
                       let resource = productionResource(for: tile.terrain),
-                      let number = tile.number else { return nil }
-                return ProductionContribution(
-                    player: player,
-                    buildingID: vertex,
-                    buildingType: building,
-                    hexID: tile.coordinate,
+                      let number = tile.number else { return [] }
+                return productionOutputs(
                     resource: resource,
-                    diceResult: number.rawValue,
-                    cardsProduced: cardsProduced
-                )
+                    building: building,
+                    citiesAndKnightsMode: snapshot.citiesAndKnightsMode
+                ).map { outputResource, cardsProduced in
+                    ProductionContribution(
+                        player: player,
+                        buildingID: vertex,
+                        buildingType: building,
+                        hexID: tile.coordinate,
+                        resource: outputResource,
+                        diceResult: number.rawValue,
+                        cardsProduced: cardsProduced
+                    )
+                }
             }
         }
+    }
+
+    static func cardsProducedByDiceResultByResource(
+        player: PlayerColor,
+        snapshot: BoardSnapshot
+    ) -> [ProductionResource: [Int: Int]] {
+        let contributions = contributions(snapshot: snapshot)
+        let resources = snapshot.citiesAndKnightsMode
+            ? ProductionResource.citiesAndKnights
+            : ProductionResource.individual
+        return Dictionary(uniqueKeysWithValues: resources.map { resource in
+            (resource, cardsProducedByDiceResult(
+                resource: resource,
+                player: player,
+                contributions: contributions
+            ))
+        })
     }
 
     static func cardsProducedByDiceResult(
@@ -221,6 +262,21 @@ nonisolated enum ProductionMetrics {
         case .lumber: .wood
         case .wool: .sheep
         case .desert, .ocean: nil
+        }
+    }
+
+    private static func productionOutputs(
+        resource: ProductionResource,
+        building: Building,
+        citiesAndKnightsMode: Bool
+    ) -> [(ProductionResource, Int)] {
+        guard building == .city else { return [(resource, 1)] }
+        guard citiesAndKnightsMode else { return [(resource, 2)] }
+        switch resource {
+        case .wood: return [(.wood, 1), (.paper, 1)]
+        case .sheep: return [(.sheep, 1), (.cloth, 1)]
+        case .ore: return [(.ore, 1), (.coin, 1)]
+        default: return [(resource, 2)]
         }
     }
 }

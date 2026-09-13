@@ -26,8 +26,11 @@ struct ContentView: View {
                     self.board = nil
                 }
             } else {
-                BoardSelectionScreen { activePlayers in
-                    let newBoard = BoardState(snapshot: .standard(activePlayers: activePlayers))
+                BoardSelectionScreen { activePlayers, citiesAndKnightsMode in
+                    let newBoard = BoardState(snapshot: .standard(
+                        activePlayers: activePlayers,
+                        citiesAndKnightsMode: citiesAndKnightsMode
+                    ))
                     persistence.save(newBoard.snapshot)
                     board = newBoard
                 }
@@ -41,7 +44,8 @@ struct ContentView: View {
 
 private struct BoardSelectionScreen: View {
     @State private var selectedPlayers = Set(PlayerColor.defaultActive)
-    let createStandardBoard: ([PlayerColor]) -> Void
+    @State private var citiesAndKnightsMode = false
+    let createStandardBoard: ([PlayerColor], Bool) -> Void
 
     var body: some View {
         NavigationStack {
@@ -60,8 +64,19 @@ private struct BoardSelectionScreen: View {
                 VStack(spacing: 12) {
                     PlayerMultiSelector(selection: $selectedPlayers)
 
+                    HStack {
+                        Text("Cities and Knights mode")
+                        Spacer()
+                        Toggle("Cities and Knights mode", isOn: $citiesAndKnightsMode)
+                            .labelsHidden()
+                            .accessibilityIdentifier("citiesAndKnightsToggle")
+                    }
+
                     Button {
-                        createStandardBoard(PlayerColor.allCases.filter(selectedPlayers.contains))
+                        createStandardBoard(
+                            PlayerColor.allCases.filter(selectedPlayers.contains),
+                            citiesAndKnightsMode
+                        )
                     } label: {
                         BoardChoiceLabel(
                             title: "Standard board",

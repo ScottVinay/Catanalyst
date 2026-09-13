@@ -1,3 +1,34 @@
-DO NOT WORK ON THIS UNTIL DIRECTED
+---
+status: done
+started_datetime: 2026-09-09T18:10:00Z
+completed_datetime: 2026-09-09T20:22:35Z
+---
+
+# TASK-061 — Cities and Knights mode
+
+Priority: P1
+Requirements: REQ-024
+
+The user directed work on this task on 2026-09-09 and accepted the combined TASK-061/TASK-062 plan.
 
 In the "new game" screen, there should be another option that can be turned on or off, which is "Cities and Knights mode". See docs/requirements/REQ-024-cities-and-knights for what this does.
+
+## Accepted implementation
+
+- Persist an opt-in mode on the board snapshot, decoding older games as off.
+- Apply resource-plus-commodity city production and expose commodities in Detailed Production.
+- Add a compact animated Commodities option to Production Balance for Cities and Knights games.
+- Cover persistence, production semantics, UI, and migration with tests.
+
+## Completion evidence
+
+- New Game presents a compact, opt-in Cities and Knights switch. The choice persists on `BoardSnapshot`; older snapshots decode with the mode off.
+- Cities produce one base resource plus Paper from Lumber, Cloth from Wool, or Coin from Ore. Brick and Grain cities continue to produce two resources, and settlements remain unchanged.
+- Detailed Production appends Paper, Cloth, and Coin rows only for Cities and Knights games.
+- Production Balance places a compact Commodities switch beside its heading and cross-fades/scales smoothly between five-axis and eight-axis radar plots.
+- The complete `BoardStateTests` suite passed: 42 tests. The focused New Game/commodity-analysis UI test passed on iPhone 17 / iOS 26.5.
+- `build-for-testing` and `git diff --check` passed. The full unit target reported 81 passing definitions and only the three pre-existing TASK-060 failures.
+
+## Manual review
+
+- On a device, confirm the five/eight-axis radar transition and commodity labels remain legible in light/dark mode and larger Dynamic Type.

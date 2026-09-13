@@ -388,6 +388,24 @@ struct BoardStateTests {
         #expect(try BoardState.decode(board.encoded()).activePlayers == [.red, .green])
     }
 
+    @Test("Cities and Knights mode persists and older snapshots default to off")
+    @MainActor
+    func citiesAndKnightsPersistence() throws {
+        let snapshot = BoardSnapshot.standard(
+            activePlayers: [.red, .blue],
+            citiesAndKnightsMode: true
+        )
+        let data = try JSONEncoder().encode(snapshot)
+        let decoded = try JSONDecoder().decode(BoardSnapshot.self, from: data)
+        #expect(decoded.citiesAndKnightsMode)
+
+        var legacy = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        legacy.removeValue(forKey: "citiesAndKnightsMode")
+        let legacyData = try JSONSerialization.data(withJSONObject: legacy)
+        let decodedLegacy = try JSONDecoder().decode(BoardSnapshot.self, from: legacyData)
+        #expect(!decodedLegacy.citiesAndKnightsMode)
+    }
+
     @Test("Removing a player clears all state they own")
     func removingPlayerClearsOwnedState() throws {
         let board = BoardState()
@@ -580,6 +598,79 @@ struct BoardStateTests {
         #expect(raw[6] == 2)
         #expect(abs(expected[6, default: 0] - 10.0 / 36.0) < 0.0001)
         #expect(expected[7] == nil)
+    }
+
+    @Test("Cities and Knights cities split eligible production into resources and commodities")
+    func citiesAndKnightsProduction() throws {
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+
+        func snapshot(terrain: Terrain, building: Building = .city) -> BoardSnapshot {
+            BoardSnapshot(
+                tiles: [HexTile(coordinate: coordinate, terrain: terrain, number: .six)],
+                roads: [],
+                buildings: [vertex: building],
+                buildingOwners: [vertex: .red],
+                activePlayers: [.red],
+                citiesAndKnightsMode: true
+            )
+        }
+
+        let expectedSplits: [(Terrain, ProductionResource, ProductionResource)] = [
+            (.lumber, .wood, .paper),
+            (.wool, .sheep, .cloth),
+            (.ore, .ore, .coin)
+        ]
+        for (terrain, resource, commodity) in expectedSplits {
+            let result = snapshot(terrain: terrain)
+            #expect(ProductionMetrics.cardsProducedByDiceResult(
+                resource: resource, player: .red, snapshot: result
+            )[6] == 1)
+            #expect(ProductionMetrics.cardsProducedByDiceResult(
+                resource: commodity, player: .red, snapshot: result
+            )[6] == 1)
+            #expect(ProductionMetrics.cardsProducedByDiceResult(
+                player: .red, snapshot: result
+            )[6] == 2)
+        }
+
+        let brickCity = snapshot(terrain: .brick)
+        #expect(ProductionMetrics.cardsProducedByDiceResult(
+            resource: .brick, player: .red, snapshot: brickCity
+        )[6] == 2)
+        let lumberSettlement = snapshot(terrain: .lumber, building: .settlement)
+        #expect(ProductionMetrics.cardsProducedByDiceResult(
+            resource: .wood, player: .red, snapshot: lumberSettlement
+        )[6] == 1)
+        #expect(ProductionMetrics.cardsProducedByDiceResult(
+            resource: .paper, player: .red, snapshot: lumberSettlement
+        )[6] == nil)
+    }
+
+    @Test("Dice reliance resource segments sum to the total")
+    func diceRelianceSegments() throws {
+        let coordinate = HexCoordinate(q: 0, r: 0)
+        let vertex = try #require(BoardGeometry.vertices(for: coordinate).first)
+        let snapshot = BoardSnapshot(
+            tiles: [HexTile(coordinate: coordinate, terrain: .ore, number: .eight)],
+            roads: [],
+            buildings: [vertex: .city],
+            buildingOwners: [vertex: .red],
+            citiesAndKnightsMode: true
+        )
+        let segments = ProductionMetrics.cardsProducedByDiceResultByResource(
+            player: .red,
+            snapshot: snapshot
+        )
+        let segmentTotal = segments.values.reduce(0) { $0 + $1[8, default: 0] }
+        let total = ProductionMetrics.cardsProducedByDiceResult(
+            player: .red,
+            snapshot: snapshot
+        )[8, default: 0]
+
+        #expect(segmentTotal == total)
+        #expect(segments[.ore]?[8] == 1)
+        #expect(segments[.coin]?[8] == 1)
     }
 
     @Test("Road length follows an edge-simple route and opposing buildings interrupt it")

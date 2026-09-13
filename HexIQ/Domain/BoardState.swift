@@ -172,6 +172,7 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
     var customPlans: [CustomPlan]
     var orientation: BoardOrientation
     var activePlayers: [PlayerColor]
+    var citiesAndKnightsMode: Bool
     var victoryPointCards: [PlayerColor: Int]
     var largestArmyHolder: PlayerColor?
     var longestRoadHolder: PlayerColor?
@@ -186,6 +187,7 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
         customPlans: [CustomPlan] = [],
         orientation: BoardOrientation = .north,
         activePlayers: [PlayerColor] = PlayerColor.defaultActive,
+        citiesAndKnightsMode: Bool = false,
         victoryPointCards: [PlayerColor: Int] = [:],
         largestArmyHolder: PlayerColor? = nil,
         longestRoadHolder: PlayerColor? = nil
@@ -199,6 +201,7 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
         self.customPlans = customPlans
         self.orientation = orientation
         self.activePlayers = Self.orderedPlayers(activePlayers)
+        self.citiesAndKnightsMode = citiesAndKnightsMode
         self.victoryPointCards = victoryPointCards.filter { $0.value > 0 }
         self.largestArmyHolder = largestArmyHolder
         self.longestRoadHolder = longestRoadHolder
@@ -208,7 +211,7 @@ nonisolated struct BoardSnapshot: Equatable, Sendable {
 extension BoardSnapshot: Codable {
     private enum CodingKeys: String, CodingKey {
         case tiles, roads, buildings, roadOwners, buildingOwners, hands, customPlans, orientation, activePlayers
-        case victoryPointCards, largestArmyHolder, longestRoadHolder
+        case citiesAndKnightsMode, victoryPointCards, largestArmyHolder, longestRoadHolder
     }
 
     init(from decoder: Decoder) throws {
@@ -240,6 +243,10 @@ extension BoardSnapshot: Codable {
             try container.decodeIfPresent([PlayerColor].self, forKey: .activePlayers)
                 ?? PlayerColor.allCases
         )
+        citiesAndKnightsMode = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .citiesAndKnightsMode
+        ) ?? false
         victoryPointCards = try container.decodeIfPresent(
             [PlayerColor: Int].self,
             forKey: .victoryPointCards
@@ -259,6 +266,7 @@ extension BoardSnapshot: Codable {
         try container.encode(customPlans, forKey: .customPlans)
         try container.encode(orientation, forKey: .orientation)
         try container.encode(activePlayers, forKey: .activePlayers)
+        try container.encode(citiesAndKnightsMode, forKey: .citiesAndKnightsMode)
         try container.encode(victoryPointCards, forKey: .victoryPointCards)
         try container.encodeIfPresent(largestArmyHolder, forKey: .largestArmyHolder)
         try container.encodeIfPresent(longestRoadHolder, forKey: .longestRoadHolder)
@@ -285,6 +293,7 @@ final class BoardState {
     var customPlans: [CustomPlan] { snapshot.customPlans }
     var orientation: BoardOrientation { snapshot.orientation }
     var activePlayers: [PlayerColor] { snapshot.activePlayers }
+    var citiesAndKnightsMode: Bool { snapshot.citiesAndKnightsMode }
     var largestArmyHolder: PlayerColor? { snapshot.largestArmyHolder }
     var longestRoadHolder: PlayerColor? { snapshot.longestRoadHolder }
 
@@ -590,9 +599,13 @@ extension BoardSnapshot {
         activePlayers: PlayerColor.defaultActive
     )
 
-    static func standard(activePlayers: [PlayerColor]) -> BoardSnapshot {
+    static func standard(
+        activePlayers: [PlayerColor],
+        citiesAndKnightsMode: Bool = false
+    ) -> BoardSnapshot {
         var snapshot = standard
         snapshot.activePlayers = orderedPlayers(activePlayers)
+        snapshot.citiesAndKnightsMode = citiesAndKnightsMode
         return snapshot
     }
 }
